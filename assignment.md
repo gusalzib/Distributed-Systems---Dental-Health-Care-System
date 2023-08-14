@@ -6,7 +6,7 @@ Our teeth are one of our most precious tools. We often don’t appreciate them e
 
 You will create a service that allows residents of Gothenburg to book dentist appointments. Through a Web-based graphical user interface, a user shall be able to find available times in user- specified time-windows on map. Your solution will be based on a distributed system that combines various architectural styles. You will keep track of the availability of free time-slots for a number of fictitious dentists which you graphically signal to the user. A user is able to book appointments and receives a confirmation/rejection through the system. A high-level conceptual overview of the system is shown below.
 
-[High-Level Systems Overview](dentist_overview.png)
+![High-Level Systems Overview](dentist_overview.png)
 
 The system has (at least) the following core components:
 
