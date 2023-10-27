@@ -13,7 +13,7 @@ The system has (at least) the following core components:
 ​
 - A responsive Web-based graphical user interface (GUI) for prospective patients to find and book appointments. You are free to use any framework you like for the GUI, but we recommend using Vue.js in line with DIT342.
 - A scalable middleware layer that stores and manages appointment slots. The middleware layer needs to make use of messaging as an architectural paradigm, and needs to persistently store slots and appointments in a database. The middleware layer also needs to offer an API for dentists to register open slots and be notified when slots have been booked, or bookings have been cancelled.
-- A tool (does not need to be Web-based) for dentists to register their available time slots and receive bookings / cancellations. The tool needs to be able to communicate with the middleware layer through the API. This tool is mainly used for demonstration and testing, it is intended that real dental clinics would integrate the middleware API into their own systems.
+- A tool (does not need to be Web-based) for dentists to register their available time slots and receive bookings / cancellations. The tool needs to be able to communicate with the middleware layer through the API. This tool is mainly used for demonstration and testing, it is intended that real dental clinics would integrate the middleware API into their own IT systems.
 ​
 # Requirements
 ​
@@ -25,7 +25,7 @@ The system has (at least) the following core components:
 - The system must be reasonably failure tolerant. Specifically:
     - All components must be capable of appropriately handling standard failures, such as wrongly formatted data inputs or out of bounds inputs for the defined interfaces.
     - Resource-handling shall be mindful, e.g. stopped components must unsubscribe from the MQTT broker fulfilling the contract.
-- For all components, a reasonable testing strategy needs to be in place. This includes at least unit and integration tests where appropriate.
+- For all components, a reasonable testing strategy needs to be in place. For example. unit and integration tests should be used where appropriate.
 - The system needs to be maintainable and extensible,as project requirements tend to grow and change. Specifically, be prepared that **in early December you will be asked to incorporate some additional requirements and/or changes to the existing requirements.**
 ​
 ## Web Interface
@@ -36,14 +36,14 @@ availability using e.g., color coding or symbols, possibly changing at different
 zoom levels...).
 - allow for slot selection and booking.
 - allow for booking cancellation.
-- notify the user when new suitable slots become available.
+- notify the user when new suitable slots become available, or when a slot they have booked is cancelled by the dentist.
 - react to responses with appropriate messaging to the user.
 - react to simultaneous bookings by making changes in availability visible to the
 user (without requiring an active refreshing of the interface by the user).
 - be equally usable on a range of devices, including mobile devices and tablets.
 ​
 ## Architecture
-The task shall be solved through a Distributed System architecture. The Distributed System should execute using a collection of nodes, so that each process is mapped onto a node. Nodes can be either separate hardware nodes, or separate operating system processes. During the final demo, the system must be demonstrated to run on clearly independent processes, either by deploying the system on different cloud VMs or (at least) by starting the programs from different terminal windows on the same machine.
+The task shall be solved through a Distributed Systems architecture. The Distributed System should execute using a collection of nodes, so that each process is mapped onto a node. Nodes can be either separate hardware nodes, or separate operating system processes. During the final demo, the system must be demonstrated to run on clearly independent processes, either by deploying the system on different cloud VMs or (at least) by starting the programs from different terminal windows on the same machine.
 ​
 
 The distributed system must consist of at least 4 distributed components, each clearly contributing to the purpose of the application and leading to an overall meaningful architecture. Architectural styles such as Pipe-and-Filter, Publish/subscribe and Client/server are supposed to be combined.
@@ -77,25 +77,22 @@ Our suggestion is to use the following technologies. You are free to use other t
 The project will be assessed along three dimensions: 
 (1) technical artifact (code, tests, demo), 
 (2) architecture (design, architectural documentation), and 
-(3) development process (task planning, issues, traceability, following a pull request based workflow, clear tasks for each group member, etc.). 
-
-
-Note that assessment may be individual for each group member, particularly if there is a clear discrepancy in contributions based on the git commit history, assigned tasks, or participation in meetings.
+(3) development process (task planning, issues, traceability, following a pull request based workflow, clear tasks for each group member, etc.). Additionally, we will assess the contribution of each individual team member.
 ​
 ## Requirements MS1
 At MS1, you should have:
 
-* Broken down the above high-level requirements into concrete **user stories and tasks**.
+* Broken down the above high-level requirements into concrete **user stories and tasks**. It is expected that these will still change, but the team needs to have thought through the entire project at this point.
 * Developed an initial **architecture** for your system.
 * Developed and documented a useful development process for your group and project.
-* Finished **roughly 20%** of technical tasks (not necessarily in absolute numbers, but in amount of work required). As in every milestone, we will ask you to demo your technical work, so focus on completing tasks to the extent that they can be demoed.
+* Finished initial technical tasks, amounting to **roughly 20%** of the technical solution (not necessarily in absolute numbers, but in amount of work required). As in every milestone, we will ask you to demo your technical work, so focus on completing tasks to the extent that they can be demoed.
 
 ## Requirements MS2
 At MS2, you should have:
 
 * Refined your **user stories and tasks**.
 * Continued working on the **architecture** for your system.
-* Refined your development process based on your retrospective.
+* Refined your development process based on your first retrospective.
 * Finished **roughly 50%** of technical tasks (not necessarily in absolute numbers, but in amount of work required). 
 
 ## Requirements MS3
