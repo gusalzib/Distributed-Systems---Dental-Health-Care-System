@@ -101,15 +101,13 @@ At MS3, you should have:
 * Completed your system design, both in terms of **user stories and tasks** as well as in terms **architecture**.
 * Incorporated **changes** in the system requirements.
 * Potentially fine-tuned your development process based on your retrospective.
-* Finished **roughly 75%** of technical tasks (not necessarily in absolute numbers, but in amount of work required).
+* Finished most of the technical tasks.
 
-## Requirements MS4
-At MS4, you should have:
+## Requirements Final Presentation
+The time between MS3 and final submission should be seen as backup time to incorporate feedback from the last milestone review and clean up the project before final demonstration and grading. At the final submission (MS4), you should have:
 
 * **Finished** the implementation of your project.
-
-## Requirements Final Submission
-The time between MS4 and final submission should be seen as backup time to incorporate feedback from the last milestone review and clean up the project before final demonstration and grading.
+* Prepared a demonstration of your project.
 
 ## Deliverables and Submission
 
