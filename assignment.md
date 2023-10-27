@@ -4,10 +4,11 @@ Our teeth are one of our most precious tools. We often don’t appreciate them e
 ​
 # Task Overview
 ​
+![High-Level Systems Overview](dentist_overview.png)
+
 You will create a service that allows residents of Gothenburg to book dentist appointments. Through a Web-based graphical user interface, a user shall be able to find available times in user- specified time-windows on map. Your solution will be based on a distributed system that combines various architectural styles. You will keep track of the availability of free time-slots for a number of fictitious dentists which you graphically signal to the user. A user is able to book appointments and receives a confirmation/rejection through the system. A high-level conceptual overview of the system is shown below.
 ​
-![High-Level Systems Overview](dentist_overview.png)
-​
+
 The system has (at least) the following core components:
 ​
 - A responsive Web-based graphical user interface (GUI) for prospective patients to find and book appointments. You are free to use any framework you like for the GUI, but we recommend using Vue.js in line with DIT342.
@@ -86,6 +87,7 @@ At MS1, you should have:
 
 * Broken down the above high-level requirements into concrete **user stories and tasks**.
 * Developed an initial **architecture** for your system.
+* Developed and documented a useful development process for your group and project.
 * Finished **roughly 20%** of technical tasks (not necessarily in absolute numbers, but in amount of work required). As in every milestone, we will ask you to demo your technical work, so focus on completing tasks to the extent that they can be demoed.
 
 ## Requirements MS2
@@ -93,6 +95,7 @@ At MS2, you should have:
 
 * Refined your **user stories and tasks**.
 * Continued working on the **architecture** for your system.
+* Refined your development process based on your retrospective.
 * Finished **roughly 50%** of technical tasks (not necessarily in absolute numbers, but in amount of work required). 
 
 ## Requirements MS3
@@ -100,6 +103,7 @@ At MS3, you should have:
 
 * Completed your system design, both in terms of **user stories and tasks** as well as in terms **architecture**.
 * Incorporated **changes** in the system requirements.
+* Potentially fine-tuned your development process based on your retrospective.
 * Finished **roughly 75%** of technical tasks (not necessarily in absolute numbers, but in amount of work required).
 
 ## Requirements MS4
@@ -127,7 +131,7 @@ The project will be graded at the end of the teaching period, but taking into ac
 
 The following grading scheme applies:
 
-### Technical solution (50% of final grade)
+### Technical solution (40% of final grade)
 **U** - solution either does not work, or does not fulfill the outlined requirements; *or* major components (e.g., the Web interface) are missing
 
 **3** - the solution mostly works, but there are evident bugs in the solution; *or* smaller parts of the above requirements are not implemented; *or* the requirements are implemented, but the code quality overall is low
@@ -154,7 +158,7 @@ The following grading scheme applies:
 
 **5** - the group followed the outlined development process, and deviations are rare and well-documented / well-reasoned; retrospectives have been conducted, and have led to clear improvements in future iterations (if necessary)
 
-### Individual Contribution (20% of final grade)
+### Individual Contribution (30% of final grade)
 *(note: this is assessed on an individual level, based on assigned tasks, git commits, participation in milestone review meetings, and potentially assigned role)*
 
 **U** - the student did not contribute adequately to the technical solution or reporting; *or* the student did not follow the outlined development process
