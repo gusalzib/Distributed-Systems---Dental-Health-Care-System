@@ -1,3 +1,19 @@
+# Additional / Changed Requirements
+
+As is common in agile projects, the circumstances of the project have slightly shifted, and additional requirements have emerged. **These need to be covered for a grade of 4 or 5 in the "Technical Solution" dimension.**
+
+## Customer Context
+
+Due to your promising prototypes and presentations, the project is receiving significant media coverage. As a consequence, most dental clinics in Sweden (not only Gothenburg) wish to be part of the new system, and your customer hopes that before long your system will become the de facto standard how residents all over Sweden will book dentist appointments. Your customer is concerned if your current architecture will be able to deal with this load.
+
+## New Requirements
+
+* Your system needs to be designed to handle a significant number of dental clinics, all periodically sending and receiving appointments.
+* Your system needs to be designed to handle many (thousands of) patients searching for, and booking, slots in parallel (keep in mind that there will be significant interest in the system around launch day!).
+* You should provide a simple tool that can be used to look at the current stress on the system (e.g., how many patients are looking for appointments, how many free appointments there are, etc.). This tool can either be integrated into the web interface as password-protected admin functionality, or can be a (simple!) standalone tool (e.g., another commandline tool).
+* You should provide a way to *stress-test* the system, to identify architectural bottlenecks.
+* The customer wants to see an analysis of your system with regards to fault-tolerance / resilience. Provide a thorough analysis of your architecture in your report, and discuss ways how identified single points of failure could be addressed (these don't necessarily need to be *implemented* for the first release, but there should be a clear plan for the future).
+
 # Introduction
 ​
 Our teeth are one of our most precious tools. We often don’t appreciate them enough until we lose them, for instance due to bad dental care. Doing annual checks with a dentist is therefore recommended. For someone moving to Sweden, or within Sweden, it is not always easy to get a dentist appointment as many practices are working on full capacity already and will reject you as a new care-taker. As a consequence, as of today, you are required to do a manual search online, and additional time-taking calls with little chance of success.
