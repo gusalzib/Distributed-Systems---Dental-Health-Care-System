@@ -138,7 +138,7 @@ After each milestone demo, you will receive a tentative grade indicating the dir
 
 The following grading scheme applies:
 
-### Technical solution (30% of final grade)
+### Technical solution (25% of final grade)
 **U** - solution either does not work, or does not fulfill the outlined requirements; *or* major components (e.g., the Web interface) are missing
 
 **3** - the solution mostly works, but there are evident bugs in the solution; *or* smaller parts of the above requirements are not implemented; *or* the requirements are implemented, but the code quality and/or documentation of code overall is low
@@ -147,7 +147,7 @@ The following grading scheme applies:
 
 **5** - the system clearly exceeds the outlined requirements (e.g., the group has implemented significant additional requirements), and code quality is high
 
-### Architecture (30% of final grade)
+### Architecture (25% of final grade)
 **U** - the technical architecture is not properly documented; *or* the documented technical architecture deviates significantly from the implemented system; *or* the technical architecture does not make sense
 
 **3** - the technical architecture is documented and makes some sense, but there are aspects that could be improved
@@ -156,7 +156,7 @@ The following grading scheme applies:
 
 **5** - the technical architecture is documented, and reflects the implemented system. The group demonstrated significant care to develop, adapt, and maintain a well-reasoned architecture, going **well beyond** a straight-forward implementation of what is provided in the course material.
 
-### Development Process and Documentation (20% of final grade)
+### Development Process and Documentation (25% of final grade)
 **U** - the group did not follow the outlined development process; *or* the development process is not documented
 
 **3** - the group tried to follow the outlined development process, but there are frequent instances of process deviations (e.g., commits not linked to an issue, many changes in a single commit, important changes not captured in an issue, etc.). The choices of technology and design decisions are documented.
@@ -165,7 +165,7 @@ The following grading scheme applies:
 
 **5** - the group followed the outlined development process, and deviations are rare and well-documented / well-reasoned; retrospectives have been conducted, and have led to clear improvements in future iterations (if necessary). The choices of technology and design decisions are well documented and motivated in clear context of the project. 
 
-### Individual Contribution (20% of final grade)
+### Individual Contribution (25% of final grade)
 *(note: this is assessed on an individual level, based on assigned tasks, git commits, participation in milestone review meetings, and potentially assigned role)*
 
 **U** - the student did not contribute adequately to the technical solution or reporting; *or* the student did not follow the outlined development process
