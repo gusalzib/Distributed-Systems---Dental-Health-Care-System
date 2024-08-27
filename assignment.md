@@ -46,7 +46,6 @@ zoom levels...).
 - During the final demo, the system must be demonstrated to run on clearly independent processes, either by deploying the system on different cloud VMs or (at least) by starting the programs from different terminal windows on the same machine.
 ​- The distributed system must consist of at least 4 distributed components, each clearly contributing to the purpose of the application and leading to an overall meaningful architecture. 
 - Architectural styles such as Pipe-and-Filter, Publish/subscribe and Client/server are supposed to be combined.
-
 - The architecture shall be well-documented to improve understanding and ease maintenance.
 - Critical components shall be redundant to minimise the impact of failures and to continue operate. Specifically, doctors should be able to retreive their bookings and available time slots for the next 96 hours even in the event of a database failure. 
 - The amount of data exchanged between the nodes shall be minimal to ensure high throughput.
