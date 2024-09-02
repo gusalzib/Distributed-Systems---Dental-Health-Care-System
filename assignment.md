@@ -83,11 +83,10 @@ Our suggestion is to use the following technologies. You are free to use other t
 If you follow the recommended technologies or if you choose to deviate from the suggestions, in any case you must motivate and defend the choices (both technology choices and design choices) you take throughout your project.
 ​
 # Assessment
-The project will be assessed along four dimensions: 
-(1) technical artifact (code, tests, demo), 
+The project will be assessed along three dimensions during each milestone meeting and during the final examination of your project: 
+(1) technical artifact (code, tests, demo, documentation), 
 (2) architecture (design, efficiency in terms of throughput and latency, scalability, failure tolerance, architectural documentation), 
-(3) development process (task planning, issues, traceability, following a pull request based workflow, clear tasks for each group member, etc.). Additionally, we will assess the contribution of each individual team member,
-(4) documentation and motivation of technology and design choices.
+(3) development process (task planning, issues, traceability, following a pull request based workflow, clear tasks for each group member, etc.). Additionally, we will assess the contribution of each individual team member.
 ​
 ## Requirements MS1
 At MS1, you should have:
@@ -121,7 +120,6 @@ The time between MS3 and final submission should be seen as backup time to incor
 * Prepared a demonstration of your project.
 
 ## Deliverables and Submission
-
 For each milestone, the following deliverables need to be prepared:
 
 * Submit a **written report** containing documentation of your work in in the milestone. A focus should be put on your user stories, architecture, key tasks, (potentially) roles of team members, and the results of your retrospective. You should also briefly motivate your technology and design choices. The report needs to be submitted via **Canvas**.
@@ -131,12 +129,15 @@ For each milestone, the following deliverables need to be prepared:
 For the final presentation, instructions will be provided separately later on in the course.
 ​
 ## Grading
-​
-The project will be graded at the end of the teaching period, but taking into account the progress of the group throughout the milestones.
+The project will be graded throughout the teaching period during each milestone meeting. You will present your project in front of the class, and you present the outcome in a final project examination at the end of the teaching period.
 
-After each milestone demo, you will receive a tentative grade indicating the direction your project is heading. **These tentative grades are not part of the final grade and only serve as information to you about the state of your project. The final grade will be set in the final presentation**
+After each milestone demo, you will receive a grade indicating the direction your project is heading. You will also receive a grade for the presentation of your project in front of the class and a grade for the final project examination. 
 
-The following grading scheme applies:
+The individual grades contribute as follows to the final grade:
+| header | header |
+| ------ | ------ |
+|        |        |
+|        |        |
 
 ### Technical solution (25% of final grade)
 **U** - solution either does not work, or does not fulfill the outlined requirements; *or* major components (e.g., the Web interface) are missing
