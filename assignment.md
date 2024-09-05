@@ -129,15 +129,9 @@ For each milestone, the following deliverables need to be prepared:
 For the final presentation, instructions will be provided separately later on in the course.
 ​
 ## Grading
-The project will be graded throughout the teaching period during each milestone meeting. You will present your project in front of the class, and you present the outcome in a final project examination at the end of the teaching period.
+The project will be graded throughout the teaching period during each milestone meeting and you present the outcome in a final project examination at the end of the teaching period. See the Syllabus on Canvas for a detailed description of the grading process.
 
-After each milestone demo, you will receive a grade indicating the direction your project is heading. You will also receive a grade for the presentation of your project in front of the class and a grade for the final project examination. 
-
-The individual grades contribute as follows to the final grade:
-| header | header |
-| ------ | ------ |
-|        |        |
-|        |        |
+During each milestone meeting and during the final project examination, we will assess the following:
 
 ### Technical solution (25% of final grade)
 **U** - solution either does not work, or does not fulfill the outlined requirements; *or* major components (e.g., the Web interface) are missing
