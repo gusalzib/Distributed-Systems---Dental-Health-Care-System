@@ -129,7 +129,7 @@ For each milestone, the following deliverables need to be prepared:
 For the final presentation, instructions will be provided separately later on in the course.
 ​
 ## Grading
-The project will be graded throughout the teaching period during each milestone meeting and you present the outcome in a final project examination at the end of the teaching period. See the Syllabus on Canvas for a detailed description of the grading process.
+The project will be graded throughout the teaching period during milestone meetings and you present the outcome in a final project examination at the end of the teaching period. See the Syllabus on Canvas for a detailed description of the grading process.
 
 During each milestone meeting and during the final project examination, we will assess the following:
 
