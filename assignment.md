@@ -55,6 +55,7 @@ zoom levels...).
 The task shall be solved as a team of software engineers, using a well-defined development process, and with clearly assigned tasks and roles for individual group members. Particularly:
 
 - The project shall be developed in four iterations (MS1 -- MS3 and the final delivery).
+- You work in teams of 3-5 students (the number might change and will be announced in the first lecture).
 - Each team of software engineers shall draft a social contract, specifiying the following:
     - Guidelines and expectations for collaboration within their team,
     - Communication protocols, decision-making processes, and conflict resolution strategies,
