@@ -107,3 +107,18 @@ exports.updatePatient = async (req, res) => {
         res.status(400).json({message: "Something went wrong", error_message: error.message})
     }
 }
+
+exports.deletePatientByID = async (req, res) => {
+    try {
+        const id = req.params.patient_id;
+        const deletedPatient = await Patient.findByIdAndDelete(id)
+            if (!deletedPatient) {
+                res.status(400).json({ message: "Could not find patient account" });
+                return;
+            }
+        res.status(200).json({message: "Patient account deleted successfully", patient: deletedPatient})
+
+    } catch (error) {
+        res.status(200).json({message: "Something went wrong", error_message: error.message})
+    }
+}
