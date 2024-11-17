@@ -72,3 +72,38 @@ exports.retrieveSpecificPatient = async (req, res) => {
   }
 };
 
+
+exports.updatePatient = async (req, res) => {
+    try {
+        const id = req.params.patient_id; 
+        const existingPatient = await Patient.findById(id);
+
+        if (!existingPatient) {
+            res.status(400).json({ message: "Could not find patient account" })
+            return
+        }
+
+        var name = req.body.name ? req.body.name : existingPatient.name
+        var email = req.body.email ? req.body.email : existingPatient.email
+        var phone_number = req.body.phone_number ? req.body.phone_number : existingPatient.phone_number
+        var ssn = req.body.ssn ? req.body.ssn : existingPatient.ssn
+        var address = req.body.address ? req.body.address : existingPatient.address
+        var medical_journal = req.body.medical_journal ? req.body.medical_journal : existingPatient.medical_journal
+        var appointments = req.body.appointments ? req.body.appointments : existingPatient.appointments
+
+        var updatedPatient = await Patient.findByIdAndUpdate(id, {
+            name: name,
+            email: email,
+            phone_number: phone_number,
+            address: address, 
+            ssn: ssn,
+            medical_journal: medical_journal,
+            appointments: appointments
+        })
+
+        res.status(200).json({message: "Patient information updated successfully", patient: updatedPatient})
+
+    } catch (error) {
+        res.status(400).json({message: "Something went wrong", error_message: error.message})
+    }
+}
