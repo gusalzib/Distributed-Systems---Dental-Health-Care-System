@@ -38,4 +38,37 @@ exports.registerPatient = async (req, res) => {
   }
 };
 
+exports.retrieveAllPatients = async (req, res) => { 
+    try {
+        const patients = await Patient.find();
+
+        if (!patients) {
+            res.status(400).json({ message: "No patients found!" })
+            return; 
+        }
+        res
+          .status(200)
+          .json({ message: "All patients retrieved", patients: patients });
+    } catch (error) {
+        res.status(400).json({ message: "Something went wrong!", error_message: error.message });
+    }
+}
+
+
+exports.retrieveSpecificPatient = async (req, res) => {
+    try {
+        const id = req.params.patient_id;
+        const patient = await Patient.findById(id);
+        console.log(patient)
+        if (!patient) {
+            res.status(400).json({ message: "No patients found!" });
+            return;
+        }
+        res.status(200).json({message: "All patients retrieved", patients: patient})
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Something went wrong!", error_message: error.message });
+  }
+};
 
