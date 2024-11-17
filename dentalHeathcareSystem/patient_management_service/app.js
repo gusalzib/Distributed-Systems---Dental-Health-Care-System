@@ -51,9 +51,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 //   res.render('error');
 // });
 
-const { registerPatient } = require("./controller/patientController");
+const { registerPatient, retrieveAllPatients, retrieveSpecificPatient, updatePatient, deletePatientByID } = require("./controller/patientController");
 
 app.post("/api/patients", registerPatient)
+app.get("/api/patients", retrieveAllPatients)
+app.get("/api/patients/:patient_id", retrieveSpecificPatient)
+app.put("/api/patients/:patient_id", updatePatient)
+app.delete("/api/patients/:patient_id", deletePatientByID)
 
 app.listen(port, function (err) {
   if (err) throw err;
