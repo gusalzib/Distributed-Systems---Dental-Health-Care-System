@@ -1,35 +1,200 @@
 @import './base.css';
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+button{
+  background-color: var(--generic-btn);
+  color: rgb(255, 255, 255);
+  padding: 10px;
+  border-radius: 5px;
+  width: 10%;
+  cursor: pointer;
 }
 
-a,
-.green {
+button:hover{
+  background-color: var(--box-bg-light);
+}
+
+
+h2{
+  color: var(--vt-c-black);
+}
+
+
+.nav{
+ width: 100%;
+ align-items: center;
+ padding: 20px;
+ display: flex;
+ flex-direction: row;
+ justify-content: center;
+ 
+}
+
+.desktop-header-link{
+  padding: 10px;
+  margin: 10px 5px;
+  background-color: var(--box-bg-light);
+  color: var(--vt-c-white-mute);
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+  font-size: large;
+  border-radius: 10px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+
+.desktop-header-link:hover{
+  background-color: var(--box-bg-dark);
+  box-shadow: var(--light-shadow);
+}
+header{
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 150px;
+  top: 0;
+  left: 0;
+  position: fixed;
+  background-color: var(--header-bg);
+}
+
+@media only screen and (max-width: 1000px){
+  header{
+    height: auto;
+    flex-direction: column;
+    justify-content: center;
   }
-}
+  img{
+    margin: auto;
+    cursor: pointer;
+  }
 
-@media (min-width: 1024px) {
-  body {
+  .nav{
+    flex-direction: column;
+    display: none;
+  }
+
+  .open-menu{
     display: flex;
-    place-items: center;
-  }
+    flex-direction: column;
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+  }
+  .desktop-header-link{
+    width: 100%;
+    text-align: center;
   }
 }
+
+
+
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Home PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+.map-container{
+  width: 90%;
+  height: 500px;
+  border: 1px grey solid;
+  border-radius: 10px;
+  margin: 20% auto;
+  margin-bottom: 30px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: var(--medium-shadow);
+  background-color: #f1fbff;
+}
+
+
+#google-map{
+  width: 90%;
+  height: 500px;
+  margin: auto;
+}
+
+
+.home-page-container{
+  /* border: 1px red solid; */
+  width: 90%;
+  height: auto;
+  margin: 10px auto;
+  padding: 10px;
+  box-shadow: var(--medium-shadow);
+}
+
+.announcements-container{
+  width: 100%;
+  padding: 15px;
+  color: black;
+  background-color: var(--text-box);
+  border-radius: 10px;
+  margin: 10px auto;
+
+}
+
+.announcement{
+  margin: 10px auto;
+}
+
+.appointments-container{
+  margin-bottom: 100px;
+}
+
+.appointments-filter{
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+.filter{
+  /* border: 1px slategray solid; */
+  padding: 5px;
+  margin: 10px auto;
+  display: flex;
+  justify-content: center;
+  flex: 1;
+}
+
+.filter input{
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: none;
+  width: 200px;
+}
+
+.filter-button{
+  width: 100%;
+
+}
+
+.filter-button button{
+  margin: 5px auto;
+  display: block;
+}
+.appointments-card{
+  width: 90%;
+  border: 1px black solid;
+  background-color: #f1fbff;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 15px 0;
+}
+
+
+
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/

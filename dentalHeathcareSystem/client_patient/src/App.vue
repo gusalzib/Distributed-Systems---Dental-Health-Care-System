@@ -1,85 +1,49 @@
-<script setup>
+<!-- <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
+</script> -->
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+    <img alt="Vue logo" class="logo" src="@/assets/no-bg-logo1.png" width="250" height="125" @click="toggle()"/>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
+      <nav id="nav" class="nav">
+        <RouterLink class="desktop-header-link" to="/">Home</RouterLink>
+        <RouterLink class="desktop-header-link" to="/appointments">Appointments</RouterLink>
+        <RouterLink class="desktop-header-link" to="/new/appointment">New Appointment</RouterLink>
+        <RouterLink class="desktop-header-link" to="/medical/journal">Medical Journal</RouterLink>
+        <RouterLink class="desktop-header-link" to="/registration">Register</RouterLink>
       </nav>
-    </div>
   </header>
 
   <RouterView />
 </template>
+<script>
+import { Api } from './Api'
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
+export default {
+  data: () => ({
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
+  }),
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
+  mounted() {
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
+  },
+  methods: {
+    toggle() {
+      var menu = document.getElementsByClassName('nav')[0];
+      console.log(menu)
+      if (menu) {
+        menu.classList.toggle('open-menu');
+      } 
+      
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
+    }
   }
 }
+</script>
+
+<style>
+
 </style>
