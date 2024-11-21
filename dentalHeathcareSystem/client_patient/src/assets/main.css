@@ -18,6 +18,12 @@ button:hover{
   background-color: rgb(184, 13, 13);
 
 }
+
+.submit-button{
+  background-color: var(--submit-btn);
+  width: 50%;
+  margin: 5px auto;
+}
 h2{
   color: var(--vt-c-black);
 }
@@ -25,7 +31,10 @@ h2{
 p{
   color: var(--vt-c-black);
 }
+label{
+  font-size: 1.3em;
 
+}
 .nav{
  width: 100%;
  align-items: center;
@@ -225,6 +234,18 @@ header{
   box-shadow: var(--heavy-shadow);
 }
 
+@media only screen and (max-width: 1580px){
+  .appointments-container{
+    margin-top: 15%;
+  }
+}
+
+@media only screen and (max-width: 880px){
+  .appointments-container{
+    margin-top: 30%;
+    border: 1px red solid;
+  }
+}
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Privacy Policy PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 .privacy-container{
   color: var(--vt-c-black);
@@ -324,8 +345,49 @@ the card, which is also something that we might need to add later.*/
     width: 50%;
   }
 }
-/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  Single Appointment PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+.single-appointment-container{
+  padding: 30px;
+  width: 70%;
+  height: auto;
+  background-color: var(--vt-c-white-mute);
+  margin: 15% auto;
+}
 
+.patient-information-form{
+  border: 1px slategrey solid;
+  border-radius: 20px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-items: left;
+}
+
+.patient-information-form input{
+  padding: 10px;
+  margin: 4px auto;
+  width: 100%;
+  border-radius: 30px;
+  border: 1px white solid;
+}
+
+.patient-information-form input:hover{
+  border: 1px black solid;
+}
+
+.countdown{
+  border: 3px rgb(235, 101, 101) solid;
+  border-radius: 50px;
+  align-items: center;
+  padding: 10px;
+  width: 30%;
+  margin: 10px auto;
+}
+#timer{
+  text-align: center;
+  font-size: 2em;
+  margin: 5px auto;
+}
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/

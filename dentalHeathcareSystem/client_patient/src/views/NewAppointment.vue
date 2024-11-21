@@ -20,63 +20,64 @@
 
           <hr>
 
+          <!-- Later on, the select button will have the responsibility of triggering the countdown timer for the booking process -->
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>          
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>          
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>
 
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>
 
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>
           <div class="appointments-card">
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button">Select</button>
+            <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>
         </div>
 
@@ -87,6 +88,7 @@
 <script>
 // @ is an alias to /src
 import { Api } from '@/Api'
+import router from '@/router'
 
 export default {
   name: 'newAppointment',
@@ -98,7 +100,10 @@ export default {
   mounted() {
 
   },
-  methods: {
+    methods: {
+        redirectToAppointment() {
+        router.push({path: '/single_appointment'})
+    }
   }
 }
 </script>
