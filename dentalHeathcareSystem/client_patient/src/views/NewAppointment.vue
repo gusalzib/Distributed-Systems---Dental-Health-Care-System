@@ -21,61 +21,61 @@
           <hr>
 
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>          
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>          
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>
 
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>
 
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>
           <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM</h2>
+            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button">Select</button>
           </div>
         </div>

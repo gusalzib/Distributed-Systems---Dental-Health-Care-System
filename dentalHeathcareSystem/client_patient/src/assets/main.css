@@ -118,7 +118,7 @@ header{
   height: auto;
   margin: 10px auto;
   padding: 10px;
-  box-shadow: var(--medium-shadow);
+  /* box-shadow: var(--medium-shadow); */
 }
 
 .announcements-container{
@@ -137,14 +137,25 @@ header{
 
 .instructions-container{
   margin: 50px auto;
-  border: 1px yellowgreen solid;
+  padding: 20px;
+  border-radius: 10px;
   width: 90%;
   height: auto;
   box-shadow: var(--light-shadow);
 }
 
 .instruction-card{
-  border: 2px red solid;
+  background-color: #d8e5ed;
+  margin: 5px auto;
+  padding: 10px;
+}
+
+.instruction-span{
+  font-weight: 600;
+}
+
+.instruction-item{
+  display: inline;
 }
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX New Appointment PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 
