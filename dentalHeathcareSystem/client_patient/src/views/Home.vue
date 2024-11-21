@@ -27,7 +27,7 @@
       <br/>
 
       <div class="instructions-container">
-        <h2>How to book your appointment?</h2>
+        <h2>How to book an appointment?</h2>
         <div class="instruction-card">
           <p class="instruction-item"><span class="instruction-span">Login:</span> before making a new appointment you have to login to your account, 
             or register yourself if you don't already have an account. You can register </p><router-link class="additional-links" to="/signup">here</router-link>
@@ -44,7 +44,37 @@
         <div class="instruction-card">
           <p class="instruction-item"><span class="instruction-span">Fill in your personal information:</span> After selecting the clinic, date and time slot, fill in your name, 
             contact information and any additional notes for the dentist. 
-            If you want to learn more about how we handle your personal information, please visit this page </p><router-link class="additional-links"  to="/signup">Privacy policy</router-link>
+            If you want to learn more about how we handle your personal information, please visit this page </p><router-link class="additional-links"  to="/privacy_policy">Privacy policy</router-link>
+        </div>
+
+        <div class="instruction-card">
+          <p class="instruction-item"><span class="instruction-span">Confirm your booking:</span> review your details and click on the "Confirm Appointment" button. You will see a confirmation message shortly.</p>
+        </div>
+        
+        <div class="instruction-card">
+          <p class="instruction-item"><span class="instruction-span">Support:</span> do not hesitate to contact us if you run into problems or have any questions!</p>
+        </div>
+      </div>
+          
+      <div class="instructions-container">
+        <h2>How to cancel an appointment?</h2>
+        <div class="instruction-card">
+          <p class="instruction-item"><span class="instruction-span">Login:</span> before cancelling an appointment you have to login to your account using your credentials. </p>
+        </div>
+
+        <div class="instruction-card">
+          <p class="instruction-item"><span class="instruction-span">Navigate to your appointments:</span> go to "My Appointments" page. You can find it at the top once you have logged in or access it from here: 
+           </p><router-link class="additional-links" to="/my_appointments">My Appointments</router-link>
+        </div>
+        
+        <div class="instruction-card">
+          <p class="instruction-item"><span class="instruction-span">Pick your clinic:</span>Use the search bar to find and choose your preferred dental clinic. You can search either by name or address.</p>
+        </div>
+
+        <div class="instruction-card">
+          <p class="instruction-item"><span class="instruction-span">Fill in your personal information:</span> After selecting the clinic, date and time slot, fill in your name, 
+            contact information and any additional notes for the dentist. 
+            If you want to learn more about how we handle your personal information, please visit this page </p><router-link class="additional-links"  to="/privacy_policy">Privacy policy</router-link>
         </div>
 
         <div class="instruction-card">
