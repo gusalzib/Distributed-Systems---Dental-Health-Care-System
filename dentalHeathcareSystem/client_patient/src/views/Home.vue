@@ -68,22 +68,16 @@
         </div>
         
         <div class="instruction-card">
-          <p class="instruction-item"><span class="instruction-span">Pick your clinic:</span>Use the search bar to find and choose your preferred dental clinic. You can search either by name or address.</p>
+          <p class="instruction-item"><span class="instruction-span">Cancel the appointment:</span> click on the "Cancel Appointment" button. <em>You will be asked to confirm your cancellation</em></p>
         </div>
 
         <div class="instruction-card">
-          <p class="instruction-item"><span class="instruction-span">Fill in your personal information:</span> After selecting the clinic, date and time slot, fill in your name, 
-            contact information and any additional notes for the dentist. 
-            If you want to learn more about how we handle your personal information, please visit this page </p><router-link class="additional-links"  to="/privacy_policy">Privacy policy</router-link>
+          <p class="instruction-item"><span class="instruction-span">Note:</span> Please note that cancelling an appointment less than 24 hours in 
+            advance will result in additional fees up to <span style="color: red;">200 SEK</span>. If the appointment was cancelled by the clinic for any reason, 
+            you will be notified via email.</p>
         </div>
 
-        <div class="instruction-card">
-          <p class="instruction-item"><span class="instruction-span">Confirm your booking:</span> review your details and click on the "Confirm Appointment" button. You will see a confirmation message shortly.</p>
-        </div>
-        
-        <div class="instruction-card">
-          <p class="instruction-item"><span class="instruction-span">Support:</span> do not hesitate to contact us if you run into problems or have any questions!</p>
-        </div>
+
       </div>
     </div>
   </main>
