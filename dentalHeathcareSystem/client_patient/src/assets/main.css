@@ -1,19 +1,23 @@
 @import './base.css';
-
+/* GENERIC STYLES*/
 button{
   background-color: var(--generic-btn);
   color: rgb(255, 255, 255);
   padding: 10px;
   border-radius: 5px;
-  width: 10%;
+  width: 15%;
   cursor: pointer;
+  font-size: medium;
 }
 
 button:hover{
   background-color: var(--box-bg-light);
 }
 
+.cancel-button{
+  background-color: rgb(184, 13, 13);
 
+}
 h2{
   color: var(--vt-c-black);
 }
@@ -48,6 +52,7 @@ p{
   background-color: var(--box-bg-dark);
   box-shadow: var(--light-shadow);
 }
+
 header{
   display: flex;
   flex-direction: row;
@@ -241,8 +246,84 @@ header{
     margin-top: 25%;
   }
 }
-/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX My Appointment PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+.my-appointments-container{
+  width: 70%;
+  height: auto;
+  padding: 20px;
+  margin: 10% auto;
+  /* border: 1px green solid; */
+  display: flex;
+  flex-direction: column;
 
+}
+
+.my-appointments-card{
+  background-color: var(--vt-c-white-mute);
+  padding: 20px;
+  border-radius: 10px;
+  /* border: 1px blue solid; */
+  margin: 10px auto;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#modal{
+  position: fixed;
+  background-color: aliceblue;
+  border: 3px  #d8e5ed solid;
+  width: 50%;
+  height: auto;
+  display: none;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: var(--heavy-shadow);
+  margin: auto;
+  /* margin-top: -15%;
+  left: 25%; */
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  
+}
+
+#modal button{
+  width: 50%;
+  margin: 0 auto;
+}
+
+
+/*I added these span tags to the appointment card. I don't think it is necessary at the moment but later on, if we add more 
+information to the cards, we might need to increase their visual separation to make it easier to read. Right now, there are no labels on
+the card, which is also something that we might need to add later.*/
+.clinic-name{
+
+}
+
+.appointments-date{
+
+}
+
+.appointments-time{
+
+}
+.appointments-address{
+
+}
+
+@media only screen and (max-width: 1300px){
+  .my-appointments-card{
+    flex-direction: column;
+  }
+
+  .my-appointments-card button{
+    margin: 10px auto;
+    width: 50%;
+  }
+}
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
