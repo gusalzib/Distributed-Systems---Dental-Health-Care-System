@@ -18,6 +18,9 @@ h2{
   color: var(--vt-c-black);
 }
 
+p{
+  color: var(--vt-c-black);
+}
 
 .nav{
  width: 100%;
@@ -87,7 +90,7 @@ header{
 
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Home PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 .map-container{
-  width: 90%;
+  width: 70%;
   height: 500px;
   border: 1px grey solid;
   border-radius: 10px;
@@ -132,8 +135,28 @@ header{
   margin: 10px auto;
 }
 
+.instructions-container{
+  margin: 50px auto;
+  border: 1px yellowgreen solid;
+  width: 90%;
+  height: auto;
+  box-shadow: var(--light-shadow);
+}
+
+.instruction-card{
+  border: 2px red solid;
+}
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX New Appointment PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+
 .appointments-container{
-  margin-bottom: 100px;
+  margin: 10% auto;
+  border: 1px rgb(222, 222, 222) solid;
+  border-radius: 10px;
+  box-shadow: var(--light-shadow);
+  width: 70%;
+  text-align: center;
+  padding: 20px;
+
 }
 
 .appointments-filter{
@@ -170,7 +193,7 @@ header{
   display: block;
 }
 .appointments-card{
-  width: 90%;
+  width: 100%;
   border: 1px black solid;
   background-color: #f1fbff;
   border-radius: 10px;
@@ -181,9 +204,10 @@ header{
   margin: 15px 0;
 }
 
-
-
-/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+.appointments-card:hover{
+  transition: .5s ease;
+  box-shadow: var(--heavy-shadow);
+}
 
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 
