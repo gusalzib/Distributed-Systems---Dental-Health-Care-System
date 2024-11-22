@@ -17,7 +17,11 @@ const services = [
     {
       route: "/api/patients",
       target: "http://localhost:3001/api/patients",
-    }
+    },
+    {
+        route: "/api/appointments",
+        target: "http://localhost:3002/api/appointments",
+      }
    ];
 
 services.forEach(({ route, target }) => {
