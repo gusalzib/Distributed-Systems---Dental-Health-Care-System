@@ -4,11 +4,12 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose')
+var cors = require('cors');
 
 
 
 var app = express();
-var port = 3000; 
+var port = 3001; 
 
 
 var mongoURI =  "mongodb://localhost:27017/dentalHealthcareSystem";
@@ -27,6 +28,17 @@ mongoose
 // view engine setup
 // app.set("views", path.join(__dirname, "client_patient/src/"));
 // app.set('view engine', 'jade');
+// Allow CORS for all origins
+app.use(
+  cors({
+    origin: true, // Allow all origins
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
+
+// Also, handle preflight requests for all routes
+app.options("*", cors());
 
 app.use(logger('dev'));
 app.use(express.json());
