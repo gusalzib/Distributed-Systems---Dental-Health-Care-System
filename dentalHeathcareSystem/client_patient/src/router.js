@@ -6,6 +6,7 @@ import PrivacyPolicy from "./views/PrivacyPolicy.vue";
 import MyAppointments from "./views/MyAppointments.vue";
 import SingleAppointment from "./views/SingleAppointment.vue";
 import Registration from "./views/Registration.vue";
+import Login from "./views/Login.vue";
 
 const routes = [
   { path: "/", name: "home", component: Home },
@@ -14,7 +15,7 @@ const routes = [
   { path: '/my_appointments', name: 'my_appointments', component: MyAppointments },
   { path: '/single_appointment', name: 'singleAppointment', component: SingleAppointment },
   { path: '/registration', name: 'registration', component: Registration },
-  
+  {path: '/login', name: 'login', component: Login}
 
 ];
 

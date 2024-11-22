@@ -13,6 +13,7 @@ import { RouterLink, RouterView } from 'vue-router'
         <RouterLink class="desktop-header-link" to="/new/appointment">New Appointment</RouterLink>
         <RouterLink class="desktop-header-link" to="/medical/journal">Medical Journal</RouterLink>
         <RouterLink class="desktop-header-link" to="/registration">Register</RouterLink>
+        <RouterLink class="desktop-header-link" to="/login">Login</RouterLink>
       </nav>
   </header>
 

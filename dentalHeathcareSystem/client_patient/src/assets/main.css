@@ -393,8 +393,48 @@ the card, which is also something that we might need to add later.*/
   width: 60%;
   margin: 15% auto;
 }
-/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 
+.patient-information-form h1{
+  text-align: center;
+}
+
+@media only screen and (max-width: 900px){
+  .registration-container{
+    width: 90%;
+    margin-top: 25%;
+  }
+}
+@media only screen and (max-width: 500px){
+  .registration-container{
+    width: 90%;
+    margin-top: 30%;
+  }
+}
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Login PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+.login-container{
+  width: 60%;
+  margin: 15% auto;
+}
+.patient-login-form{
+  border: 1px slategrey solid;
+  border-radius: 20px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-items: left;
+}
+
+.patient-login-form input{
+  padding: 10px;
+  margin: 4px auto;
+  width: 100%;
+  border-radius: 30px;
+  border: 1px white solid;
+}
+
+.patient-login-form input:hover{
+  border: 1px black solid;
+}
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
