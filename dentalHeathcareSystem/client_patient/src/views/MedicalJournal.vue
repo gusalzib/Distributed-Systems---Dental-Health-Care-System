@@ -46,14 +46,6 @@ export default {
 
   },
     methods: {
-        confirmCancellation() {
-            var modal = document.getElementById('modal');
-            modal.style.display = "block";
-        },
-        rejectCancellation() {
-            var modal = document.getElementById('modal');
-            modal.style.display = "none"
-    }
   }
 }
 </script>
