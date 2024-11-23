@@ -67,16 +67,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 // });
 
 
-const {createAppointment, getAllAppointments,getSpecificAppointment,bookAppointment,getPatientsAppointments,cancelAppointment,reserveAppointment,unReserveAppointment} = require("./controller/appointmentController");
+const {createAppointment, getAllAppointments,getSpecificAppointment,getPatientsAppointments,updateAppointment,deleteAppointment} = require("./controller/appointmentController");
 
-app.post("/api/appointments", createAppointment);
+app.post("/api/appointments/create", createAppointment);
 app.get("/api/appointments", getAllAppointments);
 app.get("/api/appointments/:appointment_id", getSpecificAppointment);
-app.get("/api/appointments/specific/:patient_id",getPatientsAppointments)
-app.put("/api/appointments/:appointment_id/:patient_id",bookAppointment);
-app.put("/api/appointments/cancel/:appointment_id/:patient_id",cancelAppointment)
-app.put("/api/appointments/reserve/appointment/:appointment_id",reserveAppointment);
-app.put("/api/appointments/unreserve/appointment/:appointment_id",unReserveAppointment)
+app.get("/api/appointments/specific/:patient_id",getPatientsAppointments);
+app.put("/api/appointments/:appointment_id",updateAppointment);
+app.delete("/api/appointments/:appointment_id",deleteAppointment);
 
 
 

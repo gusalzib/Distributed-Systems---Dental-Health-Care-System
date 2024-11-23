@@ -86,101 +86,52 @@ exports.getPatientsAppointments = async (req, res) => {
     }
 }
 
-exports.bookAppointment = async (req, res) => {
+exports.updateAppointment = async (req, res) => {
     try{
-        const app_id = req.params.appointment_id;
-        const patient_id = req.params.patient_id;
+        const id = req.params.appointment_id;
 
-        const existing_appointment = await Appointment.findById(app_id);
+        const existing_appointment = await Appointment.findById(id);
         if(!existing_appointment){
             res.status(400).json({ message: "No appointment found"})
             return;
         }
-
-        if(existing_appointment.patient_id === null){
-            const appointment = await Appointment.findByIdAndUpdate(app_id, {
-                patient_id: patient_id,
-                available: false},
-                {new: true}
-                );
-
-        res.status(200).json({ message: "Patient added", appointment: appointment });
         
-        }else{
-            res.status(409).json({ message: "This appointment is already booked", existing_appointment: existing_appointment });
-        }
-
-    }catch (error) {
-        res.status(500).json({ message: "Something went wrong!", error_message: error.message});
-    }
-}
-exports.cancelAppointment = async (req, res) => {
-    try{
-        const app_id = req.params.appointment_id;
-        const patient_id = req.params.patient_id;
-
-        const existing_appointment = await Appointment.findById(app_id);
-        if(!existing_appointment){
-            res.status(404).json({ message: "No appointment found"})
-            return;
-        }
-
-        if(existing_appointment.patient_id.equals(patient_id)){
-            const appointment = await Appointment.findByIdAndUpdate(app_id, {
-                patient_id: null,
-                available: true},
-                {new: true}
-                );
-
-        res.status(200).json({ message: "Appointment canceled", appointment: appointment });
+        var patient_id = req.body.patient_id ? req.body.patient_id : existing_appointment.patient_id;
+        var dentist_id = req.body.dentist_id ? req.body.dentist_id : existing_appointment.dentist_id;
+        var dentist_clinic_id = req.body.dentist_clinic_id ? req.body.dentist_clinic_id : existing_appointment.dentist_clinic_id;
+        var type_of_appointment = req.body.type_of_appointment ? req.body.type_of_appointment: existing_appointment.type_of_appointment;
+        var date_and_time_from = req.body.date_and_time_from ? req.body.date_and_time_from: existing_appointment.date_and_time_from;
+        var date_and_time_until = req.body.date_and_time_until ? req.body.date_and_time_until: existing_appointment.date_and_time_until;
+        var available = req.body.available !== undefined ? req.body.available: existing_appointment.available;
         
-        }else{
-            res.status(409).json({ message: "This appointment is booked by someone else", existing_appointment: existing_appointment });
-        }
+        var updatedAppointment = await Appointment.findByIdAndUpdate(id, {
+            patient_id: patient_id,
+            dentist_id: dentist_id,
+            dentist_clinic_id: dentist_clinic_id,
+            type_of_appointment: type_of_appointment,
+            date_and_time_from: date_and_time_from,
+            date_and_time_until: date_and_time_until,
+            available: available},
+            {new: true}
+        )
+
+        res.status(200).json({ message: "Appointment updated", updatedAppointment: updatedAppointment });
 
     }catch (error) {
         res.status(500).json({ message: "Something went wrong!", error_message: error.message});
     }
 }
-exports.reserveAppointment = async (req, res) => {
+exports.deleteAppointment = async (req, res) => {
+    console.log("I got here");
     try{
-        const app_id = req.params.appointment_id;
-
-        const existing_appointment = await Appointment.findById(app_id);
-        if(!existing_appointment){
+        const id = req.params.appointment_id;
+        const appointment = await Appointment.findByIdAndDelete(id);
+        if(!appointment){
             res.status(404).json({ message: "No appointment found"})
             return;
         }
-
-        const appointment = await Appointment.findByIdAndUpdate(app_id, {
-                available: false},
-                {new: true}
-                );
-
-        res.status(200).json({ message: "Appointment reserved", appointment: appointment });
-
+        res.status(200).json({ message: "Appointment deleted", appointment: appointment });
     }catch (error) {
-        res.status(500).json({ message: "Something went wrong!", error_message: error.message});
-    }
-}
-exports.unReserveAppointment = async (req, res) => {
-    try{
-        const app_id = req.params.appointment_id;
-
-        const existing_appointment = await Appointment.findById(app_id);
-        if(!existing_appointment){
-            res.status(404).json({ message: "No appointment found"})
-            return;
-        }
-
-        const appointment = await Appointment.findByIdAndUpdate(app_id, {
-                available: true},
-                {new: true}
-                );
-
-        res.status(200).json({ message: "Appointment reserved", appointment: appointment });
-
-    }catch (error) {
-        res.status(500).json({ message: "Something went wrong!", error_message: error.message});
+        res.status(400).json({ message: "Something went wrong!", error_message: error.message});
     }
 }
