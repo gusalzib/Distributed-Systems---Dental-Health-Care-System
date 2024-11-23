@@ -62,3 +62,29 @@ exports.getSpecificAppointment = async (req, res) => {
         res.status(400).json({ message: "Something went wrong!", error_message: error.message});
     }
 }
+exports.bookAppointment = async (req, res) => {
+    try{
+        const app_id = req.params.appointment_id;
+        const patient_id = req.params.patient_id;
+
+        const existing_appointment = await Appointment.findById(app_id);
+        if(!existing_appointment){
+            res.status(400).json({ message: "No appointment found"})
+            return;
+        }
+
+        if(existing_appointment.patient_id === null){
+            const appointment = await Appointment.findByIdAndUpdate(app_id, {
+                patient_id: patient_id
+                });
+
+        res.status(200).json({ message: "Patient added", appointment: appointment });
+        
+        }else{
+            res.status(409).json({ message: "This appointment is already booked", existing_appointment: existing_appointment });
+        }
+
+    }catch (error) {
+        res.status(500).json({ message: "Something went wrong!", error_message: error.message});
+    }
+}
