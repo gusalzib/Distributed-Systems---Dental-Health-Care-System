@@ -435,6 +435,18 @@ the card, which is also something that we might need to add later.*/
 .patient-login-form input:hover{
   border: 1px black solid;
 }
-/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Medical Journal PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
+.journal-container{
+  width: 70%;
+  border-radius: 10px;
+  margin: 15% auto;
+  padding: 30px;
+  box-shadow: var(--light-shadow);
+}
 
+.journal-details{
+  background-color: var(--vt-c-white-mute);
+  padding: 20px;
+  margin: auto;
+}
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
