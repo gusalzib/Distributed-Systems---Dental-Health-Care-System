@@ -59,7 +59,7 @@ exports.retrieveSpecificPatient = async (req, res) => {
     try {
         const id = req.params.patient_id;
         const patient = await Patient.findById(id);
-        console.log(patient)
+        // console.log(patient)
         if (!patient) {
             res.status(400).json({ message: "No patients found!" });
             return;

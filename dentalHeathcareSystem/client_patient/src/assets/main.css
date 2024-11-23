@@ -35,6 +35,19 @@ label{
   font-size: 1.3em;
 
 }
+.confirmation_message{
+  margin: 10px auto;
+  font-size: 1.3rem;
+  color: green;
+}
+
+.error_message{
+  margin: 10px auto;
+  font-size: 1.3rem;
+  color: rgb(196, 3, 3);
+}
+
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX NAVBAR XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX*/
 .navbar{
   background-color: var(--header-bg);
   width: 100%;
