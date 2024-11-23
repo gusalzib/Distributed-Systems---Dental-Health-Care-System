@@ -37,3 +37,28 @@ exports.createAppointment = async (req, res) => {
           });
       }
     };
+exports.getAllAppointments = async (req, res) => {
+    try{
+        const appointments = await Appointment.find();
+        if(appointments.lenght === 0){
+            res.status(400).json({ message: "No appointments found"})
+            return;
+        }
+        res.status(200).json({ message: "All appointments retrieved", appointments: appointments });
+    }catch (error) {
+        res.status(400).json({ message: "Something went wrong!", error_message: error.message});
+    }
+}
+exports.getSpecificAppointment = async (req, res) => {
+    try{
+        const id = req.params.appointment_id;
+        const appointment = await Appointment.findById(id);
+        if(!appointment){
+            res.status(400).json({ message: "No appointment found"})
+            return;
+        }
+        res.status(200).json({ message: "Appointment retrieved", appointment: appointment });
+    }catch (error) {
+        res.status(400).json({ message: "Something went wrong!", error_message: error.message});
+    }
+}

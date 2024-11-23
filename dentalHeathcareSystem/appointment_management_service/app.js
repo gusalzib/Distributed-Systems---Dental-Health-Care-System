@@ -67,9 +67,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 // });
 
 
-const {createAppointment} = require("./controller/appointmentController");
+const {createAppointment, getAllAppointments,getSpecificAppointment} = require("./controller/appointmentController");
 
 app.post("/api/appointments", createAppointment);
+app.get("/api/appointments", getAllAppointments);
+console.log("before appointment")
+app.get("/api/appointments/:appointment_id", getSpecificAppointment)
+console.log("after appointment")
 
 
 app.listen(port, function (err) {
