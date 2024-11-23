@@ -6,9 +6,24 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 
 const app = express();
 
-
+const origins = [
+  "http://localhost:5173",
+  "http://localhost:3001",
+  "http://localhost:3002",
+  "http://localhost:3000",
+];
 // Middleware setup
-app.use(cors()); // Enable CORS
+// app.use(cors()); // Enable CORS
+app.use(
+  cors({
+    origin: origins, // Allow all origins
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
+
+// Also, handle preflight requests for all routes
+app.options("*", cors());
 app.use(helmet()); // Add security headers
 app.use(morgan("combined")); // Log HTTP requests
 app.disable("x-powered-by"); // Hide Express server information
