@@ -8,6 +8,7 @@ import SingleAppointment from "./views/SingleAppointment.vue";
 import Registration from "./views/Registration.vue";
 import Login from "./views/Login.vue";
 import MedicalJournal from "./views/MedicalJournal.vue";
+import Notifications from "./views/Notifications.vue";
 
 const routes = [
   { path: "/", name: "home", component: Home },
@@ -17,7 +18,8 @@ const routes = [
   { path: '/single_appointment', name: 'singleAppointment', component: SingleAppointment },
   { path: '/registration', name: 'registration', component: Registration },
   { path: '/login', name: 'login', component: Login },
-  {path: '/medical_journal', name:'medicalJournal', component: MedicalJournal}
+  { path: '/medical_journal', name: 'medicalJournal', component: MedicalJournal },
+  {path: '/notifications', name: 'notifiations', component: Notifications}
 
 ];
 
