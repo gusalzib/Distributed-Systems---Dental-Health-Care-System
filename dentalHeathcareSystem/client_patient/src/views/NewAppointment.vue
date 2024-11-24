@@ -25,60 +25,7 @@
             <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
             <button class="select-button" @click="redirectToAppointment()">Select</button>
           </div>
-          <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button" @click="redirectToAppointment()">Select</button>
-          </div>          
-          <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button" @click="redirectToAppointment()">Select</button>
-          </div>          
-          <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button" @click="redirectToAppointment()">Select</button>
-          </div>
-          <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button" @click="redirectToAppointment()">Select</button>
-          </div>
 
-          <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button" @click="redirectToAppointment()">Select</button>
-          </div>
-          <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button" @click="redirectToAppointment()">Select</button>
-          </div>
-
-          <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button" @click="redirectToAppointment()">Select</button>
-          </div>
-          <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button" @click="redirectToAppointment()">Select</button>
-          </div>
-          <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button" @click="redirectToAppointment()">Select</button>
-          </div>
-          <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button" @click="redirectToAppointment()">Select</button>
-          </div>
-          <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button" @click="redirectToAppointment()">Select</button>
-          </div>
-          <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button" @click="redirectToAppointment()">Select</button>
-          </div>
-          <div class="appointments-card">
-            <h2><strong>Clinic name </strong>| 01-07-2024 | 12:00 AM | Svensson Street 23D</h2>
-            <button class="select-button" @click="redirectToAppointment()">Select</button>
-          </div>
         </div>
 
   </main>
