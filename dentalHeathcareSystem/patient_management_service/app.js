@@ -28,10 +28,11 @@ mongoose
 // view engine setup
 // app.set("views", path.join(__dirname, "client_patient/src/"));
 // app.set('view engine', 'jade');
+
+/*  the CORS settings were slightly refactored for both the patient_management_service and api gateway. 
+This is because of an issue with preflight headers/requests that were blocked for no apparent reason. 
+It could be because of the api gateway being an intermediary between the browser and service server. */
 const origins = [
-  "http://localhost:5173",
-  "http://localhost:3001",
-  "http://localhost:3002",
   "http://localhost:3000",
 ];
 app.use(

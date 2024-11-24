@@ -67,7 +67,7 @@ export default {
     mounted() {
         this.getPatientInformation();
         this.countdown();
-        this.reserveAppointment();
+        
   },
     methods: {
         async bookAppointment(){
@@ -85,7 +85,7 @@ export default {
                         }, 5000);
             })
         },
-        async reserveAppointment() {
+        async updateAppointment() {
             /* The appointment is reserved until the countdown timer is over or the appointment is booked */
             await Api.put(`/appointments/${this.temp_appointment_id}`, this.appointment).then(response => {
                 if (response.status === 200) {
@@ -152,6 +152,12 @@ export default {
                 if (distance < 0) {
                     clearInterval(x);
                     document.getElementById("timer").innerHTML = "EXPIRED";
+                    //user is redirected to home page when the time is up
+                    window.location.replace('/');
+                    //make appointment available again for other users
+                    this.appointment.available = true;
+                    this.updateAppointment();
+
                 }
             }, 1000);
         }
