@@ -15,7 +15,7 @@ const routes = [
   { path: "/new/appointment", name: "newAppointment", component: NewAppointment },
   { path: '/privacy_policy', name: 'privacy_policy', component: PrivacyPolicy },
   { path: '/my_appointments', name: 'my_appointments', component: MyAppointments },
-  { path: '/single_appointment', name: 'singleAppointment', component: SingleAppointment },
+  { path: '/single/appointment/:appointmentID', name: 'singleAppointment', component: SingleAppointment },
   { path: '/registration', name: 'registration', component: Registration },
   { path: '/login', name: 'login', component: Login },
   { path: '/medical_journal', name: 'medicalJournal', component: MedicalJournal },
