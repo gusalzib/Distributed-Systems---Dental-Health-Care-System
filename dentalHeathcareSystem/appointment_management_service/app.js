@@ -71,12 +71,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 // });
 
 
-const {createAppointment, getAllAppointments,getSpecificAppointment,getPatientsAppointments,updateAppointment,deleteAppointment} = require("./controller/appointmentController");
+const {createAppointment, getAllAppointments,getSpecificAppointment,getPatientsAppointments,updateAppointment,deleteAppointment,getAvailableAppointments} = require("./controller/appointmentController");
 
 app.post("/api/appointments/create", createAppointment);
 app.get("/api/appointments", getAllAppointments);
 app.get("/api/appointments/:appointment_id", getSpecificAppointment);
 app.get("/api/appointments/specific/:patient_id",getPatientsAppointments);
+app.get("/api/appointments/available/appointment",getAvailableAppointments)
 app.put("/api/appointments/:appointment_id",updateAppointment);
 app.delete("/api/appointments/:appointment_id",deleteAppointment);
 
