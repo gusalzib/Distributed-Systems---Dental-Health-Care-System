@@ -29,12 +29,16 @@ mongoose
 // view engine setup
 // app.set("views", path.join(__dirname, "client_patient/src/"));
 // app.set('view engine', 'jade');
-// Allow CORS for all origins
+
+const origins = [
+  "http://localhost:3000",
+];
 app.use(
   cors({
-    origin: true, // Allow all origins
+    origin: origins , // Allow all origins
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
+    preflightContinue: true,
   })
 );
 
