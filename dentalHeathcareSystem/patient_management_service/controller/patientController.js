@@ -89,7 +89,9 @@ exports.updatePatient = async (req, res) => {
         var ssn = req.body.ssn ? req.body.ssn : existingPatient.ssn
         var address = req.body.address ? req.body.address : existingPatient.address
         var medical_journal = req.body.medical_journal ? req.body.medical_journal : existingPatient.medical_journal
-        // var appointments = req.body.appointments ? req.body.appointments : existingPatient.appointments
+        var appointments = req.body.appointments ? req.body.appointments : existingPatient.appointments
+
+
 
         var updatedPatient = await Patient.findByIdAndUpdate(id, {
             name: name,
@@ -97,7 +99,8 @@ exports.updatePatient = async (req, res) => {
             phone_number: phone_number,
             address: address, 
             ssn: ssn,
-            medical_journal: medical_journal
+            medical_journal: medical_journal,
+            appointments: appointments
         })
 
             res.status(200).json({message: "Patient information updated successfully", patient: updatedPatient})
@@ -116,41 +119,6 @@ exports.deletePatientByID = async (req, res) => {
                 return;
             }
         res.status(200).json({message: "Patient account deleted successfully", patient: deletedPatient})
-
-    } catch (error) {
-        res.status(400).json({message: "Something went wrong", error_message: error.message})
-    }
-}
-exports.addAppoinmentToPatient = async (req, res) => {
-    try {
-        const id = req.params.patient_id; 
-        const existingPatient = await Patient.findById(id);
-
-        if (!existingPatient) {
-            res.status(400).json({ message: "Could not find patient account" })
-            return
-        }
-
-        var addAppointment = req.params.appointmentID 
-
-        console.log("this is addAppointment = ", addAppointment)
-    
-        
-
-        var bookedAppointment ={appointment_id: addAppointment} 
-
-
-        if (addAppointment !== null){
-            console.log("is not the same")
-            var newUpdatedPatient = await Patient.findById(id);
-            newUpdatedPatient.appointments.push(bookedAppointment);
-            newUpdatedPatient.save();
-
-            console.log("Updated P = ", newUpdatedPatient)
-            res.status(200).json({message: "Patient information updated successfully", patient: newUpdatedPatient})
-        }else{
-            res.status(200).json({message: "Patient information updated successfully", patient: existingPatient})
-        }
 
     } catch (error) {
         res.status(400).json({message: "Something went wrong", error_message: error.message})
