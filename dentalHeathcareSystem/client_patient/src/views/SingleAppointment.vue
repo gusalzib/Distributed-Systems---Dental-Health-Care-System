@@ -83,7 +83,7 @@ export default {
         },
         patient_service_url: 'http://localhost:3000/api',
         // current_patient_placeholder: '673a5173934efda9cdfa63a3',
-        current_patient_placeholder:'6744502b82c2038aabbd5f8d',
+        current_patient_placeholder:'67444143c5e46806d8fbc958',
         confirmation_message: '',
         error_message: '',
         appointment: {
@@ -132,8 +132,12 @@ export default {
             await this.addAppointmentToPatient();
             const appointmentID = this.$route.params.appointmentID;
             this.appointment.available = false; 
+            const newAppontment = {appointment_id: this.appointment}
+            this.appointments.push(newAppontment)
+
             this.appointment.patient_id = this.current_patient_placeholder;
-            await Api.put(`/appointments/${appointmentID}`, this.appointment).then(response => {
+            // await Api.put(`/appointments/${appointmentID}`, this.appointment).then(response => {
+                await Api.put(`/appointments/${appointmentID}`, this.patient).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'Thanks for using Dentime. Appoitment booked successfully!';
                     setTimeout(() => {
@@ -195,17 +199,11 @@ export default {
         },
         async addAppointmentToPatient() {
 
-            // var mongoose = require("mongoose");
-            // const appointmentID =  new mongoose.Types.ObjectId(`${this.$route.params.appointmentID}`);
             const appointmentID =  (`${this.$route.params.appointmentID}`);
-            // this.patient.appointments.push(appointmentID)
-            const patient_id = this.patient._id;
-            console.log("this is the patient= ",this.patient);
-            console.log("patient id = ",patient_id)
-            console.log("this is appointment id = ",appointmentID)
             await Api.put(`/patients/${this.current_patient_placeholder}/${appointmentID}`).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'Updated successfully'
+                    this.getPatientInformation();
                     setTimeout(() => {
                             this.confirmation_message = ''
                         }, 5000);
