@@ -18,12 +18,9 @@ var patientSchema = new Schema({
       date: { type: String, required: true }
     },
   ],
-  appointments: [
-    {
-      appointment_id: mongoose.Schema.Types.ObjectId
-      // ref: "Appointment",
+  appointments: [{
+      appointment_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Appointment'}
     },
   ]
 });
-
 module.exports = mongoose.model("patient", patientSchema);
