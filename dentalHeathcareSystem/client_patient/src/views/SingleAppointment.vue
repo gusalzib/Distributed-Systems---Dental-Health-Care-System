@@ -82,7 +82,8 @@ export default {
             appointments: []
         },
         patient_service_url: 'http://localhost:3000/api',
-        current_patient_placeholder: '673a5173934efda9cdfa63a3',
+        // current_patient_placeholder: '673a5173934efda9cdfa63a3',
+        current_patient_placeholder:'6744502b82c2038aabbd5f8d',
         confirmation_message: '',
         error_message: '',
         appointment: {
@@ -149,7 +150,7 @@ export default {
         async updateAppointment() {
             const appointmentID = this.$route.params.appointmentID;
             /* The appointment is reserved until the countdown timer is over or the appointment is booked */
-            await Api.put(`/appointments/${appointmentID}`, this.appointment).then(response => {
+            await Api.put(`/appointments/${appointmentID}`, this.patient).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'The appointment is reserved in the system until the timer is up!';
                     setTimeout(() => {
@@ -194,12 +195,15 @@ export default {
         },
         async addAppointmentToPatient() {
 
-            var mongoose = require("mongoose");
-            const appointmentID =  new mongoose.Types.ObjectId(`${this.$route.params.appointmentID}`);
-            this.patient.appointments.push(appointmentID)
-            console.log(this.patient);
-            
-            await Api.put(`/patients/${this.current_patient_placeholder}`, this.patient).then(response => {
+            // var mongoose = require("mongoose");
+            // const appointmentID =  new mongoose.Types.ObjectId(`${this.$route.params.appointmentID}`);
+            const appointmentID =  (`${this.$route.params.appointmentID}`);
+            // this.patient.appointments.push(appointmentID)
+            const patient_id = this.patient._id;
+            console.log("this is the patient= ",this.patient);
+            console.log("patient id = ",patient_id)
+            console.log("this is appointment id = ",appointmentID)
+            await Api.put(`/patients/${this.current_patient_placeholder}/${appointmentID}`).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'Updated successfully'
                     setTimeout(() => {
@@ -210,7 +214,6 @@ export default {
                 this.error_message = error.message;
                 setTimeout(() => {
                     this.error_message = ''
-                    
                 }, 5000);
             })
         },
