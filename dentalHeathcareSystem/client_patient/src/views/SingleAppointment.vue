@@ -22,7 +22,7 @@
             
             <ul>
                 <li><p><em>The time slot is now reserved for you to prevent double-bookings. Please finish the booking process before the time is up!</em></p></li>
-                <li><p><em>The appointment is reserved until the time is up or until you leave the page.</em></p></li>
+                <li><p><em>The appointment is reserved until the time is up or <span style="color: red;"> until you leave the page.</span></em></p></li>
                 <li><p><em>Please note that updating you contact information here means a change to contact information on your account.</em></p></li>
             </ul>
             <hr>
@@ -99,8 +99,8 @@ export default {
             appointments: []
         },
         patient_service_url: 'http://localhost:3000/api',
-        // current_patient_placeholder: '673a5173934efda9cdfa63a3',
-        current_patient_placeholder:'674516312f3c59c02e4df78d',
+        current_patient_placeholder: '673a5173934efda9cdfa63a3',
+        // current_patient_placeholder:'674516312f3c59c02e4df78d',
         confirmation_message: '',
         error_message: '',
         appointment: {
@@ -177,8 +177,11 @@ export default {
         },
         async updateAppointment() {
             const appointmentID = this.$route.params.appointmentID;
+            this.appointment.available = true; //update the state of the appointment before sending the put request
+            console.log(this.appointment);
+            
             /* The appointment is reserved until the countdown timer is over or the appointment is booked */
-            await Api.put(`/appointments/${appointmentID}`, this.patient).then(response => {
+            await Api.put(`/appointments/${appointmentID}`, this.appointment).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'The appointment is reserved in the system until the timer is up!';
                     setTimeout(() => {
@@ -200,8 +203,13 @@ export default {
             await Api.get(`/patients/${this.current_patient_placeholder}`).then(response => {
                 if (response.status === 200) {
                     this.patient = response.data.patients;
+                    
                 }
             }).catch(error => {
+                this.error_message = 'Something went wrong. Patient information not found!'
+                setTimeout(() => {
+                        this.error_message = ''
+                    }, 5000);
                 console.log(error.message)
             })
 
@@ -216,8 +224,9 @@ export default {
                         }, 5000);
                 }
             }).catch(error => {
+                this.error_message = response.data.message;
                 setTimeout(() => {
-                    this.error_message = error.message;
+                    this.error_message = '';
                 }, 5000);
             })
         },
@@ -236,7 +245,7 @@ export default {
                         }, 5000);
                 }
             }).catch(error => {
-                this.error_message = error.message;
+                this.error_message = response.data.message;
                 setTimeout(() => {
                     this.error_message = ''
                 }, 5000);
@@ -265,7 +274,7 @@ export default {
                     clearInterval(x);
                     document.getElementById("timer").innerHTML = "EXPIRED";
 
-                    //make appointment available again for other users
+                    //make appointment available again for other users and exit the page
                     this.exitPage();
 
 
@@ -300,8 +309,7 @@ export default {
             })
         },
         exitPage() {
-            this.appointment.available = true;
-                        
+            
             this.updateAppointment();
             window.location.replace('/');
         }
