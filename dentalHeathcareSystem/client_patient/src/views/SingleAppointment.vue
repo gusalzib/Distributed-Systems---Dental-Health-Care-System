@@ -51,10 +51,20 @@
                 <input type="address" id="patient-address" v-model="patient.address">
                 <hr>
                 <button class="submit-button" @click="updatePatientInfo()">Update my information</button>
+                <!-- <button class="submit-button" @click="openPopup()">Confirm Appointment</button> -->
                 <button class="submit-button" @click="bookAppointment()">Confirm Appointment</button>
                 <router-link to="/privacy_policy">Read about how we handle your information</router-link>
                 <div class="confirmation_message">{{ confirmation_message }}</div>
                 <div class="error_message">{{ error_message }}</div>
+            </div>
+        </div>
+        <div class="popup-container" >
+            <!-- <button type="submit" class="btn"> Submit!</button> -->
+            <div class="popup" id="popup">
+                <h2>Is this the appointment you want to book?</h2>
+                <p>Date: {{date}} Time: {{appointmentStart}}</p>
+                <button type="button" @click="bookAppointment()">Yes</button>
+                <button type="button" @click="closePopup()">No</button>
             </div>
         </div>
   </main>
@@ -67,7 +77,14 @@
 
 // @ is an alias to /src
 import { Api } from '@/Api'
+// var popup = document.getElementById("popup");
 
+// function openPopup(){
+//     popup.classList.add("open-popup")
+// }
+// function closePopup(){
+//     popup.classList.remove("open-popup")
+// }
 
 export default {
   name: 'singleAppointment',
@@ -83,7 +100,7 @@ export default {
         },
         patient_service_url: 'http://localhost:3000/api',
         // current_patient_placeholder: '673a5173934efda9cdfa63a3',
-        current_patient_placeholder:'67444143c5e46806d8fbc958',
+        current_patient_placeholder:'674516312f3c59c02e4df78d',
         confirmation_message: '',
         error_message: '',
         appointment: {
@@ -112,6 +129,16 @@ export default {
         
   },
     methods: {
+        openPopup(){
+            var popup = document.getElementById("popup");
+            popup.classList.add("open-popup")
+        },
+
+        closePopup(){
+            var popup = document.getElementById("popup");
+            popup.classList.remove("open-popup")
+        },
+
         async getAppointmentInfo() {
             const appointmentID = this.$route.params.appointmentID;
             
@@ -132,12 +159,9 @@ export default {
             await this.addAppointmentToPatient();
             const appointmentID = this.$route.params.appointmentID;
             this.appointment.available = false; 
-            const newAppontment = {appointment_id: this.appointment}
-            this.appointments.push(newAppontment)
-
+            
             this.appointment.patient_id = this.current_patient_placeholder;
-            // await Api.put(`/appointments/${appointmentID}`, this.appointment).then(response => {
-                await Api.put(`/appointments/${appointmentID}`, this.patient).then(response => {
+                await Api.put(`/appointments/${appointmentID}`, this.appointment).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'Thanks for using Dentime. Appoitment booked successfully!';
                     setTimeout(() => {
@@ -198,9 +222,12 @@ export default {
             })
         },
         async addAppointmentToPatient() {
-
+            
             const appointmentID =  (`${this.$route.params.appointmentID}`);
-            await Api.put(`/patients/${this.current_patient_placeholder}/${appointmentID}`).then(response => {
+            var newAppointment= {appointment_id: appointmentID};
+            this.patient.appointments.push(newAppointment);
+            
+            await Api.put(`/patients/${this.current_patient_placeholder}`,this.patient).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'Updated successfully'
                     this.getPatientInformation();
