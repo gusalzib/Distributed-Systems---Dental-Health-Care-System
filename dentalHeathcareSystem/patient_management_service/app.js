@@ -28,14 +28,22 @@ mongoose
 // view engine setup
 // app.set("views", path.join(__dirname, "client_patient/src/"));
 // app.set('view engine', 'jade');
-// Allow CORS for all origins
+
+/*  the CORS settings were slightly refactored for both the patient_management_service and api gateway. 
+This is because of an issue with preflight headers/requests that were blocked for no apparent reason. 
+It could be because of the api gateway being an intermediary between the browser and service server. */
+const origins = [
+  "http://localhost:3000",
+];
 app.use(
   cors({
-    origin: true, // Allow all origins
+    origin: origins, // Allow all origins
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
+    preflightContinue: true
   })
 );
+
 
 // Also, handle preflight requests for all routes
 app.options("*", cors());
@@ -63,12 +71,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 //   res.render('error');
 // });
 
-const { registerPatient, retrieveAllPatients, retrieveSpecificPatient, updatePatient, deletePatientByID } = require("./controller/patientController");
+const { registerPatient, retrieveAllPatients, retrieveSpecificPatient, updatePatient, deletePatientByID,addAppoinmentToPatient } = require("./controller/patientController");
 
 app.post("/api/patients", registerPatient)
 app.get("/api/patients", retrieveAllPatients)
 app.get("/api/patients/:patient_id", retrieveSpecificPatient)
 app.put("/api/patients/:patient_id", updatePatient)
+// app.put("/api/patients/:patient_id/:appointmentID",addAppoinmentToPatient)
 app.delete("/api/patients/:patient_id", deletePatientByID)
 
 app.listen(port, function (err) {

@@ -9,7 +9,7 @@ exports.registerPatient = async (req, res) => {
     const patientPhoneNumber = req.body.phone_number;
     const patientAddress = req.body.address;
     const patientSSN = req.body.ssn;
-    const patientAppointments = req.body.appointments;
+    
     const patientMedicalJournal = req.body.medical_journal;
 
     newPatient.name = patientName;
@@ -17,7 +17,7 @@ exports.registerPatient = async (req, res) => {
     newPatient.phone_number = patientPhoneNumber;
     newPatient.address = patientAddress;
     newPatient.ssn = patientSSN;
-    newPatient.appointments = patientAppointments;
+    newPatient.appointments = [];
     newPatient.medical_journal = patientMedicalJournal;
 
     await newPatient.save();
@@ -91,6 +91,8 @@ exports.updatePatient = async (req, res) => {
         var medical_journal = req.body.medical_journal ? req.body.medical_journal : existingPatient.medical_journal
         var appointments = req.body.appointments ? req.body.appointments : existingPatient.appointments
 
+
+
         var updatedPatient = await Patient.findByIdAndUpdate(id, {
             name: name,
             email: email,
@@ -101,8 +103,8 @@ exports.updatePatient = async (req, res) => {
             appointments: appointments
         })
 
-        res.status(200).json({message: "Patient information updated successfully", patient: updatedPatient})
-
+            res.status(200).json({message: "Patient information updated successfully", patient: updatedPatient})
+        
     } catch (error) {
         res.status(400).json({message: "Something went wrong", error_message: error.message})
     }
@@ -119,6 +121,6 @@ exports.deletePatientByID = async (req, res) => {
         res.status(200).json({message: "Patient account deleted successfully", patient: deletedPatient})
 
     } catch (error) {
-        res.status(200).json({message: "Something went wrong", error_message: error.message})
+        res.status(400).json({message: "Something went wrong", error_message: error.message})
     }
 }

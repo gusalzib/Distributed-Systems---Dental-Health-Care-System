@@ -63,7 +63,7 @@ export default {
     methods: {
         redirectToAppointment(appointmentID) {
           this.updateAppointment(appointmentID)
-        router.push({path: '/single_appointment'})
+        router.push({path: `/single/appointment/${appointmentID}`})
     },
     async getAllAppointments(){
       await Api.get("/appointments").then(response =>{
