@@ -1,7 +1,7 @@
 <template>
   <main>
     <div class="my-appointments-container">
-        <h1>My Appointments</h1>
+        <!-- <h1>My Appointments</h1> -->
         <div class="my-appointments-card">
             <!-- /*I added these span tags to the appointment card. I don't think it is necessary at the moment but later on, if we add more 
                 information to the cards, we might need to increase their visual separation to make it easier to read. Right now, there are no labels on
