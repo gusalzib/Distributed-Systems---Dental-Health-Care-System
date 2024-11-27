@@ -48,9 +48,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-const {createClinic} = require("./controller/clinicController");
+const {createClinic,retrieveAllClinics,retrieveSpecificClinic,updateClinic} = require("./controller/clinicController");
 
 app.post("/api/clinics", createClinic);
+app.get("/api/clinics", retrieveAllClinics);
+app.get("/api/clinics/:clinic_id",retrieveSpecificClinic);
+app.put("/api/clinics/:clinic_id",updateClinic);
 
 
 
