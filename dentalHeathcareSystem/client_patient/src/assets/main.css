@@ -766,6 +766,15 @@ the card, which is also something that we might need to add later.*/
   margin: 10px auto;
 }
 
+#edit-profile input{
+  padding: 5px;
+  border:1px  var(--vt-c-white-mute) solid;
+  border-radius: 10px;
+}
+
+#edit-profile input:hover{
+  border: 1px var(--vt-c-black) solid;
+}
 
 @media only screen and (max-width: 1600px) {
     .single-patient-container{

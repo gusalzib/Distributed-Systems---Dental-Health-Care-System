@@ -36,7 +36,7 @@
                         <input type="checkbox" v-on:click="toggle()">
                         </br>
 
-                        <button id="update-button" class="submit-button" v-on:click="" type="button">Update</button>
+                        <button id="update-button" class="submit-button" v-on:click="updatePatientInfo()" type="button">Update</button>
                 </div>
 
                 <div v-else-if="activeSection === 'subscriptions'">
@@ -66,8 +66,8 @@
                     <hr>
                     <p >Phone: {{ patient.phone_number }} </p>
                     <p >E-mail:  {{ patient.email }}</p>
-                    <p >Street:  {{ patient.address }}</p>
-                    <p >Zipcode:  {{ patient.ssn }}</p>
+                    <p >Address:  {{ patient.address }}</p>
+                    <p >SSN:  {{ patient.ssn }}</p>
                     <p >City:  {{ patient.password }}</p>
                 </div>
                 <div id="confirmation_message" class="confirmation_message">{{ confirmation_message }}</div>
@@ -105,11 +105,13 @@ export default {
       error_message: '',
           confirmation_message: '',
           activeSection: '',
-      
+        current_patient_placeholder: '673a5173934efda9cdfa63a3',
+        // current_patient_placeholder:'674516312f3c59c02e4df78d',
     }
     },
     mounted() {
-
+        this.getPatientInformation();
+        
   },
     methods: {
         setActive(section) {
@@ -130,6 +132,41 @@ export default {
                     temp.type = "password";
                 }
             
+        },
+        async getPatientInformation() {
+            /* fetch the current patient information. This is needed to display the information to the user upon 
+            booking the appointment. The information is displayed in editable input fields. The patient has the option to change the details 
+            prior to booking the appointment. Example: the patient wants to change the contact phone number or email for this particular appointment */
+
+            await Api.get(`/patients/${this.current_patient_placeholder}`).then(response => {
+                if (response.status === 200) {
+                    this.patient = response.data.patients;
+                    
+                }
+            }).catch(error => {
+                this.error_message = 'Something went wrong. Patient information not found!'
+                setTimeout(() => {
+                        this.error_message = ''
+                    }, 5000);
+                console.log(error.message)
+            })
+
+            
+        },
+        async updatePatientInfo() {
+            await Api.put(`/patients/${this.current_patient_placeholder}`, this.patient).then(response => {
+                if (response.status === 200) {
+                    this.confirmation_message = 'Updated successfully'
+                    setTimeout(() => {
+                            this.confirmation_message = ''
+                        }, 5000);
+                }
+            }).catch(error => {
+                this.error_message = error.response?.data.message;
+                setTimeout(() => {
+                    this.error_message = '';
+                }, 5000);
+            })
         },
   }
 }
