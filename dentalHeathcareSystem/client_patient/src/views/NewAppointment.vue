@@ -18,13 +18,16 @@
             
           </div>
 
+          <div class="confirmation_message">{{ confirmation_message }}</div>
+          <div class="error_message">{{ error_message }}</div>
+
           <hr>
           <div v-for="appointment in appointments" :key="appointment._id">
             {{ appointment._id }}
             <!-- Later on, the select button will have the responsibility of triggering the countdown timer for the booking process -->
             <div class="appointments-card">
               <h2><strong>{{clinic_name}} </strong>|{{appointment.date_and_time_from}} | {{appointment.date_and_time_until }} | {{clinic_address}}</h2>
-              <button class="select-button" @click="redirectToAppointment(appointment._id)">Select</button>
+              <button class="select-button" @click="checkAvailability(appointment._id)">Select</button>
             </div>
           </div>
         </div>
@@ -54,6 +57,8 @@ export default {
       appointments: [],
       clinic_name: "",
       clinic_address: "",
+      error_message: '',
+      confirmation_message: ''
 
     }
   },
@@ -61,10 +66,6 @@ export default {
     this.getAllAppointments()
   },
     methods: {
-        redirectToAppointment(appointmentID) {
-          this.updateAppointment(appointmentID)
-        router.push({path: `/single/appointment/${appointmentID}`})
-    },
     async getAllAppointments(){
       await Api.get("/appointments").then(response =>{
         if(response.status === 200){
@@ -82,6 +83,30 @@ export default {
         console.log(error.message);
       })
 
+      },
+      async checkAvailability(appointmentID) {
+        Api.get(`/appointments/${appointmentID}`).then(response => {
+          if (response.status === 200) {
+            this.appointment = response.data.appointment
+            console.log(this.appointment);
+            if (!this.appointment.available) {
+              this.error_message = 'Sorry this apointment was just taken by another user. '
+                + 'Please choose another one!';
+
+                setTimeout(() => {
+                    this.error_message = '';
+                }, 8000);
+            } else {
+              this.updateAppointment(appointmentID)
+              router.push({path: `/single/appointment/${appointmentID}`})
+            }
+          }
+        }).catch(error => {
+          this.error_message = error.response?.data.message;
+            setTimeout(() => {
+                this.error_message = '';
+            }, 5000);
+        })
     }
   } 
 }
