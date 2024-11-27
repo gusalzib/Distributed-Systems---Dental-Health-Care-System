@@ -459,7 +459,7 @@ the card, which is also something that we might need to add later.*/
   display: flex;
   align-items: center;
   justify-content: center;
-  
+  box-shadow: var(--heavy-shadow);
 }
 .popup{
   width: 400px;
