@@ -85,4 +85,17 @@ exports.updateClinic = async (req, res) => {
     } catch (error) {
         res.status(400).json({message: "Something went wrong", error_message: error.message})
     }
+};
+exports.deleteClinic = async (req, res) => {
+    try{
+        const id = req.params.clinic_id;
+        const clinic = await Clinic.findByIdAndDelete(id);
+        if(!clinic){
+            res.status(404).json({ message: "No clinic found"})
+            return;
+        }
+        res.status(200).json({ message: "Clinic deleted", clinic: clinic });
+    }catch (error) {
+        res.status(400).json({ message: "Something went wrong!", error_message: error.message});
+    }
 }
