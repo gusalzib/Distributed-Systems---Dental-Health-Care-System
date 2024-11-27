@@ -52,7 +52,7 @@
                 <hr>
                 <button class="submit-button" @click="updatePatientInfo()">Update my information</button>
                 <!-- <button class="submit-button" @click="openPopup()">Confirm Appointment</button> -->
-                <button class="submit-button" @click="bookAppointment()">Confirm Appointment</button>
+                <button class="submit-button" @click="openPopup()">Confirm Appointment</button>
                 <router-link to="/privacy_policy">Read about how we handle your information</router-link>
                 <div class="confirmation_message">{{ confirmation_message }}</div>
                 <div class="error_message">{{ error_message }}</div>
@@ -224,7 +224,7 @@ export default {
                         }, 5000);
                 }
             }).catch(error => {
-                this.error_message = response.data.message;
+                this.error_message = error.response?.data.message;
                 setTimeout(() => {
                     this.error_message = '';
                 }, 5000);
@@ -245,7 +245,7 @@ export default {
                         }, 5000);
                 }
             }).catch(error => {
-                this.error_message = response.data.message;
+                this.error_message = error.response?.data.message;
                 setTimeout(() => {
                     this.error_message = ''
                 }, 5000);
