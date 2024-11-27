@@ -77,14 +77,8 @@
 
 // @ is an alias to /src
 import { Api } from '@/Api'
-// var popup = document.getElementById("popup");
+import router from '@/router'
 
-// function openPopup(){
-//     popup.classList.add("open-popup")
-// }
-// function closePopup(){
-//     popup.classList.remove("open-popup")
-// }
 
 export default {
   name: 'singleAppointment',
@@ -99,8 +93,8 @@ export default {
             appointments: []
         },
         patient_service_url: 'http://localhost:3000/api',
-        current_patient_placeholder: '673a5173934efda9cdfa63a3',
-        // current_patient_placeholder:'674516312f3c59c02e4df78d',
+        // current_patient_placeholder: '673a5173934efda9cdfa63a3',
+        current_patient_placeholder:'674516312f3c59c02e4df78d',
         confirmation_message: '',
         error_message: '',
         appointment: {
@@ -156,6 +150,7 @@ export default {
             })
         },
         async bookAppointment() {
+            this.closePopup();
             await this.addAppointmentToPatient();
             const appointmentID = this.$route.params.appointmentID;
             this.appointment.available = false; 
@@ -164,9 +159,7 @@ export default {
                 await Api.put(`/appointments/${appointmentID}`, this.appointment).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'Thanks for using Dentime. Appoitment booked successfully!';
-                    setTimeout(() => {
-                            this.confirmation_message = ''
-                        }, 5000);
+                    router.push({path: `/bookingConfirmation/${appointmentID}`})
                 }
             }).catch(error => {
                 this.error_message = error.response?.data.message;

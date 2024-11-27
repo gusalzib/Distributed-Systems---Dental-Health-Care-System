@@ -12,7 +12,6 @@ exports.createAppointment = async (req, res) => {
         const date_and_time_until = req.body.date_and_time_until;
         const available = req.body.available;
         
-    
         newAppointment.patient_id = patient_id;
         newAppointment.dentist_id = dentist_id;
         newAppointment.dentist_clinic_id = dentist_clinic_id;
@@ -20,22 +19,12 @@ exports.createAppointment = async (req, res) => {
         newAppointment.date_and_time_until = date_and_time_until;
         newAppointment.available = available;
         
-    
         await newAppointment.save();
     
-        res
-          .status(200)
-          .json({
-            message: "Appointment created successfully",
-            appointment: newAppointment,
-          });
-      } catch (error) {
-        res
-          .status(400)
-          .json({
-            message: "Failed to create appointment",
-            error_message: error.message,
-          });
+        res.status(200).json({message: "Appointment created successfully",appointment: newAppointment });
+
+      }catch(error) {
+        res.status(400).json({message: "Failed to create appointment",error_message: error.message });
       }
     };
 exports.getAllAppointments = async (req, res) => {
@@ -47,7 +36,7 @@ exports.getAllAppointments = async (req, res) => {
         }
         res.status(200).json({ message: "All appointments retrieved", appointments: appointments });
     }catch (error) {
-        res.status(400).json({ message: "Something went wrong!", error_message: error.message});
+        res.status(400).json({ message: "Something went wrong!", error_message: error.message });
     }
 }
 exports.getSpecificAppointment = async (req, res) => {
@@ -64,7 +53,6 @@ exports.getSpecificAppointment = async (req, res) => {
     }
 }
 exports.getPatientsAppointments = async (req, res) => {
-    console.log("I got here");
     try{
         const patient_id = req.params.patient_id;    
         const appointments = await Appointment.find();
@@ -82,7 +70,7 @@ exports.getPatientsAppointments = async (req, res) => {
         }
 
     }catch (error) {
-        res.status(500).json({ message: "Something went wrong!", error_message: error.message});
+        res.status(400).json({ message: "Something went wrong!", error_message: error.message});
     }
 }
 
@@ -118,11 +106,10 @@ exports.updateAppointment = async (req, res) => {
         res.status(200).json({ message: "Appointment updated", updatedAppointment: updatedAppointment });
 
     }catch (error) {
-        res.status(500).json({ message: "Something went wrong!", error_message: error.message});
+        res.status(400).json({ message: "Something went wrong!", error_message: error.message});
     }
 }
 exports.deleteAppointment = async (req, res) => {
-    console.log("I got here");
     try{
         const id = req.params.appointment_id;
         const appointment = await Appointment.findByIdAndDelete(id);
@@ -131,6 +118,19 @@ exports.deleteAppointment = async (req, res) => {
             return;
         }
         res.status(200).json({ message: "Appointment deleted", appointment: appointment });
+    }catch (error) {
+        res.status(400).json({ message: "Something went wrong!", error_message: error.message});
+    }
+}
+exports.getAvailableAppointments = async (req, res) => {
+    try{
+        const allAppointments = await Appointment.find();
+        if(allAppointments.lenght === 0){
+            res.status(404).json({ message: "No appointments found"})
+            return;
+        }
+        const appointments = allAppointments.filter(allAppointments => allAppointments.available && allAppointments.available === true )
+        res.status(200).json({ message: "All available appointments retrieved", appointments: appointments });
     }catch (error) {
         res.status(400).json({ message: "Something went wrong!", error_message: error.message});
     }
