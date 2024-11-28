@@ -45,39 +45,20 @@ app.use(
 // Also, handle preflight requests for all routes
 app.options("*", cors());
 
-
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-// catch 404 and forward to error handler
-// app.use(function(req, res, next) {
-//   next(createError(404));
-// });
-
-// // error handler
-// app.use(function(err, req, res, next) {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
-
-
-const {createAppointment, getAllAppointments,getSpecificAppointment,getPatientsAppointments,updateAppointment,deleteAppointment,getAvailableAppointments} = require("./controller/appointmentController");
+const {createAppointment, getAllAppointments,getSpecificAppointment,getPatientsAppointments,updateAppointment,deleteAppointment,getAvailableAppointments,getClinicAppointments} = require("./controller/appointmentController");
 
 app.post("/api/appointments/create", createAppointment);
 app.get("/api/appointments", getAllAppointments);
 app.get("/api/appointments/:appointment_id", getSpecificAppointment);
 app.get("/api/appointments/specific/:patient_id",getPatientsAppointments);
 app.get("/api/appointments/available/appointment",getAvailableAppointments)
+app.get("/api/appointments/:clinicID/clinics/appointment",getClinicAppointments)
 app.put("/api/appointments/:appointment_id",updateAppointment);
 app.delete("/api/appointments/:appointment_id",deleteAppointment);
 
@@ -91,4 +72,5 @@ app.listen(port, function (err) {
   console.log(`Backend: http://localhost:${port}/api/`);
   console.log(`Frontend (production): http://localhost:${port}/`);
 });
+
 
