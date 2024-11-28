@@ -653,3 +653,66 @@ the card, which is also something that we might need to add later.*/
   cursor: pointer;
   box-shadow: var(--medium-shadow);
 }
+/* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  Clinic  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
+.clinic-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 60%;
+  height: 100%;
+  margin: 5% auto;
+  margin-top: 15%;
+  border: 3px var(--slate-gray) solid;
+  background-color: var(--columbia-blue-darker);
+  border-radius: 10px;
+  box-shadow: var(--heavy-shadow);
+  padding: 30px;
+
+}
+
+.clinic-sidebar{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  background-color: whitesmoke;
+  border: 1px var(--columbia-blue-darker) solid;
+  border-radius: 10px;
+  box-shadow: var(--light-shadow);
+  width: 20%;
+  min-height: 100%;
+}
+
+#clinic-sidebar-menu{
+  padding: 40px 0;
+  padding-top: 5px;
+}
+
+#sidebar-links{
+  display: block;
+  text-decoration: none;
+  color: black;
+  padding: 10px;
+  background-color: var(--thistle);
+  margin: auto;
+  border: 0.5px var(--slate-gray) solid;
+  cursor: pointer;
+}
+#sidebar-links:hover{
+  background-color: var(--pink-lavendar);
+}
+#clinic-card {
+  width: 70%;
+  height: 100%;
+  background-color: whitesmoke;
+  border: none;
+  border-radius: 15px;
+  box-shadow: var(--light-shadow);
+  overflow: hidden;
+  padding: 20px;
+  transition: transform 750ms;
+  margin:  auto;
+  margin-right: 5%;
+  cursor: pointer;
+
+}

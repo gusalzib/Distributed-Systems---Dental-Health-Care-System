@@ -27,7 +27,9 @@
             <!-- Later on, the select button will have the responsibility of triggering the countdown timer for the booking process -->
             <div class="appointments-card">
               <h2><strong>{{clinic_name}} </strong>|{{appointment.date_and_time_from}} | {{appointment.date_and_time_until }} | {{clinic_address}}</h2>
+              <button class="clinic-button" @click="rerouting(`/clinic/${appointment.dentist_clinic_id}`)">Contact Clinic</button>
               <button class="select-button" @click="checkAvailability(appointment._id)">Select</button>
+              
             </div>
           </div>
         </div>
@@ -55,7 +57,8 @@ export default {
         available:"",
       },
       appointments: [],
-      clinic_name: "",
+      clinics: [],
+      clinicID: "",
       clinic_address: "",
       error_message: '',
       confirmation_message: ''
@@ -63,9 +66,20 @@ export default {
     }
   },
   mounted() {
-    this.getAllAppointments()
+    this.getAllAppointments(),
+    this.getAllClinics();
   },
     methods: {
+      async getAllClinics(){
+      await Api.get("/clinics").then(response =>{
+        if(response.status === 200){
+          this.clinics = response.data.clinics
+          console.log(this.clinics)
+        }
+      }).catch(error =>{
+        console.log(error.message);
+      })
+    },
     async getAllAppointments(){
       await Api.get("/appointments/available/appointment").then(response =>{
         if(response.status === 200){
@@ -88,6 +102,7 @@ export default {
         Api.get(`/appointments/${appointmentID}`).then(response => {
           if (response.status === 200) {
             this.appointment = response.data.appointment
+            var clinicID = this.appointment.dentist_clinic_id 
             console.log(this.appointment);
             if (!this.appointment.available) {
               this.error_message = 'Sorry this apointment was just taken by another user. '
@@ -107,8 +122,15 @@ export default {
                 this.error_message = '';
             }, 5000);
         })
-    }
-  } 
+    },
+    rerouting(targetPath){
+      console.log("target",targetPath);
+            router.push({path: `${targetPath}`})
+    },
+  }, 
+  
+  
+
 }
 </script>
 

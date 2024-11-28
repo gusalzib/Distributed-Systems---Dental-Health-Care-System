@@ -10,6 +10,7 @@ import Login from "./views/Login.vue";
 import MedicalJournal from "./views/MedicalJournal.vue";
 import Notifications from "./views/Notifications.vue";
 import BookingConfirmation from "./views/BookingConfirmation.vue"
+import Clinic from "./views/Clinic.vue"
 
 const routes = [
   { path: "/", name: "home", component: Home },
@@ -21,7 +22,8 @@ const routes = [
   { path: '/login', name: 'login', component: Login },
   { path: '/medical_journal', name: 'medicalJournal', component: MedicalJournal },
   {path: '/notifications', name: 'notifiations', component: Notifications},
-  {path: '/bookingConfirmation/:appointmentID', name: 'bookingConfirmation', component: BookingConfirmation}
+  {path: '/bookingConfirmation/:appointmentID', name: 'bookingConfirmation', component: BookingConfirmation},
+  {path: '/clinic/:clinicID', name: 'clinic', component: Clinic}
 
 
 ];
