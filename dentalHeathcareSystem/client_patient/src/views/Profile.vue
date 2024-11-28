@@ -9,6 +9,7 @@
                     <a id="sidebar-links" @click.native="setActive('edit_profile')">Edit profile</a>
                     <a id="sidebar-links" @click.native="setActive('subscriptions')" @click="">Subscriptions</a>
                     <a id="sidebar-links" @click.native="setActive('booked_appointments')"> Booked Appointments</a>
+                    <a id="sidebar-links" @click.native="setActive('medical_journal')" >My Medical Journal</a>
                 </div>
             </div>
 
@@ -61,6 +62,10 @@
                     <h3>My Appointments</h3>
                     <MyAppointments />
                 </div>
+                <div v-else-if="activeSection === 'medical_journal'">
+                    <h3>Medicla Journal</h3>
+                    <MedicalJournal />
+                </div>
                 <div v-else>
                     <h3 id="single-patient-detail">{{ patient.name }}</h3>
                     <hr>
@@ -84,12 +89,14 @@
 
 // @ is an alias to /src
 import { Api } from '@/Api';
-import MyAppointments from '@/views/MyAppointments.vue'
+import MyAppointments from '@/views/MyAppointments.vue';
+import MedicalJournal from '@/views/MedicalJournal.vue';
 
 export default {
     name: 'profile',
     components: {
-        MyAppointments
+        MyAppointments,
+        MedicalJournal
   },
   data() {
       return {
