@@ -361,6 +361,16 @@ label{
   width: 180px;
   margin: 0 auto;
 }
+
+.my-appointments-card ul{
+  list-style: none;
+}
+
+.my-appointments-card span{
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
 #modal{
   position: fixed;
   background-color: aliceblue;
@@ -798,7 +808,7 @@ the card, which is also something that we might need to add later.*/
     }
 
     .single-patient-container{
-        margin: 8% auto;
+        margin: 30% auto;
         flex-direction: column;
     }
 
@@ -816,7 +826,7 @@ the card, which is also something that we might need to add later.*/
 
 @media only screen and (max-width: 650px) {
     .single-patient-container {
-            margin: 15% auto;
+            margin: 30% auto;
             flex-direction: column;
             width: 95%;
         }

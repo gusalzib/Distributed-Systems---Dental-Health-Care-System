@@ -68,7 +68,6 @@
                     <p >E-mail:  {{ patient.email }}</p>
                     <p >Address:  {{ patient.address }}</p>
                     <p >SSN:  {{ patient.ssn }}</p>
-                    <p >City:  {{ patient.password }}</p>
                 </div>
                 <div id="confirmation_message" class="confirmation_message">{{ confirmation_message }}</div>
                   <div id="error_message" class="error_message">{{ error_message }}</div>
@@ -106,7 +105,18 @@ export default {
           confirmation_message: '',
           activeSection: '',
         current_patient_placeholder: '673a5173934efda9cdfa63a3',
-        // current_patient_placeholder:'674516312f3c59c02e4df78d',
+          // current_patient_placeholder:'674516312f3c59c02e4df78d',
+          bookedAppoinmentsIds: [],
+          bookedAppoinments: [],
+          bookedAppointemnt: {
+            patient_id: "",
+            dentist_id:"",
+            dentist_clinic_id: "",
+            type_of_appointment:"",
+            date_and_time_from:"",
+            date_and_time_until:"",
+            available:"",
+          }
     }
     },
     mounted() {
@@ -142,6 +152,7 @@ export default {
                 if (response.status === 200) {
                     this.patient = response.data.patients;
                     
+                    
                 }
             }).catch(error => {
                 this.error_message = 'Something went wrong. Patient information not found!'
@@ -167,7 +178,7 @@ export default {
                     this.error_message = '';
                 }, 5000);
             })
-        },
+        }
   }
 }
 </script>
