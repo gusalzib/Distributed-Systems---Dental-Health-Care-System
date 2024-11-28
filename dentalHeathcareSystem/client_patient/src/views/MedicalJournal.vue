@@ -1,7 +1,8 @@
 <template>
   <main>
     <div class="journal-container">
-        <h1>{{ patient.name }}'s medical journal:</h1>
+        <h2>{{ patient.name }}'s medical journal:</h2>
+        <hr>
         <div class="journal-details" v-for="journal in patient.medical_journal" :key="journal._id">
             <h2>{{ journal.date }} |Clinic name</h2>
             <p>{{ journal.journal }}</p>

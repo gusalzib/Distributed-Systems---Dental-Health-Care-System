@@ -119,22 +119,9 @@ label{
   box-shadow: var(--light-shadow);
 }
 
-/* header{
-  display: flex;
-  flex-direction: row;
-  top: 0;
-  left: 0;
-  background-color: var(--header-bg);
-} */
 
-@media only screen and (max-width: 1200px){
+@media only screen and (max-width: 1350px){
 
-  /* header{
-    border: 3px rgb(4, 255, 0) solid;
-    height: auto;
-    flex-direction: column;
-    justify-content: center;
-  } */
    
   .menu-icon-container{
     display: block;
@@ -364,6 +351,7 @@ label{
 
 .my-appointments-card ul{
   list-style: none;
+  left: -90%;
 }
 
 .my-appointments-card span{
@@ -416,13 +404,19 @@ the card, which is also something that we might need to add later.*/
 }
 
 @media only screen and (max-width: 1300px){
+  .my-appointments-container{
+    width: 100%;
+    padding: 5px;
+  }
   .my-appointments-card{
     flex-direction: column;
+    padding: 5px;
+    text-align: left;
   }
 
   .my-appointments-card button{
     margin: 10px auto;
-    width: 50%;
+    width: 90%;
   }
 }
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  Single Appointment PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
@@ -586,6 +580,14 @@ the card, which is also something that we might need to add later.*/
   padding: 20px;
   margin: auto;
 }
+
+@media only screen and (max-width: 500px){
+  .journal-container{
+    width: 95%;
+    padding: 5px;
+  }
+}
+
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Notifications PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 .notifications-container{
   width: 70%;
@@ -657,6 +659,7 @@ the card, which is also something that we might need to add later.*/
     flex-wrap: wrap;
     width: 90%;
     height: 100%;
+    min-height: 400px;
     margin: 5% auto;
     margin-top: 15%;
     border: 3px var(--slate-gray) solid;
@@ -668,7 +671,8 @@ the card, which is also something that we might need to add later.*/
 }
 
 .single-patient-sidebar{
-    position: relative;
+    position: sticky;
+    top: 30%;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
@@ -677,7 +681,7 @@ the card, which is also something that we might need to add later.*/
     border-radius: 10px;
     box-shadow: var(--light-shadow);
     width: 20%;
-    min-height: 100%;
+    max-height: 300px;
 }
 
 #single-patient-sidebar-menu{
@@ -793,7 +797,7 @@ the card, which is also something that we might need to add later.*/
         width: 90%;
     }
 }
-@media only screen and (max-width: 1000px) {
+@media only screen and (max-width: 1250px) {
     .single-patient-container{
         width: 90%;
     }
@@ -816,6 +820,7 @@ the card, which is also something that we might need to add later.*/
 
     .single-patient-sidebar{
         width: 90%;
+        position: relative;
         margin: 10px auto;
     }
 
@@ -828,7 +833,7 @@ the card, which is also something that we might need to add later.*/
 
 @media only screen and (max-width: 650px) {
     .single-patient-container {
-            margin: 30% auto;
+            margin: 40% auto;
             flex-direction: column;
             width: 95%;
         }
