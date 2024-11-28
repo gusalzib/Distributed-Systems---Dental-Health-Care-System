@@ -10,6 +10,7 @@ import Login from "./views/Login.vue";
 import MedicalJournal from "./views/MedicalJournal.vue";
 import Notifications from "./views/Notifications.vue";
 import Profile from "./views/Profile.vue";
+import BookingConfirmation from "./views/BookingConfirmation.vue"
 
 const routes = [
   { path: "/", name: "home", component: Home },
@@ -22,7 +23,9 @@ const routes = [
   { path: '/medical_journal', name: 'medicalJournal', component: MedicalJournal },
   { path: '/notifications', name: 'notifiations', component: Notifications },
   { path: '/profile', name: 'profile', component: Profile },
-  
+  ,
+  {path: '/bookingConfirmation/:appointmentID', name: 'bookingConfirmation', component: BookingConfirmation}
+
 
 ];
 

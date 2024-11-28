@@ -67,7 +67,7 @@ export default {
   },
     methods: {
     async getAllAppointments(){
-      await Api.get("/appointments").then(response =>{
+      await Api.get("/appointments/available/appointment").then(response =>{
         if(response.status === 200){
           this.appointments = response.data.appointments
         }
