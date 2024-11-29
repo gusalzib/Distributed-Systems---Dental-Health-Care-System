@@ -54,6 +54,26 @@ exports.retrieveSpecificClinic = async (req, res) => {
     res.status(400).json({ message: "Something went wrong!", error_message: error.message });
   }
 };
+// This method should come from dentist management service, but since we dont have that servie implemented yet, we can use this method until it is done 
+exports.retrieveDentistsInSpecificClinic = async (req, res) => {
+    try {
+        const id = req.params.clinic_id;
+        const clinic = await Clinic.findById(id);
+        
+        if (!clinic) {
+            res.status(400).json({ message: "No clinic found!" });
+            return;
+        }
+        const clinicDentists = clinic.dentists;
+        if (!clinicDentists) {
+            res.status(400).json({ message: "No clinic found!" });
+            return;
+        }
+        res.status(200).json({message: "Clinics dentists retrieved successfully!", clinicDentists: clinicDentists})
+  } catch (error) {
+    res.status(400).json({ message: "Something went wrong!", error_message: error.message });
+  }
+};
 exports.updateClinic = async (req, res) => {
     try {
         const id = req.params.clinic_id; 

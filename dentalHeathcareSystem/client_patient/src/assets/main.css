@@ -62,6 +62,7 @@ label{
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 1000;
 }
 .nav{
  width: 100%;
@@ -118,22 +119,9 @@ label{
   box-shadow: var(--light-shadow);
 }
 
-/* header{
-  display: flex;
-  flex-direction: row;
-  top: 0;
-  left: 0;
-  background-color: var(--header-bg);
-} */
 
-@media only screen and (max-width: 1200px){
+@media only screen and (max-width: 1350px){
 
-  /* header{
-    border: 3px rgb(4, 255, 0) solid;
-    height: auto;
-    flex-direction: column;
-    justify-content: center;
-  } */
    
   .menu-icon-container{
     display: block;
@@ -332,7 +320,7 @@ label{
 }
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX My Appointment PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 .my-appointments-container{
-  width: 70%;
+  width: 90%;
   height: auto;
   padding: 20px;
   margin: 10% auto;
@@ -342,16 +330,33 @@ label{
 
 }
 
+.my-appointments-card h2{
+  margin: 10px auto;
+}
+
 .my-appointments-card{
-  background-color: var(--vt-c-white-mute);
+  background-color: var(--columbia-blue-darker);
   padding: 20px;
   border-radius: 10px;
-  /* border: 1px blue solid; */
   margin: 10px auto;
   width: 100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
+}
+.my-appointments-card button{
+  width: 180px;
+  margin: 0 auto;
+}
+
+.my-appointments-card ul{
+  list-style: none;
+  left: -90%;
+}
+
+.my-appointments-card span{
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 #modal{
@@ -399,13 +404,19 @@ the card, which is also something that we might need to add later.*/
 }
 
 @media only screen and (max-width: 1300px){
+  .my-appointments-container{
+    width: 100%;
+    padding: 5px;
+  }
   .my-appointments-card{
     flex-direction: column;
+    padding: 5px;
+    text-align: left;
   }
 
   .my-appointments-card button{
     margin: 10px auto;
-    width: 50%;
+    width: 90%;
   }
 }
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  Single Appointment PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
@@ -569,6 +580,14 @@ the card, which is also something that we might need to add later.*/
   padding: 20px;
   margin: auto;
 }
+
+@media only screen and (max-width: 500px){
+  .journal-container{
+    width: 95%;
+    padding: 5px;
+  }
+}
+
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Notifications PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 .notifications-container{
   width: 70%;
@@ -625,6 +644,202 @@ the card, which is also something that we might need to add later.*/
   margin: 0;
 }
 
+/*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX PROFILE PAGE XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX*/
+
+
+#single-patient-link{
+    text-decoration: none;
+}
+
+
+/*Single patient page style*/
+.single-patient-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 90%;
+    height: 100%;
+    min-height: 400px;
+    margin: 5% auto;
+    margin-top: 15%;
+    border: 3px var(--slate-gray) solid;
+    background-color: var(--columbia-blue-darker);
+    border-radius: 10px;
+    box-shadow: var(--heavy-shadow);
+    padding: 30px;
+
+}
+
+.single-patient-sidebar{
+    position: sticky;
+    top: 30%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    background-color: whitesmoke;
+    border: 1px var(--columbia-blue-darker) solid;
+    border-radius: 10px;
+    box-shadow: var(--light-shadow);
+    width: 20%;
+    max-height: 300px;
+}
+
+#single-patient-sidebar-menu{
+    padding: 40px 0;
+    padding-top: 5px;
+    text-align: center;
+}
+
+#sidebar-links{
+    display: block;
+    text-decoration: none;
+    color: rgb(255, 255, 255);
+    padding: 10px 20px;
+    background-color: var(--box-bg-light);
+    margin: auto;
+    border: 0.5px var(--slate-gray) solid;
+    cursor: pointer;
+    text-align: left;
+}
+#sidebar-links:hover{
+    background-color: var(--pink-lavendar);
+}
+#single-patient-card {
+    width: 70%;
+    height: 100%;
+    background-color: whitesmoke;
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--light-shadow);
+    overflow: hidden;
+    padding: 20px;
+    transition: transform 750ms;
+    margin:  auto;
+    margin-right: 5%;
+    cursor: pointer;
+
+}
+
+#single-patient-detail {
+    color: #333;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    text-transform: capitalize;
+
+}
+
+#single-patient-card p {
+    color: var(--slate-gray);
+    font-size: 1em;
+    margin-bottom: 8px;
+    text-align: left;
+    font-weight: bold;
+}
+
+#edit-profile{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#update-patient-form label{
+    align-content: start;
+}
+
+#edit-profile input[type="text"], input[type="email"]{
+    width: 100%;
+}
+
+#edit-profile h3{
+    margin: 3px auto;
+}
+
+#edit-profile button{
+    margin: 5px auto;
+    width: 50%;
+}
+
+.subs-container{
+  
+  padding: 5px 10px;
+  margin: 10px auto;
+}
+.subs-container h4{
+  font-weight: bold;
+  
+}
+.sub button{
+  background-color: var(--submit-btn);
+  width: 130px;
+  margin: 0 auto;
+  padding: 5px;
+}
+
+.sub{
+  
+  margin: 10px auto;
+}
+
+#edit-profile input{
+  padding: 5px;
+  border:1px  var(--vt-c-white-mute) solid;
+  border-radius: 10px;
+}
+
+#edit-profile input:hover{
+  border: 1px var(--vt-c-black) solid;
+}
+
+@media only screen and (max-width: 1600px) {
+    .single-patient-container{
+        width: 90%;
+    }
+}
+@media only screen and (max-width: 1250px) {
+    .single-patient-container{
+        width: 90%;
+    }
+    .patient-container {
+        width: 100%;
+        margin: 5% 0;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 3fr));
+    }
+
+    #patient-card{
+        max-width: 100%;
+        margin: 10px auto;
+        padding: 20px 10px;
+    }
+
+    .single-patient-container{
+        margin: 30% auto;
+        flex-direction: column;
+    }
+
+    .single-patient-sidebar{
+        width: 90%;
+        position: relative;
+        margin: 10px auto;
+    }
+
+    #single-patient-card{
+        width: 90%;
+        margin: 10px auto;
+    }
+    
+}
+
+@media only screen and (max-width: 650px) {
+    .single-patient-container {
+            margin: 40% auto;
+            flex-direction: column;
+            width: 95%;
+        }
+}
+
+
 /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  BookingConfirmation page  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
 .booking-confirmation-container{
   text-align: center;
@@ -658,8 +873,9 @@ the card, which is also something that we might need to add later.*/
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  width: 60%;
+  width: 90%;
   height: 100%;
+  min-height: 400px;
   margin: 5% auto;
   margin-top: 15%;
   border: 3px var(--slate-gray) solid;
@@ -671,7 +887,8 @@ the card, which is also something that we might need to add later.*/
 }
 
 .clinic-sidebar{
-  position: relative;
+  position: sticky;
+  top: 30%;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
@@ -680,26 +897,44 @@ the card, which is also something that we might need to add later.*/
   border-radius: 10px;
   box-shadow: var(--light-shadow);
   width: 20%;
-  min-height: 100%;
+  max-height: 300px;
 }
 
-#clinic-sidebar-menu{
+.clinic-sidebar-menu{
   padding: 40px 0;
   padding-top: 5px;
+  text-align: center;
 }
 
-#sidebar-links{
+.sidebar-links{
   display: block;
   text-decoration: none;
-  color: black;
-  padding: 10px;
-  background-color: var(--thistle);
+  color: rgb(255, 255, 255);
+  padding: 10px 20px;
+  background-color: var(--box-bg-light);
   margin: auto;
   border: 0.5px var(--slate-gray) solid;
   cursor: pointer;
+  text-align: left;
 }
-#sidebar-links:hover{
+.sidebar-links:hover{
   background-color: var(--pink-lavendar);
+}
+.clinic-right-side{
+  width: 80%;
+  display: flex;
+  text-align: center;
+  flex-direction: column;
+}
+.clinic-title{
+  text-align: center;
+}
+.clinic-contact-card{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
 }
 #clinic-card {
   width: 70%;
@@ -715,4 +950,20 @@ the card, which is also something that we might need to add later.*/
   margin-right: 5%;
   cursor: pointer;
 
+}
+.clinic_appointment_card{
+  display: flex;
+  flex-direction: column;
+  width: 70%;
+  height: 100%;
+  background-color: whitesmoke;
+  border: none;
+  border-radius: 15px;
+  box-shadow: var(--light-shadow);
+  overflow: hidden;
+  padding: 20px;
+  transition: transform 750ms;
+  margin:  auto;
+  margin-right: 5%;
+  cursor: pointer;
 }

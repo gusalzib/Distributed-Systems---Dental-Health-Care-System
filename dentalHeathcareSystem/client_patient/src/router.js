@@ -9,6 +9,7 @@ import Registration from "./views/Registration.vue";
 import Login from "./views/Login.vue";
 import MedicalJournal from "./views/MedicalJournal.vue";
 import Notifications from "./views/Notifications.vue";
+import Profile from "./views/Profile.vue";
 import BookingConfirmation from "./views/BookingConfirmation.vue"
 import Clinic from "./views/Clinic.vue"
 
@@ -21,7 +22,9 @@ const routes = [
   { path: '/registration', name: 'registration', component: Registration },
   { path: '/login', name: 'login', component: Login },
   { path: '/medical_journal', name: 'medicalJournal', component: MedicalJournal },
-  {path: '/notifications', name: 'notifiations', component: Notifications},
+  { path: '/notifications', name: 'notifiations', component: Notifications },
+  { path: '/profile', name: 'profile', component: Profile },
+  ,
   {path: '/bookingConfirmation/:appointmentID', name: 'bookingConfirmation', component: BookingConfirmation},
   {path: '/clinic/:clinicID', name: 'clinic', component: Clinic}
 
