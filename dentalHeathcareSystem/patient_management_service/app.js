@@ -80,6 +80,10 @@ app.put("/api/patients/:patient_id", updatePatient)
 // app.put("/api/patients/:patient_id/:appointmentID",addAppoinmentToPatient)
 app.delete("/api/patients/:patient_id", deletePatientByID)
 
+app.get("/active", (req,res) =>{
+  res.sendStatus(200)
+})
+
 app.listen(port, function (err) {
   if (err) throw err;
   console.log(`Express server listening on port ${port}`);
