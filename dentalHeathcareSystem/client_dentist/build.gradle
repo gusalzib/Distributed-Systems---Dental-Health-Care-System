@@ -1,0 +1,42 @@
+plugins {
+  id 'java'
+  id 'application'
+  id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation 'org.openjfx:javafx-controls:17.0.13'
+  implementation 'org.openjfx:javafx-base:17.0.13'
+  implementation 'org.openjfx:javafx-graphics:17.0.13'
+  implementation 'org.openjfx:javafx-fxml:17.0.13'
+}
+
+application {
+  mainModule = 'group.client_dentist'
+  mainClass = 'group.client_dentist.HelloApplication'
+}
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
+}
+
+javafx {
+  version = '17'
+  modules = ['javafx.controls', 'javafx.fxml']
+}
+
+println "JavaFX Home: ${System.getenv('JAVA_FX_HOME')}"
+
+run {
+  jvmArgs = [
+          '--module-path', "${System.getenv('JAVA_FX_HOME')}/lib",
+          '--add-modules', 'javafx.controls,javafx.fxml,javafx.base'
+  ]
+}
+
