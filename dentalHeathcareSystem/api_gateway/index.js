@@ -10,6 +10,7 @@ const origins = [
   "http://localhost:5173",
   "http://localhost:3001",
   "http://localhost:3002",
+  "http://localhost:3005"
 
 ];
 // Middleware setup
@@ -36,7 +37,11 @@ const services = [
     {
         route: "/api/appointments",
         target: "http://localhost:3002/api/appointments",
-      }
+    },
+    {
+        route: "/api/dentists",
+        target: "http://localhost:3005/api/dentists"
+    }
    ];
 
 services.forEach(({ route, target }) => {
@@ -57,4 +62,3 @@ const PORT = 3000;
 app.listen(PORT, () => {
  console.log(`Gateway is running on port ${PORT}`);
 })
-   
