@@ -1,0 +1,153 @@
+{
+	"info": {
+		"_postman_id": "1dc1d81d-620b-4d9a-bcae-f1084c5ae6d0",
+		"name": "Dental Health Care System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "38096643",
+		"_collection_link": "https://dazzling-pandas.postman.co/workspace/Dazzling-Pandas-Workspace~27f03e78-c3c7-460c-8656-bd9d6d846b14/collection/38096643-1dc1d81d-620b-4d9a-bcae-f1084c5ae6d0?action=share&source=collection_link&creator=38096643"
+	},
+	"item": [
+		{
+			"name": "Register Patient",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response is CREATED. Status(200)\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.environment.set(\"patientID\", jsonData.patient._id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"rebecka\",\r\n    \"email\": \"funny@gmail.com\",\r\n    \"phone_number\": \"083443292\",\r\n    \"address\": \"sad street 1\",\r\n    \"appoitnments\": [\r\n        {\r\n            \"appoitnment_id\": \"asjapsldjewhdoas\"\r\n        }\r\n    ],\r\n    \"ssn\": \"249872364238\",\r\n    \"medical_journal\": [\r\n        {\r\n            \"journal\": \"I am healthy\",\r\n            \"date\": \"12/112/1212\"\r\n        }\r\n    ]\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/api/patients"
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve all patients",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response is CREATED. Status(200)\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{host}}/api/patients"
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve specific patient",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response is CREATED. Status(200)\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{host}}/api/patients/{{patientID}}"
+			},
+			"response": []
+		},
+		{
+			"name": "Update patient by id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response is CREATED. Status(200)\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"jawad\",\r\n    \"email\": \"funny@gmail.com\",\r\n    \"phone_number\": \"083443292\",\r\n    \"address\": \"miserable street 1\",\r\n    \"appoitnments\": [\r\n        {\r\n            \"appoitnment_id\": \"asjapsldjewhdoas\"\r\n        }\r\n    ],\r\n    \"ssn\": \"249872364238\",\r\n    \"medical_journal\": [\r\n        {\r\n            \"journal\": \"I am healthy\",\r\n            \"date\": \"12/112/1212\"\r\n        }\r\n    ]\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/api/patients/{{patientID}}"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete patient account by id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response is CREATED. Status(200)\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "{{host}}/api/patients/{{patientID}}"
+			},
+			"response": []
+		}
+	]
+}
