@@ -70,26 +70,62 @@ app.use((req, res) => {
 const services = [
     {
       route: "/api/patients",
-      target: "http://localhost:3001/api/patients",
+      target: "",
       isRunning: true,
-      host: "http://localhost:3001",
+      host:"",
+      ports: [
+        {port: 3001}
+      ] 
+      
     },
     {
         route: "/api/appointments",
-        target: "http://localhost:3002/api/appointments",
+        target: "",
         isRunning: true,
-        host: "http://localhost:3002",
+        host: "",
+        ports: [
+          {port: 3002}
+        ] 
       },
       {
         route: "/api/clinics",
-        target: "http://localhost:3003/api/clinics",
+        target: "",
         isRunning: true,
-        host: "http://localhost:3003",
+        host: "",
+        ports: [
+          {port: 3003}
+        ]  
       }
    ];
 
+   services.forEach(service => {
+      const port = roundRobinPort(service.ports)
+      service.target = `http://localhost:${port}${service.route}`
+      service.host = `http://localhost:${port}`
+
+
+   })
+
+   function roundRobinPort(ports){
+      var index = 0
+      var portValue = 0
+
+      if(ports.length === 0){
+        portValue = ports[index].port
+        return portValue
+      }else{
+        index = (index +1 ) % ports.length
+        portValue = ports[index].port
+        return portValue
+      }
+   }
+
+
+
 services.forEach(({ route, target }) => {
     // Proxy options
+    
+    
     const proxyOptions = {
       target,
       changeOrigin: true,
