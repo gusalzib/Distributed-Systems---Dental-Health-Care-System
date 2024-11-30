@@ -1,0 +1,79 @@
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+var mongoose = require('mongoose')
+var cors = require('cors');
+
+
+var app = express();
+var port = 3011; 
+// view engine setup
+//app.set('views', path.join(__dirname, 'views'));
+//app.set('view engine', 'jade');
+
+var mongoURI =  "mongodb://localhost:27017/dentalHealthcareSystem";
+// Connect to MongoDB
+mongoose
+  .connect(mongoURI)
+  .catch(function (err) {
+    console.error(`Failed to connect to MongoDB with URI: ${mongoURI}`);
+    console.error(err.stack);
+    process.exit(1);
+  })
+  .then(function () {
+    console.log(`Connected to MongoDB with URI: ${mongoURI}`); 
+  });
+
+// view engine setup
+// app.set("views", path.join(__dirname, "client_patient/src/"));
+// app.set('view engine', 'jade');
+
+const origins = [
+  "http://localhost:3000",
+];
+app.use(
+  cors({
+    origin: origins , // Allow all origins
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    preflightContinue: true,
+  })
+);
+
+// Also, handle preflight requests for all routes
+app.options("*", cors());
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+
+const {createAppointment, getAllAppointments,getSpecificAppointment,getPatientsAppointments,updateAppointment,deleteAppointment,getAvailableAppointments,getClinicAppointments} = require("./controller/appointmentController");
+
+app.post("/api/appointments/create", createAppointment);
+app.get("/api/appointments", getAllAppointments);
+app.get("/api/appointments/:appointment_id", getSpecificAppointment);
+app.get("/api/appointments/specific/:patient_id",getPatientsAppointments);
+app.get("/api/appointments/available/appointment",getAvailableAppointments)
+app.put("/api/appointments/:appointment_id",updateAppointment);
+app.delete("/api/appointments/:appointment_id",deleteAppointment);
+
+app.get("/active", (req,res) =>{
+  res.sendStatus(200)
+})
+
+
+
+
+
+app.listen(port, function (err) {
+  if (err) throw err;
+  console.log(`Express server listening on port ${port}`);
+  console.log(`Backend: http://localhost:${port}/api/`);
+  console.log(`Frontend (production): http://localhost:${port}/`);
+});
+
+

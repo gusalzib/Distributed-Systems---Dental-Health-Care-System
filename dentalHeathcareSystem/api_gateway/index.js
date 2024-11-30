@@ -31,7 +31,9 @@ const origins = [
   "http://localhost:3002",
   "http://localhost:3003",
   "http://localhost:3004",
-  "http://localhost:3009"
+  "http://localhost:3009",
+  "http://localhost:3011",
+  "http://localhost:3012"
 
 
 ];
@@ -71,7 +73,7 @@ app.use((req, res) => {               //load balancer middleware
   const port = roundRobinPort(currServer.ports, currServer.index)             // if there are many instances of the same service - balance between them
   currServer.index = port.index
   currServer.host = `http://localhost:${port.portValue}`              // give the portnumber for the port that should receive the request
-  req.pipe(request(currServer.host + req.url)).pipe(res)    
+  req.pipe(request(currServer.host + req.url)).pipe(res)              // forwarding the request to the correct service (the straw)
 })
 
 function extractRoute(url){
@@ -83,7 +85,7 @@ function extractRoute(url){
 
 
 
-const services = [
+const services = [                                      //Service array
     {
       route: "/api/patients",
       target: "",
@@ -103,7 +105,10 @@ const services = [
         isRunning: true,
         host: "",
         ports: [
-          {port: 3002}
+          {port: 3002},
+          {port: 3011},
+          {port: 3012}
+
         ],
         index:0,
       },
@@ -119,7 +124,7 @@ const services = [
       }
    ];
 
-   services.forEach(service => {
+   services.forEach(service => {                    // populate the target and the host with the correct values using roundRobin if there is duplicate services
       var portAndIndex = roundRobinPort(service.ports, service.index)
       var port = portAndIndex.portValue
       service.index = portAndIndex.index
@@ -132,35 +137,23 @@ const services = [
       
       var portValue = 0
 
-      if(ports.length === 1){
+      if(ports.length === 1){                 //if there is only one service
         portValue = ports[index].port
         portAndIndex = {portValue, index}
        
         return portAndIndex
-
-      // }else if(ports.length === 2){
-      //   var max = ports.length -1
-      //   index = Math.floor(Math.random() * (max-0 +max)) + 0
-      //   console.log(index);
-      //   portValue = ports[index].port
-      //   return portValue
-
-      }else{
-        console.log("before: ",index);
-        index = (index +1 ) % ports.length
-        console.log("after :",index);
+      }else{                              //If there is duplicate services
+        index = (index +1 ) % ports.length   //roundRobin algorithm
         portValue = ports[index].port
-        portAndIndex = {portValue, index}
+        portAndIndex = {portValue, index}     //returning the portnumber and the new index value
         return portAndIndex
       }
    }
 
 
 
-services.forEach(({ route, target }) => {
+services.forEach(({ route, target }) => {           //Gateway receiving Api calls and rerouts it to its corresponding service
     // Proxy options
-    
-    
     const proxyOptions = {
       target,
       changeOrigin: true,
