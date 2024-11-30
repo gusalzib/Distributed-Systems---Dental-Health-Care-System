@@ -33,8 +33,8 @@ const origins = [
   "http://localhost:3004",
   "http://localhost:3009",
   "http://localhost:3011",
-  "http://localhost:3012"
-
+  "http://localhost:3012",
+  "http://localhost:3005"
 
 ];
 // Middleware setup
@@ -121,7 +121,17 @@ const services = [                                      //Service array
           {port: 3003}
         ],
         index:0,
-      }
+      },
+      {
+        route: "/api/dentists",
+        target: "",
+        isRunning: true,
+        host: "",
+        ports: [
+          {port: 3005},
+        ],
+        index:0,
+      },
    ];
 
    services.forEach(service => {                    // populate the target and the host with the correct values using roundRobin if there is duplicate services
@@ -170,4 +180,3 @@ const PORT = 3000;
 app.listen(PORT, () => {
  console.log(`Gateway is running on port ${PORT}`);
 })
-   
