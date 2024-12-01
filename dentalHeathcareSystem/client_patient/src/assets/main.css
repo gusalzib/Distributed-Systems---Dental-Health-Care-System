@@ -868,3 +868,128 @@ the card, which is also something that we might need to add later.*/
   cursor: pointer;
   box-shadow: var(--medium-shadow);
 }
+/* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  Clinic  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */
+.clinic-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 90%;
+  height: 100%;
+  min-height: 400px;
+  margin: 5% auto;
+  margin-top: 15%;
+  border: 3px var(--slate-gray) solid;
+  background-color: var(--columbia-blue-darker);
+  border-radius: 10px;
+  box-shadow: var(--heavy-shadow);
+  padding: 30px;
+
+}
+
+.clinic-sidebar{
+  position: sticky;
+  top: 30%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  background-color: whitesmoke;
+  border: 1px var(--columbia-blue-darker) solid;
+  border-radius: 10px;
+  box-shadow: var(--light-shadow);
+  width: 20%;
+  max-height: 300px;
+  border: 3px var(--slate-gray) solid;
+}
+
+.clinic-sidebar-menu{
+  padding: 40px 0;
+  padding-top: 5px;
+  text-align: center;
+  border: 3px var(--slate-gray) solid;
+}
+
+.sidebar-links{
+  display: block;
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+  padding: 10px 20px;
+  background-color: var(--box-bg-light);
+  margin: auto;
+  border: 0.5px var(--slate-gray) solid;
+  cursor: pointer;
+  text-align: left;
+}
+.sidebar-links:hover{
+  background-color: var(--pink-lavendar);
+}
+.clinic-right-side{
+  width: 70%;
+  display: flex;
+  text-align: center;
+  flex-direction: column;
+  /* border: 3px orange solid; */
+  justify-content: center;
+  margin: auto;
+  margin-left: 5%;
+}
+.clinic-title{
+  text-align: center;
+  background-color: whitesmoke;
+  
+}
+.clinic-contact-card{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  /* border: 3px red solid; */
+}
+#clinic-card {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background-color: whitesmoke;
+  border: none;
+  overflow: hidden;
+  padding: 20px;
+  transition: transform 750ms;
+  margin:  auto;
+  margin-right: 5%;
+  cursor: pointer;
+}
+.clinic-appointment_card{
+  display: flex;
+  flex-direction: row;
+  width:  360px;
+  height: 100%;
+  background-color: whitesmoke;
+  border: none;
+  border-radius: 15px;
+  box-shadow: var(--light-shadow);
+  overflow: hidden;
+  padding: 20px;
+  transition: transform 750ms;
+  margin: 10px auto;
+  margin-right: 5%;
+  cursor: pointer;
+  text-align: left;
+  /* border: 3px blueviolet  solid; */
+}
+@media only screen and (max-width: 1250px){
+.clinic-right-side{
+  width: 90%;
+}
+.clinic-container{
+  margin: 40% auto;
+}
+}
+@media only screen and (max-width: 550px){
+.clinic-appointment_card{
+  width: 100%;
+  flex-direction: column;
+}
+
+}

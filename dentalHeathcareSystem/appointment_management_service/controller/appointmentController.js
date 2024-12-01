@@ -1,4 +1,4 @@
-const Appointment = require("../models/Appointment.js");
+Appointment = require("../models/Appointment.js");
 
 
 exports.createAppointment = async (req, res) => {
@@ -29,7 +29,8 @@ exports.createAppointment = async (req, res) => {
     };
 exports.getAllAppointments = async (req, res) => {
     try{
-        const appointments = await Appointment.find();
+        const appointments = await Appointment.find().sort({"date_and_time_from": 1});
+
         if(appointments.lenght === 0){
             res.status(404).json({ message: "No appointments found"})
             return;
@@ -124,7 +125,7 @@ exports.deleteAppointment = async (req, res) => {
 }
 exports.getAvailableAppointments = async (req, res) => {
     try{
-        const allAppointments = await Appointment.find();
+        const allAppointments = await Appointment.find().sort({"date_and_time_from": 1});
         if(allAppointments.lenght === 0){
             res.status(404).json({ message: "No appointments found"})
             return;
@@ -134,4 +135,31 @@ exports.getAvailableAppointments = async (req, res) => {
     }catch (error) {
         res.status(400).json({ message: "Something went wrong!", error_message: error.message});
     }
+},
+exports.getClinicAppointments = async (req, res) => {
+    try{
+        const clinicID = req.params.clinicID;
+        const allAppointments = await Appointment.find().sort({"date_and_time_from": 1});
+       
+        if(allAppointments.lenght === 0){
+            res.status(404).json({ message: "No appointments found"})
+            return;
+        }
+        
+        var appointments=[];
+        for (let i = 0; i<= allAppointments.length-1; i++){
+            var appointment = allAppointments[i];
+            if(appointment.dentist_clinic_id.equals(clinicID)){
+                appointments.push(appointment)
+            }
+        }
+        if(appointments.lenght === 0){
+            res.status(404).json({ message: "This clinic has no appointments"})
+            return;
+        }
+        res.status(200).json({ message: "All available appointments retrieved", appointments: appointments });
+    }catch (error) {
+        res.status(400).json({ message: "Something went wrong!", error_message: error.message});
+    }
 }
+

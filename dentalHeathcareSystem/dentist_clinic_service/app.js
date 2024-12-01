@@ -8,10 +8,7 @@ var cors = require('cors');
 
 
 var app = express();
-var port = 3002; 
-// view engine setup
-//app.set('views', path.join(__dirname, 'views'));
-//app.set('view engine', 'jade');
+var port = 3003; 
 
 var mongoURI =  "mongodb://localhost:27017/dentalHealthcareSystem";
 // Connect to MongoDB
@@ -26,9 +23,6 @@ mongoose
     console.log(`Connected to MongoDB with URI: ${mongoURI}`); 
   });
 
-// view engine setup
-// app.set("views", path.join(__dirname, "client_patient/src/"));
-// app.set('view engine', 'jade');
 
 const origins = [
   "http://localhost:3000",
@@ -45,27 +39,27 @@ app.use(
 // Also, handle preflight requests for all routes
 app.options("*", cors());
 
+
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const {createAppointment, getAllAppointments,getSpecificAppointment,getPatientsAppointments,updateAppointment,deleteAppointment,getAvailableAppointments,getClinicAppointments} = require("./controller/appointmentController");
 
-app.post("/api/appointments/create", createAppointment);
-app.get("/api/appointments", getAllAppointments);
-app.get("/api/appointments/:appointment_id", getSpecificAppointment);
-app.get("/api/appointments/specific/:patient_id",getPatientsAppointments);
-app.get("/api/appointments/available/appointment",getAvailableAppointments)
-app.get("/api/appointments/:clinicID/clinics/appointment",getClinicAppointments)
-app.put("/api/appointments/:appointment_id",updateAppointment);
-app.delete("/api/appointments/:appointment_id",deleteAppointment);
+const {createClinic,retrieveAllClinics,retrieveSpecificClinic,updateClinic,deleteClinic,retrieveDentistsInSpecificClinic} = require("./controller/clinicController");
+
+app.post("/api/clinics", createClinic);
+app.get("/api/clinics", retrieveAllClinics);
+app.get("/api/clinics/:clinic_id",retrieveSpecificClinic);
+app.get("/api/clinics/:clinic_id/dentists",retrieveDentistsInSpecificClinic);
+app.put("/api/clinics/:clinic_id",updateClinic);
+app.delete("/api/clinics/:clinic_id",deleteClinic);
 
 app.get("/active", (req,res) =>{
   res.sendStatus(200)
 })
-
 
 
 
@@ -76,5 +70,4 @@ app.listen(port, function (err) {
   console.log(`Backend: http://localhost:${port}/api/`);
   console.log(`Frontend (production): http://localhost:${port}/`);
 });
-
 

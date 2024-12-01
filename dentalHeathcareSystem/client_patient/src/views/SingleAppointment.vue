@@ -158,7 +158,6 @@ export default {
             this.appointment.patient_id = this.current_patient_placeholder;
                 await Api.put(`/appointments/${appointmentID}`, this.appointment).then(response => {
                 if (response.status === 200) {
-                    this.confirmation_message = 'Thanks for using Dentime. Appoitment booked successfully!';
                     router.push({path: `/bookingConfirmation/${appointmentID}`})
                 }
             }).catch(error => {

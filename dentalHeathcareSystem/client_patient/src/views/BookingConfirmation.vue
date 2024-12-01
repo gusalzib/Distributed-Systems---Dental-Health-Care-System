@@ -15,6 +15,8 @@
 
           </div>
           <button class="booking-confirmation-button" @click="rerouting('/')">Done</button>
+          <div class="confirmation_message">{{ confirmation_message }}</div>
+          <div class="error_message">{{ error_message }}</div>
       </div>
     </main>
   </template>
@@ -63,17 +65,24 @@
                     this.appointment = response.data.appointment
                 }
             }).catch(error =>{
-                console.log(error.mesage);
+                this.error_message = error.response?.data.message;
+                setTimeout(() => {
+                            this.error_message = ''
+                        }, 5000);
             })
         },
         async getClinic(){
             const clinic_id = this.appointment.dentist_clinic_id
             await Api.get(`/clinics/${clinic_id}`).then(response =>{
                 if(response.status === 200){
-                    this.clinic = response.data.clinic;     
+                    this.clinic = response.data.clinic;   
+                    
                 }
             }).catch(error =>{
-                console.log(error.mesage);
+                this.error_message = error.response?.data.message;
+                setTimeout(() => {
+                            this.error_message = ''
+                        }, 5000);
             })
         },
         async extractTimeAndDate() {
