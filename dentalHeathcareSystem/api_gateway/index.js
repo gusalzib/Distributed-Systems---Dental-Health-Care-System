@@ -9,10 +9,10 @@ const app = express();
 function activityCheck(server){                           //ping and echo - is the server running
   request(server.host + '/active', (err,res) =>{
     if(!err && res.statusCode == 200){
-      server.isRunning = true
+      server.isActive = true;
       console.log(`Server ${server.host} is running`);
     }else{
-      server.isRunning = false;
+      server.isActive = false;
       console.log(`Server ${server.host} is not running`);
     }
   })
@@ -20,7 +20,10 @@ function activityCheck(server){                           //ping and echo - is t
 
 setInterval(() => {                                     // Interval for ping and echo (every 5 seconds)
   services.forEach((server) => {
-    activityCheck(server)
+    server.ports.forEach((service_instance) => {
+      activityCheck(service_instance);
+    })
+    
   })
 }, 5000)
 
@@ -57,9 +60,13 @@ app.disable("x-powered-by"); // Hide Express server information
 app.use((req, res) => {               //load balancer middleware 
   let activeServers = []              
   services.forEach((server) => {      // only active servers are recieving requests
-    if(server.isRunning == true) {
-      activeServers.push(server)      // save the active servers in an array
-    }
+    server.ports.forEach((port) => {
+      if(port.isActive == true) {
+        activeServers.push(server)      // save the active servers in an array
+      }
+    })
+    
+
   })
 
   var currServer=""
@@ -92,9 +99,9 @@ const services = [                                      //Service array
       isRunning: true,
       host:"",
       ports: [
-        {port: 3001},
-        {port: 3004},
-        {port: 3009}
+        {port: 3001, isActive: true, host: `http://localhost:3001`},
+        {port: 3004, isActive: true, host: `http://localhost:3004`},
+        {port: 3009, isActive: true, host: `http://localhost:3009`}
       ] ,
       index:0,
       
@@ -105,9 +112,9 @@ const services = [                                      //Service array
         isRunning: true,
         host: "",
         ports: [
-          {port: 3002},
-          {port: 3011},
-          {port: 3012}
+          {port: 3002, isActive: true, host: `http://localhost:3002`},
+          {port: 3011, isActive: true, host: `http://localhost:3011`},
+          {port: 3012, isActive: true, host: `http://localhost:3012`}
 
         ],
         index:0,
@@ -118,7 +125,7 @@ const services = [                                      //Service array
         isRunning: true,
         host: "",
         ports: [
-          {port: 3003}
+          {port: 3003, isActive: true, host: `http://localhost:3003`}
         ],
         index:0,
       },
@@ -128,7 +135,7 @@ const services = [                                      //Service array
         isRunning: true,
         host: "",
         ports: [
-          {port: 3005},
+          {port: 3005, isActive: true, host: `http://localhost:3005`},
         ],
         index:0,
       },
@@ -144,7 +151,6 @@ const services = [                                      //Service array
    })
 
    function roundRobinPort(ports,index){
-      
       var portValue = 0
 
       if(ports.length === 1){                 //if there is only one service
@@ -152,10 +158,16 @@ const services = [                                      //Service array
         portAndIndex = {portValue, index}
        
         return portAndIndex
-      }else{                              //If there is duplicate services
-        index = (index +1 ) % ports.length   //roundRobin algorithm
-        portValue = ports[index].port
-        portAndIndex = {portValue, index}     //returning the portnumber and the new index value
+      } else {                              //If there is duplicate services
+        index = (index + 1) % ports.length   //roundRobin algorithm
+        
+        if (ports[index].isActive == false){ 
+          roundRobinPort(ports, index);             //if the current service instance is down, move on to the next
+        } else {
+          portValue = ports[index].port;
+          portAndIndex = { portValue, index }; //returning the portnumber and the new index value
+        }
+
         return portAndIndex
       }
    }
