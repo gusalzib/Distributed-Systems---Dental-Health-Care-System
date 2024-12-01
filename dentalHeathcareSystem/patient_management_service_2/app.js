@@ -9,7 +9,7 @@ var cors = require('cors');
 
 
 var app = express();
-var port = 3001; 
+var port = 3004; 
 
 
 var mongoURI =  "mongodb://localhost:27017/dentalHealthcareSystem";
@@ -81,6 +81,7 @@ app.put("/api/patients/:patient_id", updatePatient)
 app.delete("/api/patients/:patient_id", deletePatientByID)
 
 app.get("/active", (req,res) =>{
+  console.log("Patient service2 running on port 3004");
   res.sendStatus(200)
 })
 

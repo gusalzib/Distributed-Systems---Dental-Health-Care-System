@@ -51,6 +51,10 @@ app.get("/api/dentists/:dentist_id", retrieveASpecificDentist)
 app.put("/api/dentists/:dentist_id", updateDentist)
 app.delete("/api/dentists/:dentist_id", deleteDentistByID)
 
+app.get("/active", (req,res) =>{
+    res.sendStatus(200)
+  })
+
 app.listen(port, function (err) {
     if (err) throw err;
     console.log(`Express server listening on port ${port}`);
