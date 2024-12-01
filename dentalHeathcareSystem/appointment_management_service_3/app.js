@@ -8,7 +8,7 @@ var cors = require('cors');
 
 
 var app = express();
-var port = 3002; 
+var port = 3012; 
 // view engine setup
 //app.set('views', path.join(__dirname, 'views'));
 //app.set('view engine', 'jade');
@@ -58,7 +58,6 @@ app.get("/api/appointments", getAllAppointments);
 app.get("/api/appointments/:appointment_id", getSpecificAppointment);
 app.get("/api/appointments/specific/:patient_id",getPatientsAppointments);
 app.get("/api/appointments/available/appointment",getAvailableAppointments)
-app.get("/api/appointments/:clinicID/clinics/appointment",getClinicAppointments)
 app.put("/api/appointments/:appointment_id",updateAppointment);
 app.delete("/api/appointments/:appointment_id",deleteAppointment);
 
