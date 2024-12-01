@@ -60,7 +60,7 @@ import { Api } from '@/Api'
 import router from '@/router'
 
 export default {
-    name: 'home',
+    name: 'clinic',
     data() {
         return {
             activeSection: "clinic",

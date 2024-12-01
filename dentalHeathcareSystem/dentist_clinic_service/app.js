@@ -57,7 +57,9 @@ app.get("/api/clinics/:clinic_id/dentists",retrieveDentistsInSpecificClinic);
 app.put("/api/clinics/:clinic_id",updateClinic);
 app.delete("/api/clinics/:clinic_id",deleteClinic);
 
-
+app.get("/active", (req,res) =>{
+  res.sendStatus(200)
+})
 
 
 

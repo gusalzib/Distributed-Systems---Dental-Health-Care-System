@@ -77,8 +77,11 @@ export default {
           console.log(this.clinics)
         }
       }).catch(error =>{
-        console.log(error.message);
-      })
+        this.error_message = error.response?.data.message;
+            setTimeout(() => {
+                this.error_message = '';
+            }, 5000);
+        })
     },
     async getAllAppointments(){
       await Api.get("/appointments/available/appointment").then(response =>{

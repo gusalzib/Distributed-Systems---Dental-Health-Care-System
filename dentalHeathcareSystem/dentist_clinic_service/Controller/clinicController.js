@@ -18,8 +18,6 @@ exports.createClinic = async (req, res) => {
         newClinic.dentists = [];
 
         await newClinic.save();
-        console.log("new clinic =", newClinic)
-
         res.status(200).json({message: "Clinic registered successfully", clinic: newClinic})
 
         

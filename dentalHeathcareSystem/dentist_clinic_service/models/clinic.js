@@ -11,9 +11,7 @@ var clinicSchema = new Schema({
         appointment_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Appointment'}
     }],
     dentists: [{
-        dentist_id: {type: mongoose.Schema.Types.ObjectId
-            // ,ref: 'Dentist'
-        }
+        dentist_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Dentist'}
     }]
 })
 
