@@ -5,7 +5,7 @@
                 information to the cards, we might need to increase their visual separation to make it easier to read. Right now, there are no labels on
                 the card, which is also something that we might need to add later.*/ -->
 
-        <div class="my-appointments-card" v-for="bookedAppointment in bookedAppoinments" :key="bookedAppointment._id">
+        <div class="my-appointments-card" v-for="bookedAppointment in bookedAppointments" :key="bookedAppointment._id">
           <ul>
             <li><span>Clinic:</span> clinic name</li>
             <li><span>Date:</span> {{ bookedAppointment.date_and_time_from }}</li>
@@ -13,19 +13,20 @@
             <li><span>Type of appointment:</span> {{ bookedAppointment.type_of_appointment || 'General checkup'}}</li>
             <li><span>Clinic address:</span> clinic address</li>
           </ul>
-
+        <div id="modal">
+          <h2>You are cancelling your appointment at [Clinic name]. Are you sure you want to proceed?</h2>
+          <button class="cancel-button" @click="cancelAppointment(bookedAppointment._id)">Yes</button>
+          <button @click="rejectCancellation()">NO</button>
+        </div>
             <button>Contact Clinic</button>
             <button class="cancel-button" @click="confirmCancellation()">Cancel Appointment</button>
         </div>
           <div class="confirmation_message">{{ confirmation_message }}</div>
           <div class="error_message">{{ error_message }}</div>
+
     </div>
 
-    <div id="modal">
-        <h2>You are cancelling your appointment at [Clinic name]. Are you sure you want to proceed?</h2>
-        <button class="cancel-button">Yes</button>
-        <button @click="rejectCancellation()">NO</button>
-    </div>
+
   </main>
 </template>
 
@@ -33,26 +34,36 @@
 <script>
 // @ is an alias to /src
 import { Api } from '@/Api'
+import axios from 'axios';
+
 
 export default {
   name: 'my_appointments',
   data() {
     return {
-        current_patient_placeholder: '673a5173934efda9cdfa63a3',
-      // current_patient_placeholder:'674516312f3c59c02e4df78d',
-      confirmation_message: '',
-          error_message: '',
-          bookedAppoinmentsIds: [],
-          bookedAppoinments: [],
-          bookedAppointemnt: {
-            patient_id: "",
-            dentist_id:"",
-            dentist_clinic_id: "",
-            type_of_appointment:"",
-            date_and_time_from:"",
-            date_and_time_until:"",
-            available:"",
+        current_patient_placeholder: '673a51d9934efda9cdfa63a6',
+    //  current_patient_placeholder:'674516312f3c59c02e4df78d',
+        confirmation_message: '',
+        error_message: '',
+        bookedAppointmentsIds: [],
+        bookedAppointments: [],
+        bookedAppointemnt: {
+          patient_id: "",
+          dentist_id:"",
+          dentist_clinic_id: "",
+          type_of_appointment:"",
+          date_and_time_from:"",
+          date_and_time_until:"",
+          available:"",
       },  
+        patient: {
+            name: '',
+            email: '',
+            phone_number: '',
+            ssn: '',
+            address: '',
+            appointments: []
+          },
     }
   },
   mounted() {
@@ -85,6 +96,9 @@ export default {
             /* fetch the current patient information. This is needed to display the information to the user upon 
             booking the appointment. The information is displayed in editable input fields. The patient has the option to change the details 
             prior to booking the appointment. Example: the patient wants to change the contact phone number or email for this particular appointment */
+            this.bookedAppointments = []
+            this.bookedAppointmentsIds = []
+
             try {
               const response = await Api.get(`/patients/${this.current_patient_placeholder}`)
               if (response.status === 200) {
@@ -92,8 +106,8 @@ export default {
 
                     //as we are getting the patient info, we assign the array of appointments ids that is inside the patient to 
                     //the bookedAppointmentsIds
-                    this.bookedAppoinmentsIds = this.patient.appointments;
-
+                    this.bookedAppointmentsIds = this.patient.appointments;
+                                        
                     //extract appointments using the array of appointment ids 
                     await this.extractAppointments()
                 }
@@ -107,11 +121,14 @@ export default {
       },
       async extractAppointments() {
 
-        var appointmentIDs = this.bookedAppoinmentsIds;
+        var appointmentIDs = this.bookedAppointmentsIds;
+
+        
         
         for (let index = 0; index < appointmentIDs.length; index++) {
 
-          const appointmentId = appointmentIDs[index].appointment_id;
+          const appointmentId = appointmentIDs[index].appointment_id ? appointmentIDs[index].appointment_id : appointmentIDs[index]._id;
+          
           const response = await Api.get(`/appointments/${appointmentId}`);
 
           if (response.status === 200) {
@@ -123,7 +140,7 @@ export default {
             tempBookedAppointemnt.date_and_time_from = date_and_time[0];
             tempBookedAppointemnt.date_and_time_until = date_and_time[1];
 
-            this.bookedAppoinments.push(tempBookedAppointemnt)
+            this.bookedAppointments.push(tempBookedAppointemnt)
             
           } else if (response.status != 200) {
             
@@ -136,6 +153,56 @@ export default {
           
         }
 
+    },
+    async cancelAppointment(appointmentId) {
+      this.bookedAppointemnt.available = true;
+      this.bookedAppointemnt.patient_id = "00000000000000000000000a";
+      console.log(appointmentId);
+      
+      try {
+        const response = await Api.put(`/appointments/${appointmentId}`, this.bookedAppointemnt);
+
+        if (response.status === 200) {
+          await this.removeBookedAppointment(appointmentId)
+          this.confirmation_message = 'Appointment is cancelled'
+          setTimeout(() => {
+              this.confirmation_message = '';
+          }, 5000);
+        }
+      } catch (error) {
+        this.error_message = error.response?.data.message;
+          setTimeout(() => {
+              this.error_message = '';
+          }, 5000);
+      }
+
+    },
+    async removeBookedAppointment(appointmentId) {
+      this.bookedAppointments = this.bookedAppointments.filter(appointment => appointment._id !== appointmentId);
+      
+      this.bookedAppointmentsIds = this.bookedAppointmentsIds.filter(appointment => appointment.appointment_id !== appointmentId);
+      this.bookedAppointmentsIds = this.bookedAppointmentsIds.filter(appointment => appointment._id !== appointmentId);
+      
+      
+      this.patient.appointments = this.bookedAppointments;
+
+      try {
+        const response = await Api.put(`/patients/${this.current_patient_placeholder}`, this.patient)
+          if (response.status === 200) {
+              this.confirmation_message = 'Appointment cancelled'
+              await this.getPatientInformation();
+                setTimeout(() => {
+                        this.confirmation_message = ''
+                    }, 5000);
+            }
+
+      } catch (error) {
+          this.error_message = error.response?.data.message;
+            setTimeout(() => {
+                this.error_message = '';
+            }, 5000);
+      }
+            
         }
   }
 }

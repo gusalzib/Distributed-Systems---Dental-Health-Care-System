@@ -111,8 +111,8 @@ export default {
       error_message: '',
           confirmation_message: '',
           activeSection: '',
-        // current_patient_placeholder: '673a5173934efda9cdfa63a3',
-          current_patient_placeholder:'674516312f3c59c02e4df78d',
+        current_patient_placeholder: '673a51d9934efda9cdfa63a6',
+          // current_patient_placeholder:'674516312f3c59c02e4df78d',
           bookedAppoinmentsIds: [],
           bookedAppoinments: [],
           bookedAppointemnt: {
