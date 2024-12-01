@@ -898,12 +898,14 @@ the card, which is also something that we might need to add later.*/
   box-shadow: var(--light-shadow);
   width: 20%;
   max-height: 300px;
+  border: 3px var(--slate-gray) solid;
 }
 
 .clinic-sidebar-menu{
   padding: 40px 0;
   padding-top: 5px;
   text-align: center;
+  border: 3px var(--slate-gray) solid;
 }
 
 .sidebar-links{
@@ -921,13 +923,19 @@ the card, which is also something that we might need to add later.*/
   background-color: var(--pink-lavendar);
 }
 .clinic-right-side{
-  width: 80%;
+  width: 70%;
   display: flex;
   text-align: center;
   flex-direction: column;
+  /* border: 3px orange solid; */
+  justify-content: center;
+  margin: auto;
+  margin-left: 5%;
 }
 .clinic-title{
   text-align: center;
+  background-color: whitesmoke;
+  
 }
 .clinic-contact-card{
   display: flex;
@@ -935,26 +943,27 @@ the card, which is also something that we might need to add later.*/
   justify-content: center;
   align-items: center;
   padding: 30px;
+  /* border: 3px red solid; */
 }
 #clinic-card {
-  width: 70%;
-  height: 100%;
-  background-color: whitesmoke;
-  border: none;
-  border-radius: 15px;
-  box-shadow: var(--light-shadow);
-  overflow: hidden;
-  padding: 20px;
-  transition: transform 750ms;
-  margin:  auto;
-  margin-right: 5%;
-  cursor: pointer;
-
-}
-.clinic_appointment_card{
   display: flex;
-  flex-direction: column;
-  width: 70%;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background-color: whitesmoke;
+  border: none;
+  overflow: hidden;
+  padding: 20px;
+  transition: transform 750ms;
+  margin:  auto;
+  margin-right: 5%;
+  cursor: pointer;
+}
+.clinic-appointment_card{
+  display: flex;
+  flex-direction: row;
+  width:  360px;
   height: 100%;
   background-color: whitesmoke;
   border: none;
@@ -963,7 +972,24 @@ the card, which is also something that we might need to add later.*/
   overflow: hidden;
   padding: 20px;
   transition: transform 750ms;
-  margin:  auto;
+  margin: 10px auto;
   margin-right: 5%;
   cursor: pointer;
+  text-align: left;
+  /* border: 3px blueviolet  solid; */
+}
+@media only screen and (max-width: 1250px){
+.clinic-right-side{
+  width: 90%;
+}
+.clinic-container{
+  margin: 40% auto;
+}
+}
+@media only screen and (max-width: 550px){
+.clinic-appointment_card{
+  width: 100%;
+  flex-direction: column;
+}
+
 }

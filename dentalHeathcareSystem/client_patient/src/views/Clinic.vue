@@ -19,21 +19,21 @@
                 </div>
 
                 <div id="clinic-card">
-                    <div id="edit-profile" v-if="activeSection === 'available_appointments'">
-                        <div v-for="appoinment in appointments" :key = "appointment_id">
-                            <div class="clinic-appointment_card">
-                                <p>Date: {{ appoinment.date_and_time_from }}</p>
-                                <p>Time: {{ appoinment.date_and_time_until }}</p>
+                    <div  v-if="activeSection === 'available_appointments'">
+                        <div v-for="appointment in appointments" :key = "appointment._id">
+                            <div class="clinic-appointment_card" @click="rerouting(`/single/appointment/${appointment._id}`)"> Appointment:&nbsp; 
+                                <p> Date:&nbsp; {{ appointment.date_and_time_from }}&nbsp; </p>
+                                <p> Time:&nbsp; {{ appointment.date_and_time_until }}</p>
                             </div>
                         </div>  
                     </div>
 
                     <div v-else-if="activeSection === 'dentists'">
                         <h1>Dentists working in this clinic are:</h1>
-                        <div v-for="dentist in dentists" :key = "dentist_id">
+                        <div v-for="dentist in dentists" :key = "dentist._id">
                             <div>
                                 <hr>
-                                <p>{{ dentist.dentist_id }}</p>
+                                <p>{{ dentist.dentist_id }}</p> 
                             </div>
                         </div>
                     </div>
@@ -51,12 +51,13 @@
         </div>
   
   
-  
+     
       
     </div>
   </template>
 <script>
 import { Api } from '@/Api'
+import router from '@/router'
 
 export default {
     name: 'home',
@@ -102,7 +103,10 @@ export default {
                 }
             this.getDentistsFromSpecificClinic();
         }).catch(error =>{
-            console.log(error.message);
+            this.error_message = error.response?.data.message;
+            setTimeout(() => {
+                this.error_message = '';
+            }, 5000);
         })
         },
 
@@ -113,7 +117,10 @@ export default {
                 this.dentists = response.data.clinicDentists;
             }
         }).catch(error =>{
-            console.log(error.message);
+            this.error_message = error.response?.data.message;
+            setTimeout(() => {
+                this.error_message = '';
+            }, 5000);
         })
         },
         
@@ -126,10 +133,15 @@ export default {
                     for (let i = 0; i<= this.appointments.length-1; i++){
                         var dateAndTimeArr= this.extractTimeAndDate(this.appointments[i].date_and_time_from);
                         this.appointments[i].date_and_time_from = dateAndTimeArr[0];
-                        this.appointments[i].date_and_time_until = dateAndTimeArr[1];
+                        this.appointments[i].date_and_time_until = dateAndTimeArr[1];  
                     }
                 }
-            })
+            }).catch(error => {
+                this.error_message = error.response?.data.message;
+            setTimeout(() => {
+                this.error_message = '';
+            }, 5000);
+        })
         },
 
         extractTimeAndDate(date_and_time) {
@@ -144,6 +156,9 @@ export default {
 
             var date_and_time_arr = [date, time]
             return date_and_time_arr;
+        },
+        rerouting(targetPath){
+            router.push({path: `${targetPath}`})
         },
     }
 }
