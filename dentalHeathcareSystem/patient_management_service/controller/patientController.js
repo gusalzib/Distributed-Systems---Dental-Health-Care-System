@@ -1,7 +1,19 @@
 const Patient = require("../models/Patient.js");
+const emailValidator = require('validator');
 
 exports.registerPatient = async (req, res) => {
   try {
+    const {email} = req.body;
+
+    const patient = await Patient.findOne({ email });
+        if (patient) {
+            res.status(400).json({ message: "Email already exists." });
+            return;
+        } else if(!emailValidator.isEmail(email)){
+            res.status(400).json({ message: "invalid email" });
+            return;
+        }
+
     var newPatient = new Patient();
 
     const patientName = req.body.name;
@@ -9,8 +21,14 @@ exports.registerPatient = async (req, res) => {
     const patientPhoneNumber = req.body.phone_number;
     const patientAddress = req.body.address;
     const patientSSN = req.body.ssn;
-    
     const patientMedicalJournal = req.body.medical_journal;
+
+    if(!patientName || !patientEmail || !patientPhoneNumber || patientPhoneNumber.isNumber === false || !patientAddress || !patientSSN ){
+        res.status(422).send({message:"Missing patient information."});
+        return;
+    }
+
+
 
     newPatient.name = patientName;
     newPatient.email = patientEmail;
@@ -22,19 +40,20 @@ exports.registerPatient = async (req, res) => {
 
     await newPatient.save();
 
-    res
-      .status(200)
-      .json({
-        message: "Patient registered successfully",
-        patient: newPatient,
-      });
-  } catch (error) {
-    res
-      .status(400)
-      .json({
-        message: "Failed to register patient",
-        error_message: error.message,
-      });
+    var patientId = newPatient._id;
+    if (!patientId) {
+        res.status(400).json({ message: "failed to register patient" });
+        return; 
+    }
+
+    res.status(200).json({message: "Patient registered successfully",patient: newPatient});
+
+  }catch(error){
+    if (error.name === 'ValidatorError') {
+        res.status(400).json({ message: "invalid email" });
+        return;
+    } 
+    res.status(400).json({message: "Failed to register patient",error_message: error.message});
   }
 };
 

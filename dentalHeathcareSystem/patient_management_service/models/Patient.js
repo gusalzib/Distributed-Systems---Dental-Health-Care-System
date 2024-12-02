@@ -10,8 +10,8 @@ var patientSchema = new Schema({
     required: true,
     validate: [emailValidator.isEmail, "invalid email"]
   },
-  phone_number: { type: String, required: true },
-  ssn: { type: String, required: true },
+  phone_number: { type: Number, required: true },
+  ssn: { type: Number, required: true },
   medical_journal: [
     {
       journal: { type: String, required: true },
