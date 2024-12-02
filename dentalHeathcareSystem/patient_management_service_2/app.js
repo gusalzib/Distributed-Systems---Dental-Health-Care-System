@@ -77,11 +77,9 @@ app.post("/api/patients", registerPatient)
 app.get("/api/patients", retrieveAllPatients)
 app.get("/api/patients/:patient_id", retrieveSpecificPatient)
 app.put("/api/patients/:patient_id", updatePatient)
-// app.put("/api/patients/:patient_id/:appointmentID",addAppoinmentToPatient)
 app.delete("/api/patients/:patient_id", deletePatientByID)
 
 app.get("/active", (req,res) =>{
-  console.log("Patient service2 running on port 3004");
   res.sendStatus(200)
 })
 

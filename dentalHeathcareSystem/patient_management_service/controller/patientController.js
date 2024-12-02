@@ -10,7 +10,7 @@ exports.registerPatient = async (req, res) => {
             res.status(400).json({ message: "Email already exists." });
             return;
         } else if(!emailValidator.isEmail(email)){
-            res.status(400).json({ message: "invalid email" });
+            res.status(400).json({ message: "Invalid email" });
             return;
         }
 
@@ -36,7 +36,6 @@ exports.registerPatient = async (req, res) => {
         return;
     }
 
-
     newPatient.name = patientName;
     newPatient.email = patientEmail;
     newPatient.phone_number = patientPhoneNumber;
@@ -52,24 +51,18 @@ exports.registerPatient = async (req, res) => {
         res.status(400).json({ message: "failed to register patient" });
         return; 
     }
-
     res.status(200).json({message: "Patient registered successfully",patient: newPatient});
 
   }catch(error){
-    
-
     if (error.name === 'ValidatorError') {
         res.status(400).json({ message: "invalid email" });
         return;
     }
-
     else if (error.code === 11000 && error.keyValue?.ssn){
         res.status(400).json({ message: "Ssn is not uniqe"});
         return;
     }
-    console.log("catch");
-    
-    res.status(400).json({message: "Failed to register patient",error_message: error.message});
+    res.status(400).json({message: "Failed to register patient"});
   }
 };
 
