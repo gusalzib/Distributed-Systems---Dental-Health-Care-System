@@ -2,16 +2,20 @@ const mongoose = require('mongoose');
 var emailValidator = require("validator");
 var Schema = mongoose.Schema;
 
+
 var patientSchema = new Schema({
   name: { type: String, required: true },
   address: { type: String, required: true },
   email: {
     type: String,
     required: true,
-    validate: [emailValidator.isEmail, "invalid email"]
+    validate: [emailValidator.isEmail, "invalid email"],
+    unique: true
   },
-  phone_number: { type: Number, required: true },
-  ssn: { type: Number, required: true },
+  phone_number: { type: Number, required: true, min: [1111111111,'phone number has to be 10 digits'], max: [11111111111,'phone number has to be 10 digits']},
+ 
+  
+  ssn: { type: Number, required: true, unique: [true,'This Ssn already exists '], min: [1111111111,'Ssn has to be 10 digits'], max: [11111111111,'Ssn has to be 10 digits']},
   medical_journal: [
     {
       journal: { type: String, required: true },
@@ -23,4 +27,5 @@ var patientSchema = new Schema({
     },
   ]
 });
+
 module.exports = mongoose.model("patient", patientSchema);

@@ -23,11 +23,18 @@ exports.registerPatient = async (req, res) => {
     const patientSSN = req.body.ssn;
     const patientMedicalJournal = req.body.medical_journal;
 
-    if(!patientName || !patientEmail || !patientPhoneNumber || patientPhoneNumber.isNumber === false || !patientAddress || !patientSSN ){
-        res.status(422).send({message:"Missing patient information."});
+    if(!patientName || !patientEmail || !patientPhoneNumber || !patientAddress || !patientSSN ){
+        res.status(422).send({message:"Missing patient information. Fields with * can not be empty"});
         return;
     }
-
+    if(isNaN(patientPhoneNumber)){
+        res.status(400).json({ message: "Phone number has to be a number" });
+        return;
+    }
+    if(isNaN(patientSSN)){
+        res.status(400).json({ message: "Ssn has to be a number" });
+        return;
+    }
 
 
     newPatient.name = patientName;
@@ -49,10 +56,19 @@ exports.registerPatient = async (req, res) => {
     res.status(200).json({message: "Patient registered successfully",patient: newPatient});
 
   }catch(error){
+    
+
     if (error.name === 'ValidatorError') {
         res.status(400).json({ message: "invalid email" });
         return;
-    } 
+    }
+
+    else if (error.code === 11000 && error.keyValue?.ssn){
+        res.status(400).json({ message: "Ssn is not uniqe"});
+        return;
+    }
+    console.log("catch");
+    
     res.status(400).json({message: "Failed to register patient",error_message: error.message});
   }
 };
