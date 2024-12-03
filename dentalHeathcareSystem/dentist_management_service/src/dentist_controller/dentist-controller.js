@@ -14,7 +14,6 @@ exports.registerDentist = async (req, res) => {
 
         const newDentistValidation = validateDentist(dentist);
         if(!newDentistValidation.success) {
-            console.log("got in validation")
             res.status(400).json({message: newDentistValidation.message})
             return;
         }
@@ -78,7 +77,7 @@ exports.updateDentist = async (req, res) => {
         const existingDentist = await Dentist.findById(id);
         if (!existingDentist) {
             res.status(400).json({ message: "Dentist was not found" })
-            return
+            return;
         }
 
         const dentist = {
@@ -90,12 +89,13 @@ exports.updateDentist = async (req, res) => {
             password: req.body.password ? req.body.password : existingDentist.password,
             appointments: req.body.appointments ? req.body.appointments : existingDentist.appointments
         }
+
         const newDentistValidation = validateDentist(dentist);
         if(!newDentistValidation.success) {
-            console.log("got in validation")
             res.status(400).json({message: newDentistValidation.message})
             return;
         }
+
         const updatedDentist = await Dentist.findByIdAndUpdate(id, dentist);
 
         res.status(200).json({message: "Dentist information has been updated",
@@ -103,7 +103,7 @@ exports.updateDentist = async (req, res) => {
 
     } catch (error) {
         res.status(400)
-            .json({message: "Something went wrong",
+            .json({message: "Something went wrong!",
                 error_message: error.message})
     }
 }
