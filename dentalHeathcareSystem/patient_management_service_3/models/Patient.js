@@ -12,8 +12,7 @@ var patientSchema = new Schema({
     validate: [emailValidator.isEmail, "invalid email"],
     unique: true
   },
-  phone_number: { type: Number, required: true, min: [1111111111,'phone number has to be 10 digits'], max: [11111111111,'phone number has to be 10 digits']},
- 
+  phone_number: { type: String, required: true, match: [ /^\d+$/, "Phone number has to be only digits"]}, 
   
   ssn: { type: Number, required: true, unique: [true,'This Ssn already exists '], min: [1111111111,'Ssn has to be 10 digits'], max: [11111111111,'Ssn has to be 10 digits']},
   medical_journal: [

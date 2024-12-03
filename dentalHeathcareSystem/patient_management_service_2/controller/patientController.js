@@ -48,6 +48,7 @@ exports.registerPatient = async (req, res) => {
 
     var patientId = newPatient._id;
     if (!patientId) {
+        console.log("NO PATIENT FOUND");
         res.status(400).json({ message: "failed to register patient" });
         return; 
     }
@@ -62,7 +63,9 @@ exports.registerPatient = async (req, res) => {
         res.status(400).json({ message: "Ssn is not uniqe"});
         return;
     }
-    res.status(400).json({message: "Failed to register patient"});
+    // console.log(error.message);
+    console.log("catch");
+    res.status(400).json({message: "Failed to register patient",message: error.message});
   }
 };
 

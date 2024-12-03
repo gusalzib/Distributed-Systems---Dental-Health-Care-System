@@ -1,14 +1,33 @@
 var Clinic = require("../models/clinic.js");
+const emailValidator = require('validator');
 
 exports.createClinic = async (req, res) => {
     
     try {
+        var email = req.body.email;
+        const clinic = await Clinic.findOne({ email});
+        if (clinic) {
+            res.status(400).json({ message: "Email already exists." });
+            return;
+        } else if(!emailValidator.isEmail(email)){
+            res.status(400).json({ message: "Invalid email" });
+            return;
+        }
+
         var newClinic = new Clinic();
 
         var name = req.body.name;
         var address = req.body.address;
-        var email = req.body.email;
         var phoneNumber = req.body.phoneNumber;
+
+        if(!name || !address  || !email || !phoneNumber ){
+            res.status(422).send({message:"Missing clinic information. Fields with * can not be empty"});
+            return;
+        }
+        if(isNaN(phoneNumber)){
+            res.status(400).json({ message: "Phone number has to be a number" });
+            return;
+        }
        
         newClinic.name = name;
         newClinic.address = address;
@@ -18,10 +37,21 @@ exports.createClinic = async (req, res) => {
         newClinic.dentists = [];
 
         await newClinic.save();
+
+        var clinicId = newClinic._id;
+        if (!clinicId) {
+            res.status(400).json({ message: "failed to register clinic" });
+            return; 
+        }
+        
         res.status(200).json({message: "Clinic registered successfully", clinic: newClinic})
 
         
     }catch(error) {
+        if (error.name === 'ValidatorError') {
+            res.status(400).json({ message: "invalid email" });
+            return;
+        }
         res.status(400).json({message: "Failed to create Clinic", error_message: error.message});
     }
 };
@@ -77,10 +107,10 @@ exports.updateClinic = async (req, res) => {
         const id = req.params.clinic_id; 
         const existingClinic = await Clinic.findById(id);
 
-        if (!existingClinic) {
-            res.status(400).json({ message: "Could not find clinic" })
-            return
-        }
+        // if (!existingClinic) {
+        //     res.status(400).json({ message: "Could not find clinic" })
+        //     return
+        // }
 
         var name = req.body.name ? req.body.name : existingClinic.name;
         var email = req.body.email ? req.body.email : existingClinic.email;
@@ -89,6 +119,11 @@ exports.updateClinic = async (req, res) => {
         var dentists = req.body.dentists ? req.body.dentists : existingClinic.dentists;
         var appointments = req.body.appointments ? req.body.appointments : existingClinic.appointments;
 
+        if(isNaN(phoneNumber)){
+            res.status(400).json({ message: "Phone number has to be a number" });
+            return;
+        }
+        
         var updatedClinic = await Clinic.findByIdAndUpdate(id, {
             name: name,
             email: email,
@@ -101,6 +136,7 @@ exports.updateClinic = async (req, res) => {
             res.status(200).json({message: "Clinic information updated successfully", clinic: updatedClinic})
         
     } catch (error) {
+        
         res.status(400).json({message: "Something went wrong", error_message: error.message})
     }
 };
