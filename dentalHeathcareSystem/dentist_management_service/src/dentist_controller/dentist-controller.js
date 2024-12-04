@@ -2,28 +2,27 @@ const Dentist = require("../dentist_model/Dentist");
 
 exports.registerDentist = async (req, res) => {
     try {
-        var newDentist = new Dentist();
+        const dentist = {
+            clinic_id: req.body.clinic_id,
+            name: req.body.name,
+            address: req.body.address,
+            phone_number: req.body.phone_number,
+            email: req.body.email,
+            password: req.body.password,
+            appointments: [],
+        };
 
-        const clinic_id = req.body.clinic_id;
-        const name = req.body.name;
-        const address = req.body.address;
-        const phone_number = req.body.phone_number;
-        const email = req.body.email;
-        const password = req.body.password;
-        const appointments = [];
+        const newDentistValidation = validateDentist(dentist);
+        if(!newDentistValidation.success) {
+            res.status(400).json({message: newDentistValidation.message})
+            return;
+        }
 
-        newDentist.clinic_id = clinic_id;
-        newDentist.name = name;
-        newDentist.address = address;
-        newDentist.phone_number = phone_number;
-        newDentist.email = email;
-        newDentist.password = password;
-        newDentist.appointments = [];
-
-        await newDentist.save();
+        const newDentsit = new Dentist(dentist);
+        await newDentsit.save();
         res.status(200).json({
                 message: "Registered successfully!",
-            dentist: newDentist});
+            dentist: newDentsit});
     } catch(error) {
         res
             .status(400)
@@ -74,37 +73,37 @@ exports.retrieveASpecificDentist = async (req, res) => {
 exports.updateDentist = async (req, res) => {
     try {
         const id = req.params.dentist_id;
-        const existingDentist = await Dentist.findById(id);
 
+        const existingDentist = await Dentist.findById(id);
         if (!existingDentist) {
             res.status(400).json({ message: "Dentist was not found" })
-            return
+            return;
         }
 
-        var clinic_id = req.body.clinic_id ? req.body.clinic_id : existingDentist.clinic_id
-        var name = req.body.name ? req.body.name : existingDentist.name
-        var address = req.body.address ? req.body.address : existingDentist.address
-        var phone_number = req.body.phone_number ? req.body.phone_number : existingDentist.phone_number
-        var email = req.body.email ? req.body.email : existingDentist.email
-        var password = req.body.password ? req.body.password : existingDentist.password
-        var appointments = req.body.appointments ? req.body.appointments : existingDentist.appointments
+        const dentist = {
+            clinic_id: req.body.clinic_id ? req.body.clinic_id : existingDentist.clinic_id,
+            name: req.body.name ? req.body.name : existingDentist.name,
+            address: req.body.address ? req.body.address : existingDentist.address,
+            phone_number: req.body.phone_number ? req.body.phone_number : existingDentist.phone_number,
+            email: req.body.email ? req.body.email : existingDentist.email,
+            password: req.body.password ? req.body.password : existingDentist.password,
+            appointments: req.body.appointments ? req.body.appointments : existingDentist.appointments
+        }
 
-        var updatedDentist = await Dentist.findByIdAndUpdate(id, {
-            clinic_id: clinic_id,
-            name: name,
-            address: address,
-            phone_number: phone_number,
-            email: email,
-            password: password,
-            appointments: appointments
-        })
+        const newDentistValidation = validateDentist(dentist);
+        if(!newDentistValidation.success) {
+            res.status(400).json({message: newDentistValidation.message})
+            return;
+        }
+
+        const updatedDentist = await Dentist.findByIdAndUpdate(id, dentist);
 
         res.status(200).json({message: "Dentist information has been updated",
-        dentist: updatedDentist})
+            dentist: updatedDentist})
 
     } catch (error) {
         res.status(400)
-            .json({message: "Something went wrong",
+            .json({message: "Something went wrong!",
                 error_message: error.message})
     }
 }
@@ -125,5 +124,21 @@ exports.deleteDentistByID = async (req, res) => {
         res.status(400)
             .json({message: "Something went wrong",
                 error_message: error.message})
+    }
+}
+
+function validateDentist(dentist) {
+    const {clinic_id, name, address, phone_number, email, password} = dentist; //destructuring the received dentist Object.
+
+    if (!clinic_id || !name || !address || !phone_number || !email || !password ) {
+        return {success: false, message: "You missed to fill in required fields!"}
+    } else if (phone_number.length < 8 || phone_number.length > 10) {
+        return {success: false, message: "Phone number must be 8 to 10 digits!"}
+    } else if(password.length <= 10) {
+        return {success: false, message: "Password must be 10 or more characters!"}
+    } else if(!/^\d+$/.test(phone_number)) {
+        return {success: false, message: "Phone number must be only numbers!"}
+    } else {
+        return {success: true, message: "Success"}
     }
 }
