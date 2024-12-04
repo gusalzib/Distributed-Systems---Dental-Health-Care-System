@@ -24,10 +24,6 @@ exports.createClinic = async (req, res) => {
             res.status(422).send({message:"Missing clinic information. Fields with * can not be empty"});
             return;
         }
-        if(isNaN(phoneNumber)){
-            res.status(400).json({ message: "Phone number has to be a number" });
-            return;
-        }
        
         newClinic.name = name;
         newClinic.address = address;
@@ -107,22 +103,12 @@ exports.updateClinic = async (req, res) => {
         const id = req.params.clinic_id; 
         const existingClinic = await Clinic.findById(id);
 
-        // if (!existingClinic) {
-        //     res.status(400).json({ message: "Could not find clinic" })
-        //     return
-        // }
-
         var name = req.body.name ? req.body.name : existingClinic.name;
         var email = req.body.email ? req.body.email : existingClinic.email;
         var phoneNumber = req.body.phoneNumber ? req.body.phoneNumber : existingClinic.phoneNumber;        
         var address = req.body.address ? req.body.address : existingClinic.address;
         var dentists = req.body.dentists ? req.body.dentists : existingClinic.dentists;
         var appointments = req.body.appointments ? req.body.appointments : existingClinic.appointments;
-
-        if(isNaN(phoneNumber)){
-            res.status(400).json({ message: "Phone number has to be a number" });
-            return;
-        }
         
         var updatedClinic = await Clinic.findByIdAndUpdate(id, {
             name: name,

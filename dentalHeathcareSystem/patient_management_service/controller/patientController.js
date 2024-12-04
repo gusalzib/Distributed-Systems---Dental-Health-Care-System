@@ -27,10 +27,7 @@ exports.registerPatient = async (req, res) => {
         res.status(422).send({message:"Missing patient information. Fields with * can not be empty"});
         return;
     }
-    if(isNaN(patientPhoneNumber)){
-        res.status(400).json({ message: "Phone number has to be a number" });
-        return;
-    }
+
     if(isNaN(patientSSN)){
         res.status(400).json({ message: "Ssn has to be a number" });
         return;
@@ -103,7 +100,6 @@ exports.retrieveSpecificPatient = async (req, res) => {
   }
 };
 
-
 exports.updatePatient = async (req, res) => {
     try {
         const id = req.params.patient_id; 
@@ -121,8 +117,6 @@ exports.updatePatient = async (req, res) => {
         var address = req.body.address ? req.body.address : existingPatient.address
         var medical_journal = req.body.medical_journal ? req.body.medical_journal : existingPatient.medical_journal
         var appointments = req.body.appointments ? req.body.appointments : existingPatient.appointments
-
-
 
         var updatedPatient = await Patient.findByIdAndUpdate(id, {
             name: name,

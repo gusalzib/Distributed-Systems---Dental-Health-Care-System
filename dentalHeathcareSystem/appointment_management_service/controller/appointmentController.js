@@ -3,7 +3,7 @@ Appointment = require("../models/Appointment.js");
 
 exports.createAppointment = async (req, res) => {
     try {
-        var appointment = {
+        const appointment = {
             patient_id: req.body.patient_id,
             dentist_id: req.body.dentist_id,
             dentist_clinic_id: req.body.dentist_clinic_id,

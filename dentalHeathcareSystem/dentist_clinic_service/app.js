@@ -14,13 +14,13 @@ var mongoURI =  "mongodb://localhost:27017/dentalHealthcareSystem";
 // Connect to MongoDB
 mongoose
   .connect(mongoURI)
-  .catch(function (err) {
+    .catch(function (err) {
     console.error(`Failed to connect to MongoDB with URI: ${mongoURI}`);
     console.error(err.stack);
     process.exit(1);
   })
   .then(function () {
-    console.log(`Connected to MongoDB with URI: ${mongoURI}`); 
+    console.log(`Connected to MongoDB with URI: ${mongoURI}`);
   });
 
 
