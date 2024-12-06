@@ -1,5 +1,23 @@
 Appointment = require("../models/Appointment.js");
+MqttBroker = require("../mqtt-broker");
 
+
+
+exports.makeAppointment = async (payload) => {
+    try {
+        const newAppointment = JSON.parse(payload);
+
+        const newAppointmentValidation = validateAppointment(newAppointment);
+        if(!newAppointmentValidation.success) {
+            console.log(newAppointmentValidation.message);
+        }
+
+        const appointment = new Appointment(newAppointment);
+        await appointment.save();
+    } catch(error) {
+        console.log(error.message);
+    }
+};
 
 exports.createAppointment = async (req, res) => {
     try {
@@ -178,7 +196,7 @@ function validateAppointment(appointment) {
     const {patient_id, dentist_id, dentist_clinic_id, type_of_appointment,
         date_and_time_from, date_and_time_until, available} = appointment; //destructuring the received dentist Object.
     if (!type_of_appointment || !dentist_id || !dentist_clinic_id || !date_and_time_from
-        || !date_and_time_until || !available ) {
+        || !date_and_time_until || available === null) {
         return {
             success: false,
             message: "You missed to fill in required fields!"

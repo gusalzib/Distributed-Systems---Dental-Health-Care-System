@@ -1,4 +1,5 @@
 const mqtt = require('mqtt');
+const appointmentCtrl = require("./controller/appointmentController")
 var mqttClient;
 
 const host = "127.0.0.1";
@@ -17,8 +18,8 @@ function connectToBroker() {
         reconnectPeriod: 1000,
         connectTimeout: 30 * 1000,
         anonymous: false,
-        username: 'ourUser-name',
-        password: 'proper0-0-smiley-0071'
+        username: 'extraOrdinary-mosquitto-33',
+        password: '12345'
     }
 
     mqttClient = mqtt.connect(hostURL, options);
@@ -39,16 +40,23 @@ function connectToBroker() {
         console.log("Message received: " + payload.toString());
         console.log("On topic: " + topic);
         console.log(packet);
+
+        if (topic === "create/appointment/") {
+            appointmentCtrl.makeAppointment(payload);
+        }
     });
 }
 
-function publishToBroker(topic, payload) {
-    mqttClient.publish(topic, payload, {qos: 0, retain: false})
-};
+function printPayload(payload) {
+    console.log("our payload is: " + payload);
+}
 
-connectToBroker();
-publishToBroker("topic-01010", "Hey, we're connected");
-// subscribeToBroker("topicX100");
+// function publishToBroker(topic, payload) {
+//     mqttClient.publish(topic, payload, {qos: 0, retain: false})
+// };
+
 function subscribeToBroker(topic) {
     mqttClient.subscribe(topic, {qos: 0})
 };
+connectToBroker();
+subscribeToBroker("create/appointment/");
