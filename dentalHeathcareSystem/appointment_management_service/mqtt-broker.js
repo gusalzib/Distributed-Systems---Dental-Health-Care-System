@@ -11,6 +11,7 @@ function connectToBroker() {
     const hostURL = `${protocol}://${host}:${port}`;
     const options = {
         keepalive: 60,
+        retryInterval: 0,
         clientId: clientId,
         protocolId: "MQTT",
         protocolVersion: 4,
@@ -38,16 +39,24 @@ function connectToBroker() {
 
     mqttClient.on("message", (topic, payload, packet) => {
         console.log("Message received: " + payload.toString());
-        console.log("On topic: " + topic);
+        console.log("On topic: " + topic); 
         console.log(packet);
+        var publishTopic = topic + "/response";
+        console.log("publishTopic =",publishTopic);
 
-        if (topic === "appointment/create/1234") {
+        if (topic = 'appointment/create/+') {
             appointmentCtrl.makeAppointment(payload).then(response =>{
                 console.log("message in broker = ",response);
+                
                 console.log("status =" );
+                topicArr = topic.split("/");
                 var newTopic = topic + "/response";
+                
+
                 console.log("newTopic = ",newTopic);
-                publishToBroker(newTopic,response)
+                publishToBroker(publishTopic,response);
+                
+
 
                 resArr = response.split("/");
                 var status = resArr[0];
@@ -76,4 +85,4 @@ function subscribeToBroker(topic) {
     mqttClient.subscribe(topic, {qos: 0})
 };
 connectToBroker();
-subscribeToBroker("appointment/create/1234");
+subscribeToBroker('appointment/create/+');

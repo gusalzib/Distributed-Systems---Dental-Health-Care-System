@@ -1,20 +1,27 @@
-Appointment = require("../models/Appointment.js");
-MqttBroker = require("../mqtt-broker");
+const Appointment = require("../models/Appointment.js");
+const MqttBroker = require("../mqtt-broker");
+// const dbConnection = require("../db.js");
 
-
+var mongoURI =  "mongodb://localhost:27017/dentalHealthcareSystem";
 
 exports.makeAppointment = async (payload) => {
     try {
         const newAppointment = JSON.parse(payload);
+        console.log("new appointment =",newAppointment);
 
         const newAppointmentValidation = validateAppointment(newAppointment);
         if(!newAppointmentValidation.success) {
             console.log(newAppointmentValidation.message);
             return newAppointmentValidation.message;
         }
-
+        // const db = dbConnection.getDbInstance();
         const appointment = new Appointment(newAppointment);
-        await appointment.save();
+        console.log("Appointment =",appointment);
+
+        await Appointment.create(appointment);
+        // const result = await Appointment.collection.insertOne({appointment});
+        // console.log("result =",result);
+
         message = "Appointment created"
         console.log(message);
         var stringAppointment = JSON.stringify(appointment) 
@@ -28,6 +35,9 @@ exports.makeAppointment = async (payload) => {
         return error.message;
     }
 };
+exports.getAppointments = async (payload) => {
+
+}
 
 exports.createAppointment = async (req, res) => {
     try {
