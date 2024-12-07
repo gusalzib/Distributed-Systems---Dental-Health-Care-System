@@ -10,12 +10,22 @@ exports.makeAppointment = async (payload) => {
         const newAppointmentValidation = validateAppointment(newAppointment);
         if(!newAppointmentValidation.success) {
             console.log(newAppointmentValidation.message);
+            return newAppointmentValidation.message;
         }
 
         const appointment = new Appointment(newAppointment);
         await appointment.save();
+        message = "Appointment created"
+        console.log(message);
+        var stringAppointment = JSON.stringify(appointment) 
+        var status = 200;
+        response = status +"/"+ message +"/"+ stringAppointment;
+        
+        return response;
+
     } catch(error) {
         console.log(error.message);
+        return error.message;
     }
 };
 

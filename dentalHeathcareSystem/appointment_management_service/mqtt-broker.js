@@ -41,9 +41,26 @@ function connectToBroker() {
         console.log("On topic: " + topic);
         console.log(packet);
 
-        if (topic === "create/appointment/") {
-            appointmentCtrl.makeAppointment(payload);
+        if (topic === "appointment/create/1234") {
+            appointmentCtrl.makeAppointment(payload).then(response =>{
+                console.log("message in broker = ",response);
+                console.log("status =" );
+                var newTopic = topic + "/response";
+                console.log("newTopic = ",newTopic);
+                publishToBroker(newTopic,response)
+
+                resArr = response.split("/");
+                var status = resArr[0];
+                var message = resArr[1];
+                var appointment = resArr[2];
+
+                console.log("status =", status);
+                console.log("message =", message);
+                console.log("appointment =", appointment);
+
+            });
         }
+
     });
 }
 
@@ -51,12 +68,12 @@ function printPayload(payload) {
     console.log("our payload is: " + payload);
 }
 
-// function publishToBroker(topic, payload) {
-//     mqttClient.publish(topic, payload, {qos: 0, retain: false})
-// };
+function publishToBroker(topic, payload) {
+    mqttClient.publish(topic, payload, {qos: 0, retain: false})
+};
 
 function subscribeToBroker(topic) {
     mqttClient.subscribe(topic, {qos: 0})
 };
 connectToBroker();
-subscribeToBroker("create/appointment/");
+subscribeToBroker("appointment/create/1234");
