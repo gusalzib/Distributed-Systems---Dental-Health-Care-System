@@ -18,6 +18,7 @@ exports.makeAppointment = async (payload) => {
         }
      
         const appointment = new Appointment(newAppointment);
+        await appointment.save();
         console.log("Appointment =",appointment);
 
      
@@ -31,16 +32,16 @@ exports.makeAppointment = async (payload) => {
         return response;
 
     } catch(error) {
-        status = 400; 
-        message = "Something went wrong!" 
-        return status + "/" + message + "/" +error.message;
+        status = 400
+        console.log(error.message);
+        return status +"/"+ error.message;
     }
 };
 exports.getAppointments = async (payload) => {
     try{
         const appointments = await Appointment.find().sort({"date_and_time_from": 1});
         var status = "";
-        if(appointments.length === 0){
+        if(appointments.lenght === 0){
             status = 404
             message = "No appointments found"
             console.log(message);
@@ -52,9 +53,9 @@ exports.getAppointments = async (payload) => {
         var stringAppointments = appointments.join();
         return status +"/"+ message +"/"+ stringAppointments
     }catch (error) {
-        status = 400; 
-        message = "Something went wrong!" 
-        return status + "/" + message + "/" +error.message;
+        status = 400
+        console.log(error.message);
+        return status +"/"+ error.message
     }
 };
 
@@ -74,25 +75,23 @@ exports.getOneAppointment = async (payload) => {
         var stringAppointment = JSON.stringify(appointment);
         return status +"/"+ message +"/"+ stringAppointment
     }catch (error) {
-        status = 400; 
-        message = "Something went wrong!" 
-        return status + "/" + message + "/" +error.message;
+        status = 400;
+        return status +"/"+ error.message;
     }
 };
 
 exports.updateOneAppointment = async (_id, payload) => {
     try {
-            
+
         var status = 0;
         const existing_appointment = await Appointment.findById(_id);
+
         if(!existing_appointment){
             status = 400;
             message = "No appointment found";
             return status +"/"+ message;
         }
         var newAppointment = JSON.parse(payload)
-        console.log("new appoinment =",newAppointment);
-        console.log("testing attribute =",newAppointment.date_and_time_from);
 
         const appointment = {
             patient_id: newAppointment.patient_id ? newAppointment.patient_id : existing_appointment.patient_id,
@@ -107,7 +106,6 @@ exports.updateOneAppointment = async (_id, payload) => {
         const newAppointmentValidation = validateAppointment(appointment);
         if(!newAppointmentValidation.success) {
             status = 400;
-            
             message = newAppointmentValidation.message;
             return status +"/"+ newAppointmentValidation.message;
         };
@@ -121,143 +119,14 @@ exports.updateOneAppointment = async (_id, payload) => {
 
 
     } catch (error) {
-            status = 400; 
-            message = "Something went wrong!" 
-            return status + "/" + message + "/" +error.message;
+        status = 400;
+        return status +"/"+ error.message;
                 
         }
 };
 
-exports.fetchPatientAppointments = async (payload) => {
-    try {
-        var status = 0; 
-        var _id = JSON.parse(payload);
-        console.log("payload id: " +_id._id);
-        
-        const appointments = await Appointment.find();
-        if (appointments.length === 0) {
-            status = 404; 
-            message = "No appointments found"; 
-            return status + "/" + message;
-        }
-
-        const patientAppointments = appointments.filter(appointment => appointment.patient_id && appointment.patient_id.equals(_id._id));
-        if (patientAppointments.length === 0) {
-            status = 400; 
-            message = "This patient has no appointments booked"; 
-            return status + "/" + message;
-
-        } else {
-            status = 200; 
-            message = "Appointments retrieved"; 
-            var stringAppointments = JSON.stringify(patientAppointments)
-            return status + "/" + message + "/" + stringAppointments;
-        }
-
-    } catch (error) {
-            status = 400; 
-            message = "Something went wrong!" 
-            return status + "/" + message + "/" + error.message;
-    }
-}
-
-exports.removeAppointment = async (payload) => {
-    try{
-        var status = 0;
-        var appointment_id = JSON.parse(payload);
-        console.log('this is the delete payload: ', appointment_id);
-        
-        const appointment = await Appointment.findByIdAndDelete(appointment_id);
-        if (!appointment) {
-            status = 404; 
-            message = "No appointment found" 
-            return status + "/" + message;
-        }
-
-        status = 200; 
-        message = "Appointment deleted"; 
-        return status + "/" + message + "/" + appointment;
-
-    } catch (error) {
-        status = 404; 
-        message = "Something went wrong!"
-        return status + "/" + message + "/" + error.message;
-    }
-}
 
 
-exports.fetchAvailableAppointments = async (payload) => {    
-    try{
-        const appointments = await Appointment.find({available: true}).sort({"date_and_time_from": 1});
-        var status = 0;
-
-        if(appointments.length === 0){
-            status = 404
-            message = "No appointments found"
-            return status +"/"+ message
-        }
-
-        status = 200;
-        message = "All appointments retrieved";
-
-        var stringAppointments = appointments.join();
-        
-        return status + "/" + message + "/" + stringAppointments;
-
-    }catch (error) {
-        status = 400; 
-        message = "Something went wrong!" 
-        return status + "/" + message + "/" + error.message;
-    }
-}
-
-
-exports.fetchClinicAppointments = async (payload) => {
-    try {
-        const clinicID = JSON.parse(payload)
-        var status = 0;
-        const allAppointments = await Appointment.find().sort({"date_and_time_from": 1});
-       
-        if (allAppointments.length === 0) {
-            status = 400; 
-            message = "No appointments found"
-            return status + "/" + message;
-
-        }
-        
-        var appointments=[];
-        for (let i = 0; i<= allAppointments.length-1; i++){
-            var appointment = allAppointments[i];
-            if(appointment.dentist_clinic_id.equals(clinicID)){
-                appointments.push(appointment)
-            }
-        }
-        if (appointments.length === 0) {
-            status = 404; 
-            message = "This clinic has no appointments"
-            return status + "/" + message;
-
-        }
-        status = 200; 
-        message = "All available appointments retrieved"
-        return status + "/" + message + "/" + appointments;
-
-    }catch (error) {
-        status = 400; 
-        message = "Something went wrong!" 
-        return status + "/" + message + "/" + error.message;
-    }
-}
-
-
-
-
-
-
-
-
-
-/* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX HTTP METHODS XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
 exports.createAppointment = async (req, res) => {
     try {
@@ -279,6 +148,7 @@ exports.createAppointment = async (req, res) => {
 
         const newAppointment= new Appointment(appointment);
         await newAppointment.save();
+
         res.status(200)
             .json({
             message: "Appointment created successfully",
@@ -298,7 +168,7 @@ exports.getAllAppointments = async (req, res) => {
     try{
         const appointments = await Appointment.find().sort({"date_and_time_from": 1});
 
-        if(appointments.length === 0){
+        if(appointments.lenght === 0){
             res.status(404).json({ message: "No appointments found"})
             return;
         }
@@ -395,7 +265,7 @@ exports.deleteAppointment = async (req, res) => {
 exports.getAvailableAppointments = async (req, res) => {
     try{
         const allAppointments = await Appointment.find().sort({"date_and_time_from": 1});
-        if(allAppointments.length === 0){
+        if(allAppointments.lenght === 0){
             res.status(404).json({ message: "No appointments found"})
             return;
         }
@@ -410,7 +280,7 @@ exports.getClinicAppointments = async (req, res) => {
         const clinicID = req.params.clinicID;
         const allAppointments = await Appointment.find().sort({"date_and_time_from": 1});
        
-        if(allAppointments.length === 0){
+        if(allAppointments.lenght === 0){
             res.status(404).json({ message: "No appointments found"})
             return;
         }
@@ -422,7 +292,7 @@ exports.getClinicAppointments = async (req, res) => {
                 appointments.push(appointment)
             }
         }
-        if(appointments.length === 0){
+        if(appointments.lenght === 0){
             res.status(404).json({ message: "This clinic has no appointments"})
             return;
         }

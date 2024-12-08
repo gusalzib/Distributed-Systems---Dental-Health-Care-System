@@ -1,5 +1,42 @@
 var Clinic = require("../models/clinic.js");
 const emailValidator = require('validator');
+const MqttBroker = require("../mqtt-broker");
+
+
+
+exports.clinicCreate = async (payload) => {
+    try {
+        var status = 0;
+        const newClinic = JSON.parse(payload);
+        console.log("new clinic =",newClinic);
+
+        const newClinicValidation = validateClinic(newClinic);
+        if(!newClinicValidation.success) {
+            console.log(newClinicValidation.message);
+            status = 400
+            return status +"/"+ newClinicValidation.message;
+        }
+     
+        const clinic = new Clinic(newClinic);
+        await clinic.save();
+        console.log("Clinic =",clinic);
+
+       
+
+        message = "Clinic created"
+        console.log(message);
+        var stringClinic = JSON.stringify(clinic) 
+        status = 200;
+        
+    
+        return status +"/"+ message +"/"+ stringClinic;
+
+    } catch(error) {
+        status = 400
+        console.log(error.message);
+        return status +"/"+ error.message;
+    }
+};
 
 exports.createClinic = async (req, res) => {
     
@@ -137,5 +174,17 @@ exports.deleteClinic = async (req, res) => {
         res.status(200).json({ message: "Clinic deleted", clinic: clinic });
     }catch (error) {
         res.status(400).json({ message: "Something went wrong!", error_message: error.message});
+    }
+}
+
+function validateClinic(clinic) {
+    const {name, address, email, phoneNumber} = clinic; //destructuring the received clinic Object.
+    if (!name || !address || !email || !phoneNumber ) {
+        return {
+            success: false,
+            message: "You missed to fill in required fields!"
+        }
+    } else {
+        return {success: true, message: "Success"}
     }
 }
