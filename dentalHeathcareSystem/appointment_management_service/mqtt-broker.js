@@ -41,18 +41,14 @@ function connectToBroker() {
         console.log("Message received: " + payload.toString());
         console.log("On topic: " + topic); 
         console.log(packet);
-        var publishTopic = topic + "/response";
+        var publishTopic = "response/" + topic;
         console.log("publishTopic =",publishTopic);
 
         if (topic.startsWith( 'appointment/create/')) {
             appointmentCtrl.makeAppointment(payload).then(response =>{
                 // console.log("message in broker = ",response);
                 
-                // console.log("status =" );
-                topicArr = topic.split("/");
-                var newTopic = topic + "/response";
-                
-
+                // console.log("status =" )
                 // console.log("newTopic = ",newTopic);
                 publishToBroker(publishTopic,response);
                 
@@ -96,12 +92,18 @@ function connectToBroker() {
             })
         } else if (topic.startsWith('appointment/delete/')) {
             appointmentCtrl.removeAppointment(payload).then(response => {
-                console.log('publish topid here: ', publishTopic);
+                
 
                 console.log("response =", response);
                 publishToBroker(publishTopic, response)
             })
         } else if (topic.startsWith('appointment/get/available/appointments/')) {
+            appointmentCtrl.fetchAvailableAppointments(payload).then(response => {
+
+                console.log("response =", response);
+                publishToBroker(publishTopic, response);
+            })
+        } else if (topic.startsWith('appointment/get/clinic/appointment/')) {
             appointmentCtrl.fetchAvailableAppointments(payload).then(response => {
                 console.log('publish topid here: ', publishTopic);
 
@@ -131,4 +133,5 @@ subscribeToBroker('appointment/get/one/+');
 subscribeToBroker('appointment/update/+');
 subscribeToBroker('appointment/get/patient/appointments/+');
 subscribeToBroker('appointment/delete/+');
-subscribeToBroker('appointment/get/available/appointments/+')
+subscribeToBroker('appointment/get/available/appointments/+');
+subscribeToBroker('appointment/get/clinic/appointment/+')
