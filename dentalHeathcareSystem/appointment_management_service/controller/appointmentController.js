@@ -186,6 +186,43 @@ exports.removeAppointment = async (payload) => {
 }
 
 
+exports.fetchAvailableAppointments = async (payload) => {    
+    try{
+        const appointments = await Appointment.find({available: true}).sort({"date_and_time_from": 1});
+        var status = 0;
+
+        if(appointments.length === 0){
+            status = 404
+            message = "No appointments found"
+            return status +"/"+ message
+        }
+
+        status = 200;
+        message = "All appointments retrieved";
+
+        var stringAppointments = appointments.join();
+        
+        return status + "/" + message + "/" + stringAppointments;
+
+    }catch (error) {
+        status = 400; 
+        message = "Something went wrong!" 
+        return status + "/" + message + "/" +error.message;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX HTTP METHODS XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
 exports.createAppointment = async (req, res) => {
     try {
