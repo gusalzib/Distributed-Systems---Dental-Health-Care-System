@@ -8,32 +8,22 @@ exports.clinicCreate = async (payload) => {
     try {
         var status = 0;
         const newClinic = JSON.parse(payload);
-        console.log("new clinic =",newClinic);
-
+    
         const newClinicValidation = validateClinic(newClinic);
         if(!newClinicValidation.success) {
-            console.log(newClinicValidation.message);
             status = 400
             return status +"/"+ newClinicValidation.message;
         }
      
         const clinic = new Clinic(newClinic);
         await clinic.save();
-        console.log("Clinic =",clinic);
-
-       
-
         message = "Clinic created"
-        console.log(message);
         var stringClinic = JSON.stringify(clinic) 
         status = 200;
-        
-    
         return status +"/"+ message +"/"+ stringClinic;
 
     } catch(error) {
         status = 400
-        console.log(error.message);
         return status +"/"+ error.message;
     }
 };
@@ -46,18 +36,15 @@ exports.getClinics = async (payload) => {
         if (!clinics) {
             status = 400
             message = "No clinics found!";
-            console.log(message);
             return status +"/"+ message; 
         }
         status = 200;
         message = "All clinics retrieved";
-        console.log(message);
         var stringClinics = JSON.stringify(clinics);
         return status +"/"+ message +"/"+ stringClinics;
         
     } catch (error) {
         status = 400; 
-        console.log(error.message);
         return status +"/"+ error.message;
     }
 };
@@ -78,6 +65,43 @@ exports.getOneClinic = async (payload) => {
         var stringClinic = JSON.stringify(clinic);
         return status +"/"+ message +"/"+ stringClinic;
 
+    } catch (error) {
+        status = 400; 
+        return status +"/"+ error.message;
+    }
+};
+exports.updateAClinic = async (id,payload) => {
+    try {
+        var status = 0;
+        console.log("id =",id );
+        const clinic = JSON.parse(payload); 
+        
+        const existingClinic = await Clinic.findById(id);
+        console.log("existing clinic =",existingClinic);
+
+        var name = clinic.name ? clinic.name : existingClinic.name;
+        var email = clinic.email ? clinic.email : existingClinic.email;
+        var phoneNumber = clinic.phoneNumber ? clinic.phoneNumber : existingClinic.phoneNumber;        
+        var address = clinic.address ? clinic.address : existingClinic.address;
+        var dentists = clinic.dentists ? clinic.dentists : existingClinic.dentists;
+        var appointments = clinic.appointments ? clinic.appointments : existingClinic.appointments;
+        
+        var updatedClinic = await Clinic.findByIdAndUpdate(id, {
+            name: name,
+            email: email,
+            phoneNumber: phoneNumber,
+            address: address, 
+            dentists: dentists,
+            appointments: appointments},
+            {new: true}
+        );
+        console.log("updated clinic =", updatedClinic);
+            status = 200;
+            message = "Clinic information updated successfully";
+            var stringClinic = JSON.stringify(updatedClinic);
+            return status +"/"+ message +"/"+ stringClinic;
+
+        
     } catch (error) {
         status = 400; 
         console.log(error.message);
@@ -149,7 +173,7 @@ exports.retrieveAllClinics = async (req, res) => {                  //DONE
         res.status(400).json({ message: "Something went wrong!", error_message: error.message });
     }
 }
-exports.retrieveSpecificClinic = async (req, res) => {
+exports.retrieveSpecificClinic = async (req, res) => {          //DONE
     try {
         const id = req.params.clinic_id;
         const clinic = await Clinic.findById(id);

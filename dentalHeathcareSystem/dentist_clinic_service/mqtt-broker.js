@@ -50,12 +50,21 @@ function connectToBroker() {
 
             });
         }else if (topic.startsWith('clinic/get/all/')){
+            
             clinicCtrl.getClinics(payload).then( response => {
                 publishToBroker(publishTopic, response);
             })
         }else if (topic.startsWith('clinic/get/one/')){
             clinicCtrl.getOneClinic(payload).then(response => {
                 publishToBroker(publishTopic, response);
+            })
+        }else if (topic.startsWith('clinic/update/')){
+            var topicArr = topic.split("/");
+            var id = topicArr[2];
+            console.log("id in broker =",id);
+            clinicCtrl.updateAClinic(id,payload).then(response => {
+                console.log("REsponse =",response);
+                publishToBroker(publishTopic,response);
             })
         }
         
@@ -77,4 +86,5 @@ function subscribeToBroker(topic) {
 connectToBroker();
 subscribeToBroker("clinic/create/+");
 subscribeToBroker("clinic/get/all/+");
-subscribeToBroker("clinic/get/one/+")
+subscribeToBroker("clinic/get/one/+");
+subscribeToBroker("clinic/update/+");
