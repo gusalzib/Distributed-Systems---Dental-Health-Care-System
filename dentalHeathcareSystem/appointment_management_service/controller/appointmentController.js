@@ -1,43 +1,133 @@
 const Appointment = require("../models/Appointment.js");
 const MqttBroker = require("../mqtt-broker");
-// const dbConnection = require("../db.js");
 
-var mongoURI =  "mongodb://localhost:27017/dentalHealthcareSystem";
+
+
 
 exports.makeAppointment = async (payload) => {
     try {
+        var status = 0;
         const newAppointment = JSON.parse(payload);
         console.log("new appointment =",newAppointment);
 
         const newAppointmentValidation = validateAppointment(newAppointment);
         if(!newAppointmentValidation.success) {
             console.log(newAppointmentValidation.message);
-            return newAppointmentValidation.message;
+            status = 400
+            return status +"/"+ newAppointmentValidation.message;
         }
-        // const db = dbConnection.getDbInstance();
+     
         const appointment = new Appointment(newAppointment);
         console.log("Appointment =",appointment);
 
-        await Appointment.create(appointment);
-        // const result = await Appointment.collection.insertOne({appointment});
-        // console.log("result =",result);
+     
 
         message = "Appointment created"
         console.log(message);
         var stringAppointment = JSON.stringify(appointment) 
-        var status = 200;
+        status = 200;
         response = status +"/"+ message +"/"+ stringAppointment;
         
         return response;
 
     } catch(error) {
+        status = 400
         console.log(error.message);
-        return error.message;
+        return status +"/"+ error.message;
     }
 };
 exports.getAppointments = async (payload) => {
+    try{
+        const appointments = await Appointment.find().sort({"date_and_time_from": 1});
+        var status = "";
+        if(appointments.lenght === 0){
+            status = 404
+            message = "No appointments found"
+            console.log(message);
+            return status +"/"+ message
+        }
+        status = 200;
+        message = "All appointments retrieved";
+        console.log(message);
+        var stringAppointments = appointments.join();
+        return status +"/"+ message +"/"+ stringAppointments
+    }catch (error) {
+        status = 400
+        console.log(error.message);
+        return status +"/"+ error.message
+    }
+};
 
-}
+exports.getOneAppointment = async (payload) => {
+    try{
+        var status = 0;
+        const id = JSON.parse(payload);
+        const appointment = await Appointment.findById(id);
+        if(!appointment){
+            status = 404
+            message = "No appointment found";
+            return status +"/"+ message;
+        }
+        
+        status = 200;
+        message = "Appointment retrieved";
+        var stringAppointment = JSON.stringify(appointment);
+        return status +"/"+ message +"/"+ stringAppointment
+    }catch (error) {
+        status = 400;
+        return status +"/"+ error.message;
+    }
+};
+
+exports.updateOneAppointment = async (_id, payload) => {
+    try {
+            
+        var status = 0;
+        const existing_appointment = await Appointment.findById(_id);
+        if(!existing_appointment){
+            status = 400;
+            message = "No appointment found";
+            return status +"/"+ message;
+        }
+        var newAppointment = JSON.parse(payload)
+        console.log("new appoinment =",newAppointment);
+        console.log("testing attribute =",newAppointment.date_and_time_from);
+
+        const appointment = {
+            patient_id: newAppointment.patient_id ? newAppointment.patient_id : existing_appointment.patient_id,
+            dentist_id: newAppointment.dentist_id ? newAppointment.dentist_id: existing_appointment.dentist_id,
+            dentist_clinic_id: newAppointment.dentist_clinic_id ? newAppointment.dentist_clinic_id : existing_appointment.dentist_clinic_id,
+            type_of_appointment: newAppointment.type_of_appointment ? newAppointment.type_of_appointment : existing_appointment.type_of_appointment,
+            date_and_time_from: newAppointment.date_and_time_from ? newAppointment.date_and_time_from: existing_appointment.date_and_time_from,
+            date_and_time_until: newAppointment.date_and_time_until ? newAppointment.date_and_time_until: existing_appointment.date_and_time_until,
+            available: newAppointment.available !== undefined ? newAppointment.available: existing_appointment.available
+        }
+
+        const newAppointmentValidation = validateAppointment(appointment);
+        if(!newAppointmentValidation.success) {
+            status = 400;
+            console.log("is this the one complaining?");
+            message = newAppointmentValidation.message;
+            return status +"/"+ newAppointmentValidation.message;
+        };
+
+        const updatedAppointment = await Appointment.findByIdAndUpdate(_id, appointment, {new: true});
+
+        status = 200; 
+        message= "Appointment updated";
+        var stringUpdatedAppointment = JSON.stringify(updatedAppointment);
+        return status +"/"+ message +"/"+ stringUpdatedAppointment;
+
+
+    } catch (error) {
+        status = 400;
+        return status +"/"+ error.message;
+                
+        }
+};
+
+
+
 
 exports.createAppointment = async (req, res) => {
     try {

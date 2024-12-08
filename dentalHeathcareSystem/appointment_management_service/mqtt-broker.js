@@ -44,30 +44,48 @@ function connectToBroker() {
         var publishTopic = topic + "/response";
         console.log("publishTopic =",publishTopic);
 
-        if (topic = 'appointment/create/+') {
+        if (topic.startsWith( 'appointment/create/')) {
             appointmentCtrl.makeAppointment(payload).then(response =>{
-                console.log("message in broker = ",response);
+                // console.log("message in broker = ",response);
                 
-                console.log("status =" );
+                // console.log("status =" );
                 topicArr = topic.split("/");
                 var newTopic = topic + "/response";
                 
 
-                console.log("newTopic = ",newTopic);
+                // console.log("newTopic = ",newTopic);
                 publishToBroker(publishTopic,response);
                 
+                // resArr = response.split("/");
+                // var status = resArr[0];
+                // var message = resArr[1];
+                // var appointment = resArr[2];
 
-
-                resArr = response.split("/");
-                var status = resArr[0];
-                var message = resArr[1];
-                var appointment = resArr[2];
-
-                console.log("status =", status);
-                console.log("message =", message);
-                console.log("appointment =", appointment);
+                // console.log("status =", status);
+                // console.log("message =", message);
+                // console.log("appointment =", appointment);
 
             });
+        }else if (topic.startsWith('appointment/get/all/')){
+            console.log("get all appointments");
+            appointmentCtrl.getAppointments(payload).then(response =>{
+                console.log("all appointments = ",response);
+                console.log("publish topic=",publishTopic);
+                publishToBroker(publishTopic, response);
+            })
+        }else if (topic.startsWith('appointment/get/one/')){
+            appointmentCtrl.getOneAppointment(payload).then(response => {
+                console.log(response);
+                publishToBroker(publishTopic,response)
+            })
+        }else if (topic.startsWith('appointment/update/')){
+            var topicArr = topic.split("/");
+            var _id = topicArr[2];
+            console.log("_id = ",_id);
+            appointmentCtrl.updateOneAppointment(_id,payload).then(response => {
+                console.log("response =",response);
+                publishToBroker(publishTopic, response);
+            })
         }
 
     });
@@ -86,3 +104,6 @@ function subscribeToBroker(topic) {
 };
 connectToBroker();
 subscribeToBroker('appointment/create/+');
+subscribeToBroker('appointment/get/all/+');
+subscribeToBroker('appointment/get/one/+');
+subscribeToBroker('appointment/update/+')
