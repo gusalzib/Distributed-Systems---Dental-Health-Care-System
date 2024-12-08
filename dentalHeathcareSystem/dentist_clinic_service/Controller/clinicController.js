@@ -60,7 +60,30 @@ exports.getClinics = async (payload) => {
         console.log(error.message);
         return status +"/"+ error.message;
     }
-}
+};
+
+exports.getOneClinic = async (payload) => {
+    try {
+        var status = 0;
+        const id = JSON.parse(payload);
+        const clinic = await Clinic.findById(id);
+        
+        if (!clinic) {
+            status = 400; 
+            message = "No clinic found!";
+            return status +"/"+ message; 
+        }
+        status = 200;
+        message = "Clinic retrieved successfully!";
+        var stringClinic = JSON.stringify(clinic);
+        return status +"/"+ message +"/"+ stringClinic;
+
+    } catch (error) {
+        status = 400; 
+        console.log(error.message);
+        return status +"/"+ error.message;
+    }
+};
 
 
 exports.createClinic = async (req, res) => {   //DONE
@@ -113,7 +136,7 @@ exports.createClinic = async (req, res) => {   //DONE
         res.status(400).json({message: "Failed to create Clinic", error_message: error.message});
     }
 };
-exports.retrieveAllClinics = async (req, res) => { 
+exports.retrieveAllClinics = async (req, res) => {                  //DONE
     try {
         const clinics = await Clinic.find();
 

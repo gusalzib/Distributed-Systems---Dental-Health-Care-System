@@ -42,18 +42,19 @@ function connectToBroker() {
         console.log("On topic: " + topic); 
         console.log(packet);
         var publishTopic = "response/" + topic;
-        console.log("publishTopic =",publishTopic);
+       
 
         if (topic.startsWith( 'clinic/create/')) {
-            clinicCtrl.clinicCreate(payload).then(response =>{
-                console.log("message in broker = ",response);
-                
+            clinicCtrl.clinicCreate(payload).then(response =>{ 
                 publishToBroker(publishTopic,response);  
 
             });
         }else if (topic.startsWith('clinic/get/all/')){
             clinicCtrl.getClinics(payload).then( response => {
-                console.log("Resepnse =",response);
+                publishToBroker(publishTopic, response);
+            })
+        }else if (topic.startsWith('clinic/get/one/')){
+            clinicCtrl.getOneClinic(payload).then(response => {
                 publishToBroker(publishTopic, response);
             })
         }
@@ -76,3 +77,4 @@ function subscribeToBroker(topic) {
 connectToBroker();
 subscribeToBroker("clinic/create/+");
 subscribeToBroker("clinic/get/all/+");
+subscribeToBroker("clinic/get/one/+")
