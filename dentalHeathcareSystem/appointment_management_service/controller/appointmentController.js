@@ -31,9 +31,9 @@ exports.makeAppointment = async (payload) => {
         return response;
 
     } catch(error) {
-        status = 400
-        console.log(error.message);
-        return status +"/"+ error.message;
+        status = 400; 
+        message = "Something went wrong!" 
+        return status + "/" + message + "/" +error.message;
     }
 };
 exports.getAppointments = async (payload) => {
@@ -52,9 +52,9 @@ exports.getAppointments = async (payload) => {
         var stringAppointments = appointments.join();
         return status +"/"+ message +"/"+ stringAppointments
     }catch (error) {
-        status = 400
-        console.log(error.message);
-        return status +"/"+ error.message
+        status = 400; 
+        message = "Something went wrong!" 
+        return status + "/" + message + "/" +error.message;
     }
 };
 
@@ -74,8 +74,9 @@ exports.getOneAppointment = async (payload) => {
         var stringAppointment = JSON.stringify(appointment);
         return status +"/"+ message +"/"+ stringAppointment
     }catch (error) {
-        status = 400;
-        return status +"/"+ error.message;
+        status = 400; 
+        message = "Something went wrong!" 
+        return status + "/" + message + "/" +error.message;
     }
 };
 
@@ -106,7 +107,7 @@ exports.updateOneAppointment = async (_id, payload) => {
         const newAppointmentValidation = validateAppointment(appointment);
         if(!newAppointmentValidation.success) {
             status = 400;
-            console.log("is this the one complaining?");
+            
             message = newAppointmentValidation.message;
             return status +"/"+ newAppointmentValidation.message;
         };
@@ -120,13 +121,45 @@ exports.updateOneAppointment = async (_id, payload) => {
 
 
     } catch (error) {
-        status = 400;
-        return status +"/"+ error.message;
+            status = 400; 
+            message = "Something went wrong!" 
+            return status + "/" + message + "/" +error.message;
                 
         }
 };
 
+exports.fetchPatientAppointments = async (payload) => {
+    try {
+        var status = 0; 
+        var _id = JSON.parse(payload);
+        console.log("payload id: " +_id._id);
+        
+        const appointments = await Appointment.find();
+        if (appointments.length === 0) {
+            status = 404; 
+            message = "No appointments found"; 
+            return status + "/" + message;
+        }
 
+        const patientAppointments = appointments.filter(appointment => appointment.patient_id && appointment.patient_id.equals(_id._id));
+        if (patientAppointments.length === 0) {
+            status = 400; 
+            message = "This patient has no appointments booked"; 
+            return status + "/" + message;
+
+        } else {
+            status = 200; 
+            message = "Appointments retrieved"; 
+            var stringAppointments = JSON.stringify(patientAppointments)
+            return status + "/" + message + "/" + stringAppointments;
+        }
+
+    } catch (error) {
+            status = 400; 
+            message = "Something went wrong!" 
+            return status + "/" + message + "/" + error.message;
+    }
+}
 
 
 exports.createAppointment = async (req, res) => {
