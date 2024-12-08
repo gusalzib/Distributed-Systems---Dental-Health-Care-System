@@ -88,11 +88,18 @@ function connectToBroker() {
             })
         } else if (topic.startsWith('appointment/get/patient/appointments/')) {
             appointmentCtrl.fetchPatientAppointments(payload).then(response => {
-                console.log('publish topid here: ', publishTopic);
+                
                 
                 console.log("response =", response);
                 publishToBroker(publishTopic, response)
                 
+            })
+        } else if (topic.startsWith('appointment/delete/')) {
+            appointmentCtrl.removeAppointment(payload).then(response => {
+                console.log('publish topid here: ', publishTopic);
+
+                console.log("response =", response);
+                publishToBroker(publishTopic, response)
             })
         }
 
@@ -115,4 +122,5 @@ subscribeToBroker('appointment/create/+');
 subscribeToBroker('appointment/get/all/+');
 subscribeToBroker('appointment/get/one/+');
 subscribeToBroker('appointment/update/+');
-subscribeToBroker('appointment/get/patient/appointments/+')
+subscribeToBroker('appointment/get/patient/appointments/+');
+subscribeToBroker('appointment/delete/+')

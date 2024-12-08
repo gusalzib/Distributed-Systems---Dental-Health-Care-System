@@ -161,6 +161,31 @@ exports.fetchPatientAppointments = async (payload) => {
     }
 }
 
+exports.removeAppointment = async (payload) => {
+    try{
+        var status = 0;
+        var appointment_id = JSON.parse(payload);
+        console.log('this is the delete payload: ', appointment_id);
+        
+        const appointment = await Appointment.findByIdAndDelete(appointment_id);
+        if (!appointment) {
+            status = 404; 
+            message = "No appointment found" 
+            return status + "/" + message;
+        }
+
+        status = 200; 
+        message = "Appointment deleted"; 
+        return status + "/" + message + "/" + appointment;
+
+    } catch (error) {
+        status = 404; 
+        message = "Something went wrong!"
+        return status + "/" + message + "/" + error.message;
+    }
+}
+
+
 
 exports.createAppointment = async (req, res) => {
     try {
