@@ -73,11 +73,9 @@ exports.getOneClinic = async (payload) => {
 exports.updateAClinic = async (id,payload) => {
     try {
         var status = 0;
-        console.log("id =",id );
         const clinic = JSON.parse(payload); 
         
         const existingClinic = await Clinic.findById(id);
-        console.log("existing clinic =",existingClinic);
 
         var name = clinic.name ? clinic.name : existingClinic.name;
         var email = clinic.email ? clinic.email : existingClinic.email;
@@ -95,19 +93,45 @@ exports.updateAClinic = async (id,payload) => {
             appointments: appointments},
             {new: true}
         );
-        console.log("updated clinic =", updatedClinic);
             status = 200;
             message = "Clinic information updated successfully";
             var stringClinic = JSON.stringify(updatedClinic);
             return status +"/"+ message +"/"+ stringClinic;
 
-        
     } catch (error) {
         status = 400; 
-        console.log(error.message);
         return status +"/"+ error.message;
     }
 };
+
+exports.getDentistFromClinic = async (payload) => {
+    try {
+        var status = 0;
+        const id = JSON.parse(payload);
+        const clinic = await Clinic.findById(id);
+        
+        if (!clinic) {
+            status = 400; 
+            message = "No clinic found!";
+            return status +"/"+ message; 
+        }
+        const clinicDentists = clinic.dentists;
+        if (!clinicDentists) {
+            status = 400; 
+            message = "No clinic found!";
+            return status +"/"+ message; 
+        }
+        status = 200;
+        message = "Clinics dentists retrieved successfully!"; 
+        var stringDentists = JSON.stringify(clinicDentists);
+        return status +"/"+ message +"/"+ stringDentists;
+
+  } catch (error) {
+    status = 400; 
+    return status +"/"+ error.message;
+  }
+};
+
 
 
 exports.createClinic = async (req, res) => {   //DONE
@@ -207,7 +231,7 @@ exports.retrieveDentistsInSpecificClinic = async (req, res) => {
     res.status(400).json({ message: "Something went wrong!", error_message: error.message });
   }
 };
-exports.updateClinic = async (req, res) => {
+exports.updateClinic = async (req, res) => {                        //DONE
     try {
         const id = req.params.clinic_id; 
         const existingClinic = await Clinic.findById(id);

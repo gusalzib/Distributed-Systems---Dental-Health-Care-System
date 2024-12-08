@@ -61,10 +61,13 @@ function connectToBroker() {
         }else if (topic.startsWith('clinic/update/')){
             var topicArr = topic.split("/");
             var id = topicArr[2];
-            console.log("id in broker =",id);
+            
             clinicCtrl.updateAClinic(id,payload).then(response => {
-                console.log("REsponse =",response);
                 publishToBroker(publishTopic,response);
+            })
+        }else if(topic.startsWith('clinic/dentists/get/')){
+            clinicCtrl.getDentistFromClinic(payload).then(response => {
+                publishToBroker(publishTopic, response);
             })
         }
         
@@ -88,3 +91,4 @@ subscribeToBroker("clinic/create/+");
 subscribeToBroker("clinic/get/all/+");
 subscribeToBroker("clinic/get/one/+");
 subscribeToBroker("clinic/update/+");
+subscribeToBroker("clinic/dentists/get/+")
