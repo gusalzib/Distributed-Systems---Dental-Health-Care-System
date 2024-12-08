@@ -51,7 +51,13 @@ function connectToBroker() {
                 publishToBroker(publishTopic,response);  
 
             });
+        }else if (topic.startsWith('clinic/get/all/')){
+            clinicCtrl.getClinics(payload).then( response => {
+                console.log("Resepnse =",response);
+                publishToBroker(publishTopic, response);
+            })
         }
+        
 
     });
 }
@@ -69,3 +75,4 @@ function subscribeToBroker(topic) {
 };
 connectToBroker();
 subscribeToBroker("clinic/create/+");
+subscribeToBroker("clinic/get/all/+");

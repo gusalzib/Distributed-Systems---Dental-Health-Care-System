@@ -38,7 +38,32 @@ exports.clinicCreate = async (payload) => {
     }
 };
 
-exports.createClinic = async (req, res) => {
+exports.getClinics = async (payload) => {
+    try {
+        var status = 0;
+        const clinics = await Clinic.find();
+
+        if (!clinics) {
+            status = 400
+            message = "No clinics found!";
+            console.log(message);
+            return status +"/"+ message; 
+        }
+        status = 200;
+        message = "All clinics retrieved";
+        console.log(message);
+        var stringClinics = JSON.stringify(clinics);
+        return status +"/"+ message +"/"+ stringClinics;
+        
+    } catch (error) {
+        status = 400; 
+        console.log(error.message);
+        return status +"/"+ error.message;
+    }
+}
+
+
+exports.createClinic = async (req, res) => {   //DONE
     
     try {
         var email = req.body.email;
