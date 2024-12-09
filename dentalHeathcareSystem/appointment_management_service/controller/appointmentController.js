@@ -18,6 +18,7 @@ exports.makeAppointment = async (payload) => {
         }
      
         const appointment = new Appointment(newAppointment);
+        await appointment.save();
         console.log("Appointment =",appointment);
 
      
