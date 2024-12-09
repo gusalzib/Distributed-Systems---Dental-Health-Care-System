@@ -1,35 +1,35 @@
 const Dentist = require("../dentist_model/Dentist");
+const mqttBroker = require("../../mqtt-broker.js");
 
-exports.registerDentist = async (req, res) => {
+exports.registerDentist = async (payload) => {
+    let message;
+    let response;
     try {
-        const dentist = {
-            clinic_id: req.body.clinic_id,
-            name: req.body.name,
-            address: req.body.address,
-            phone_number: req.body.phone_number,
-            email: req.body.email,
-            password: req.body.password,
-            appointments: [],
-        };
+        var status = 0;
+        const newDentist = JSON.parse(payload);
+        console.log("New dentist = ", newDentist);
 
-        const newDentistValidation = validateDentist(dentist);
-        if(!newDentistValidation.success) {
-            res.status(400).json({message: newDentistValidation.message})
-            return;
+        const newDentistValidation = validateDentist(newDentist);
+        if (!newDentistValidation.success) {
+            console.log(newDentistValidation.message);
+            status = 400
+            return status + "/" + newDentistValidation.message;
         }
 
-        const newDentsit = new Dentist(dentist);
-        await newDentsit.save();
-        res.status(200).json({
-                message: "Registered successfully!",
-            dentist: newDentsit});
-    } catch(error) {
-        res
-            .status(400)
-            .json({
-                message: "Failed to register",
-                error_message: error.message,
-            });
+        const dentist = new Dentist(newDentist);
+        await dentist.save();
+        console.log("Dentist = ", dentist);
+        message = "Dentist registered successfully!"
+        console.log(message);
+        let stringDentist = JSON.stringify(dentist)
+        status = 200;
+        response = status + "/" + message + "/" + stringDentist;
+        return response;
+
+    } catch (error) {
+        status = 400;
+        message = "Failed to register. Something went wrong!"
+        return status + "/" + message + "/" + error.message;
     }
 };
 
