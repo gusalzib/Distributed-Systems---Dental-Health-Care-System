@@ -132,6 +132,27 @@ exports.getDentistFromClinic = async (payload) => {
   }
 };
 
+exports.deleteAClinic = async (payload) => {
+    try{
+        var status = 0;
+        const id = JSON.parse(payload);
+        const clinic = await Clinic.findByIdAndDelete(id);
+        if(!clinic){
+            status = 404
+            message = "No clinic found";
+            return status +"/"+ message; 
+        }
+        status =200;
+        message = "Clinic deleted";
+        var stringClinic = JSON.stringify(clinic);
+        return status +"/"+ message +"/"+ stringClinic;
+
+    }catch (error) {
+        status = 400; 
+        return status +"/"+ error.message;
+    }
+}
+
 
 
 exports.createClinic = async (req, res) => {   //DONE
@@ -212,7 +233,7 @@ exports.retrieveSpecificClinic = async (req, res) => {          //DONE
   }
 };
 // This method should come from dentist management service, but since we dont have that servie implemented yet, we can use this method until it is done 
-exports.retrieveDentistsInSpecificClinic = async (req, res) => {
+exports.retrieveDentistsInSpecificClinic = async (req, res) => {                //DONE
     try {
         const id = req.params.clinic_id;
         const clinic = await Clinic.findById(id);
@@ -259,7 +280,7 @@ exports.updateClinic = async (req, res) => {                        //DONE
         res.status(400).json({message: "Something went wrong", error_message: error.message})
     }
 };
-exports.deleteClinic = async (req, res) => {
+exports.deleteClinic = async (req, res) => {                    //DONE
     try{
         const id = req.params.clinic_id;
         const clinic = await Clinic.findByIdAndDelete(id);

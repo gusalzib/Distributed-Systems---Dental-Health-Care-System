@@ -69,6 +69,10 @@ function connectToBroker() {
             clinicCtrl.getDentistFromClinic(payload).then(response => {
                 publishToBroker(publishTopic, response);
             })
+        }else if('clinic/delete/'){
+            clinicCtrl.deleteAClinic(payload).then(response => {
+                publishToBroker(publishTopic, response);
+            })
         }
         
 
@@ -92,3 +96,4 @@ subscribeToBroker("clinic/get/all/+");
 subscribeToBroker("clinic/get/one/+");
 subscribeToBroker("clinic/update/+");
 subscribeToBroker("clinic/dentists/get/+")
+subscribeToBroker("clinic/delete/+")
