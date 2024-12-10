@@ -63,7 +63,7 @@ exports.getAppointments = async (payload) => {
     }
 };
 
-exports.getOneAppointment = async (topic,payload) => {
+exports.getOneAppointment = async (topic) => {
     try{
         var status = 0;
         console.log("topic in method: ",topic);
@@ -90,10 +90,13 @@ exports.getOneAppointment = async (topic,payload) => {
     }
 };
 
-exports.updateOneAppointment = async (_id, payload) => {
+exports.updateOneAppointment = async (topic, payload) => {
     try {
             
         var status = 0;
+        var topicArr = topic.split("/");
+        const _id = topicArr[2];
+
         const existing_appointment = await Appointment.findById(_id);
         if(!existing_appointment){
             status = 400;
@@ -171,22 +174,22 @@ exports.fetchPatientAppointments = async (payload) => {
     }
 }
 
-exports.removeAppointment = async (payload) => {
+exports.removeAppointment = async (topic) => {
     try{
         var status = 0;
-        var appointment_id = JSON.parse(payload);
-        console.log('this is the delete payload: ', appointment_id);
+        var topicArr = topic.split("/");
+        const id = topicArr[2];
         
-        const appointment = await Appointment.findByIdAndDelete(appointment_id);
+        const appointment = await Appointment.findByIdAndDelete(id);
         if (!appointment) {
             status = 404; 
             message = "No appointment found" 
             return status + "/" + message;
         }
-
+        var stringAppointment = JSON.stringify(appointment)
         status = 200; 
         message = "Appointment deleted"; 
-        return status + "/" + message + "/" + appointment;
+        return status + "/" + message + "/" + stringAppointment;
 
     } catch (error) {
         status = 404; 

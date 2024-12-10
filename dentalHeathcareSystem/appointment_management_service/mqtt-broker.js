@@ -45,57 +45,44 @@ function connectToBroker() {
         console.log("publishTopic =",publishTopic);
 
         if (topic.startsWith( 'appointments/create/')) {
+            console.log("create an appointment");
             appointmentCtrl.makeAppointment(payload).then(response => {
                 publishToBroker(publishTopic, response);
             })
         
         }else if (topic.startsWith('appointments/get/patient/appointments/')) {
+            console.log("get a patients appointments");
             appointmentCtrl.fetchPatientAppointments(payload).then(response => {
-        
-        
-                console.log("response =", response);
                 publishToBroker(publishTopic, response)
-        
             })
         }else if (topic.startsWith('appointments/get/available/appointments/')) {
+            console.log("get available appointments");
             appointmentCtrl.fetchAvailableAppointments(payload).then(response => {
-        
-                console.log("response =", response);
                 publishToBroker(publishTopic, response);
             })
         } else if (topic.startsWith('appointments/get/clinic/appointments/')) {
+            console.log("get a clinics appointments");
             appointmentCtrl.fetchAvailableAppointments(payload).then(response => {
-                console.log('publish topid here: ', publishTopic);
-        
-                console.log("response =", response);
                 publishToBroker(publishTopic, response);
             })
         }else if (topic.startsWith('appointments/get/specific/')){
-            console.log("topic before method: ",topic);
-            appointmentCtrl.getOneAppointment(topic,payload).then(response => {
-                console.log(response);
+            console.log("get a specific appointment");
+            appointmentCtrl.getOneAppointment(topic).then(response => {
                 publishToBroker(publishTopic,response)
             })
         }else if (topic.startsWith('appointments/update/')){
-            var topicArr = topic.split("/");
-            var _id = topicArr[2];
-            console.log("_id = ",_id);
-            appointmentCtrl.updateOneAppointment(_id,payload).then(response => {
-                console.log("response =",response);
+            console.log("update appointment");
+            appointmentCtrl.updateOneAppointment(topic,payload).then(response => {
                 publishToBroker(publishTopic, response);
             })
         } else if (topic.startsWith('appointments/delete/')) {
-            appointmentCtrl.removeAppointment(payload).then(response => {
-        
-        
-                console.log("response =", response);
+            console.log("delete appointment");
+            appointmentCtrl.removeAppointment(topic).then(response => {
                 publishToBroker(publishTopic, response)
             })
         }else if (topic.startsWith('appointments/get/')){
             console.log("get all appointments");
             appointmentCtrl.getAppointments(payload).then(response =>{
-                console.log("all appointments = ",response);
-                console.log("publish topic=",publishTopic);
                 publishToBroker(publishTopic, response);
             })
         }

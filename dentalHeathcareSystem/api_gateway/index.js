@@ -184,7 +184,7 @@ app.put("/api/*", async (req, res) => {
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
 
         if(!mqttResponse){
-            res.status(400).json({message: "could not create appointment"})
+            res.status(400).json({message: "could not find appointment"})
             return
         }
          //exstract information from topic and response, parse the payload and return http response
@@ -193,6 +193,47 @@ app.put("/api/*", async (req, res) => {
         var responseArr = mqttResponse.split("/");
         var entityString = responseArr[2]
         var adaptedResponse = JSON.parse(entityString);
+        
+        res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        return;
+
+    } catch (error) {
+        res.status(400).json({message: "something went wrong"});
+    }
+});
+app.delete("/api/*", async (req, res) => {
+    try {
+        //get the body and make it a string
+        var body = req.body;
+        const payload = JSON.stringify(body);
+
+        //get the url and call method to remove "api"
+        const reqURL = req.url;
+        var adaptedURL = adaptRequestURL(reqURL);
+        
+        // does url contain an _id? if not give it an unique id
+        var id = checkForId(adaptedURL);
+        if(!id){
+            var topic = adaptedURL + "/" + giveUniqueID();
+        }else{
+            topic = adaptedURL;
+        }
+
+        //publish request
+        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        console.log("back in index");
+        if(!mqttResponse){
+            res.status(400).json({message: "could not delete appointment"})
+            return
+        }
+         //exstract information from topic and response, parse the payload and return http response
+        var topicArr = topic.split("/");
+        console.log("after split");
+        var nameOfEntity = topicArr[0]
+        var responseArr = mqttResponse.split("/");
+        var entityString = responseArr[2]
+        var adaptedResponse = JSON.parse(entityString);
+        console.log("adapted response: ",adaptedResponse);
         
         res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
