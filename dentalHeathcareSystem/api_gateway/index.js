@@ -105,7 +105,8 @@ app.post("/api/*", async (req, res) => {
         console.log(adaptedURL);
         var topic = adaptedURL + "/" + giveUniqueID();
         console.log("TOPIC =",topic);
-
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0]
 
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
@@ -116,7 +117,7 @@ app.post("/api/*", async (req, res) => {
         
         var adaptedResponse = JSON.parse(responseArr[2]);
         console.log("adapted response is " + adaptedResponse);
-        res.status(200).json({ message: responseArr[1], adaptedResponse: adaptedResponse });
+        res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         console.log("We were successful");
         return;
 

@@ -21,15 +21,20 @@ exports.makeAppointment = async (payload) => {
         await appointment.save();
         console.log("Appointment =",appointment);
 
-     
-
+        var appoinmentId = appointment._id;
+        if (!appoinmentId) {
+            status = 400
+            message = "failed to register clinic";
+            return status +"/"+ message 
+        }
+        var retrievedAppointment = await Appointment.find(appoinmentId);
+        console.log("retrieved appointment: ",retrievedAppointment);
+        console.log("appointment id: ",appoinmentId);
         message = "Appointment created"
         console.log(message);
-        var stringAppointment = JSON.stringify(appointment) 
+        var stringAppointment = JSON.stringify(retrievedAppointment) 
         status = 200;
-        response = status +"/"+ message +"/"+ stringAppointment;
-        
-        return response;
+        return status +"/"+ message +"/"+ stringAppointment;
 
     } catch(error) {
         status = 400; 

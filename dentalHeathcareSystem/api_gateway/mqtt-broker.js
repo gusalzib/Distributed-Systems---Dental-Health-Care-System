@@ -56,8 +56,14 @@ async function publishToBroker(topic, payload) {
     await mqttClient.publish(topic, payload, {qos: 0, retain: false})
     return new Promise((resolve) => {        
         const checkResponse = () => {
+            var arrayLength = responseArr.length
+            console.log("array length before: ",arrayLength);
             const response = responseArr.find(response => response.topic === resTopic);
             if(response){
+                responseArr = responseArr.filter(response => response.topic !== resTopic);
+                
+                arrayLength = responseArr.length
+                console.log("array length after: ",arrayLength);
                 resolve(response.payload);
             }else {
                 setTimeout(checkResponse, 100);
