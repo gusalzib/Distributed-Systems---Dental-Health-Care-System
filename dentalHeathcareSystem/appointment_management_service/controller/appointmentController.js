@@ -63,10 +63,15 @@ exports.getAppointments = async (payload) => {
     }
 };
 
-exports.getOneAppointment = async (payload) => {
+exports.getOneAppointment = async (topic,payload) => {
     try{
         var status = 0;
-        const id = JSON.parse(payload);
+        console.log("topic in method: ",topic);
+        
+        
+        var topicArr = topic.split("/");
+        const id = topicArr[3];
+        console.log("id: ",id);
         const appointment = await Appointment.findById(id);
         if(!appointment){
             status = 404
@@ -205,7 +210,7 @@ exports.fetchAvailableAppointments = async (payload) => {
         status = 200;
         message = "All appointments retrieved";
 
-        var stringAppointments = appointments.join();
+        var stringAppointments = JSON.stringify(appointments);
         
         return status + "/" + message + "/" + stringAppointments;
 

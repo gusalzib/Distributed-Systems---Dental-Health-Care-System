@@ -93,32 +93,30 @@ app.use(express.json());
 //-----------http mqtt adapter---------------//
 
 app.post("/api/*", async (req, res) => {
-    console.log("Are we getting here?");
     try {
+        //get the body and make it a string
         var body = req.body;
-        console.log(body);
         const payload = JSON.stringify(body);
-        console.log("Payload stringified " + payload)
+        
+        //get url, remove "api" and give it a unique id
         const reqURL = req.url;
-        console.log(reqURL);
         var adaptedURL = adaptRequestURL(reqURL);
-        console.log(adaptedURL);
         var topic = adaptedURL + "/" + giveUniqueID();
-        console.log("TOPIC =",topic);
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0]
-
+        
+        //Publish request
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
             res.status(400).json({message: "could not create appointment"})
             return
         }
+
+        //exstract information from topic and response, parse the payload and return http response
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0]
         var responseArr = mqttResponse.split("/");
         
         var adaptedResponse = JSON.parse(responseArr[2]);
-        console.log("adapted response is " + adaptedResponse);
         res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
-        console.log("We were successful");
         return;
 
     } catch (error) {
@@ -127,46 +125,76 @@ app.post("/api/*", async (req, res) => {
 });
 app.get("/api/*", async (req, res) => {
     try {
+        //get the body and make it a string
         var body = req.body;
-        console.log(body);
         const payload = JSON.stringify(body);
-        console.log("Payload stringified " + payload)
 
-
+        //get the url and call method to remove "api"
         const reqURL = req.url;
-        console.log(reqURL);
         var adaptedURL = adaptRequestURL(reqURL);
-        console.log(adaptedURL);
-        // does url contain an id?
+        
+        // does url contain an _id? if not give it an unique id
         var id = checkForId(adaptedURL);
         if(!id){
             var topic = adaptedURL + "/" + giveUniqueID();
-            console.log("TOPIC =",topic);
         }else{
             topic = adaptedURL;
         }
 
-        
+        //publish request
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
 
-        console.log("back in index");
         if(!mqttResponse){
-            console.log("response empty");
             res.status(400).json({message: "could not create appointment"})
             return
         }
-        
-        
-        
+         //exstract information from topic and response, parse the payload and return http response
         var topicArr = topic.split("/");
         var nameOfEntity = topicArr[0]
-        console.log("name of entity: ",nameOfEntity);
         var responseArr = mqttResponse.split("/");
         var entityString = responseArr[2]
         var adaptedResponse = JSON.parse(entityString);
-        console.log("adapted response is " + adaptedResponse);
+        
         res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
-        console.log(responseArr[1]);
+        return;
+
+    } catch (error) {
+        res.status(400).json({message: "something went wrong"});
+    }
+});
+app.put("/api/*", async (req, res) => {
+    try {
+        //get the body and make it a string
+        var body = req.body;
+        const payload = JSON.stringify(body);
+
+        //get the url and call method to remove "api"
+        const reqURL = req.url;
+        var adaptedURL = adaptRequestURL(reqURL);
+        
+        // does url contain an _id? if not give it an unique id
+        var id = checkForId(adaptedURL);
+        if(!id){
+            var topic = adaptedURL + "/" + giveUniqueID();
+        }else{
+            topic = adaptedURL;
+        }
+
+        //publish request
+        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+
+        if(!mqttResponse){
+            res.status(400).json({message: "could not create appointment"})
+            return
+        }
+         //exstract information from topic and response, parse the payload and return http response
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0]
+        var responseArr = mqttResponse.split("/");
+        var entityString = responseArr[2]
+        var adaptedResponse = JSON.parse(entityString);
+        
+        res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
 
     } catch (error) {

@@ -71,7 +71,8 @@ function connectToBroker() {
                 publishToBroker(publishTopic, response);
             })
         }else if (topic.startsWith('appointments/get/specific/')){
-            appointmentCtrl.getOneAppointment(payload).then(response => {
+            console.log("topic before method: ",topic);
+            appointmentCtrl.getOneAppointment(topic,payload).then(response => {
                 console.log(response);
                 publishToBroker(publishTopic,response)
             })
