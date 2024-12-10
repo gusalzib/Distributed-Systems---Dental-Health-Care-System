@@ -125,6 +125,54 @@ app.post("/api/*", async (req, res) => {
         res.status(400).json({message: "something went wrong"});
     }
 });
+app.get("/api/*", async (req, res) => {
+    try {
+        var body = req.body;
+        console.log(body);
+        const payload = JSON.stringify(body);
+        console.log("Payload stringified " + payload)
+
+
+        const reqURL = req.url;
+        console.log(reqURL);
+        var adaptedURL = adaptRequestURL(reqURL);
+        console.log(adaptedURL);
+        // does url contain an id?
+        var id = checkForId(adaptedURL);
+        if(!id){
+            var topic = adaptedURL + "/" + giveUniqueID();
+            console.log("TOPIC =",topic);
+        }else{
+            topic = adaptedURL;
+        }
+
+        
+        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+
+        console.log("back in index");
+        if(!mqttResponse){
+            console.log("response empty");
+            res.status(400).json({message: "could not create appointment"})
+            return
+        }
+        
+        
+        
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0]
+        console.log("name of entity: ",nameOfEntity);
+        var responseArr = mqttResponse.split("/");
+        var entityString = responseArr[2]
+        var adaptedResponse = JSON.parse(entityString);
+        console.log("adapted response is " + adaptedResponse);
+        res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        console.log(responseArr[1]);
+        return;
+
+    } catch (error) {
+        res.status(400).json({message: "something went wrong"});
+    }
+});
 
 function adaptRequestURL (url) {
     var newURL = url.replace('/api/', '');
@@ -135,7 +183,22 @@ function giveUniqueID () {
     let uniqueID = Math.random() + Date.now();
     return uniqueID;
 }
-
+function checkForId(adaptedURL){
+    var urlArr = adaptedURL.split("/")
+    var index = urlArr.length -1
+    var lastElement = urlArr[index];
+    console.log("last element length: ",lastElement.length);
+    console.log("last element: ",lastElement);
+    if(lastElement.length < 24){
+        
+        console.log( "element is not an id");
+        return;
+    }else{
+        var id = lastElement;
+        console.log("this is id check. id: ",id);
+        return id;
+    }
+}
 
 
 // const services = [                                      //Service array

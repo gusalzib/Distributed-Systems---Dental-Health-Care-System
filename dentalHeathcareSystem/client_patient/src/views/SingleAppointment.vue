@@ -136,7 +136,7 @@ export default {
         async getAppointmentInfo() {
             const appointmentID = this.$route.params.appointmentID;
             
-            await Api.get(`/appointments/${appointmentID}`).then(response => {
+            await Api.get(`/appointments/get/specific/${appointmentID}`).then(response => {
                 if (response.status === 200) {
                     this.appointment = response.data.appointment;
                     
@@ -156,7 +156,7 @@ export default {
             this.appointment.available = false; 
             
             this.appointment.patient_id = this.current_patient_placeholder;
-                await Api.put(`/appointments/${appointmentID}`, this.appointment).then(response => {
+                await Api.put(`/appointments/update/${appointmentID}`, this.appointment).then(response => {
                 if (response.status === 200) {
                     router.push({path: `/bookingConfirmation/${appointmentID}`})
                 }
@@ -173,7 +173,7 @@ export default {
             console.log(this.appointment);
             
             /* The appointment is reserved until the countdown timer is over or the appointment is booked */
-            await Api.put(`/appointments/${appointmentID}`, this.appointment).then(response => {
+            await Api.put(`/appointments/update/${appointmentID}`, this.appointment).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'The appointment is reserved in the system until the timer is up!';
                     setTimeout(() => {

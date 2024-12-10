@@ -55,20 +55,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 const {createAppointment, getAllAppointments,getSpecificAppointment,getPatientsAppointments,updateAppointment,deleteAppointment,getAvailableAppointments,getClinicAppointments} = require("./controller/appointmentController");
 
 app.post("/api/appointments/create", createAppointment);
-app.get("/api/appointments", getAllAppointments);
-app.get("/api/appointments/:appointment_id", getSpecificAppointment);
-app.get("/api/appointments/specific/:patient_id",getPatientsAppointments);
-app.get("/api/appointments/available/appointment",getAvailableAppointments)
-app.get("/api/appointments/:clinicID/clinics/appointment",getClinicAppointments)
-app.put("/api/appointments/:appointment_id",updateAppointment);
-app.delete("/api/appointments/:appointment_id",deleteAppointment);
+app.get("/api/appointments/get", getAllAppointments); //added "get" to url
+app.get("/api/appointments/get/specific/:appointment_id", getSpecificAppointment); //added "get" to url
+app.get("/api/appointments/get/patient/appointments/:patient_id",getPatientsAppointments);
+app.get("/api/appointments/get/available/appointment",getAvailableAppointments)
+app.get("/api/appointments/get/clinics/appointments/:clinicID",getClinicAppointments) //changed id to the end,added "get" to url, also changed in postman and clinic.vue
+app.put("/api/appointments/update/:appointment_id",updateAppointment);
+app.delete("/api/appointments/delete/:appointment_id",deleteAppointment);
+
 
 app.get("/active", (req,res) =>{
   res.sendStatus(200)
 })
-
-
-
 
 
 app.listen(port, function (err) {

@@ -28,8 +28,6 @@ exports.makeAppointment = async (payload) => {
             return status +"/"+ message 
         }
         var retrievedAppointment = await Appointment.find(appoinmentId);
-        console.log("retrieved appointment: ",retrievedAppointment);
-        console.log("appointment id: ",appoinmentId);
         message = "Appointment created"
         console.log(message);
         var stringAppointment = JSON.stringify(retrievedAppointment) 
@@ -44,6 +42,7 @@ exports.makeAppointment = async (payload) => {
 };
 exports.getAppointments = async (payload) => {
     try{
+        console.log("IN GETT ALL");
         const appointments = await Appointment.find().sort({"date_and_time_from": 1});
         var status = "";
         if(appointments.length === 0){
@@ -55,7 +54,7 @@ exports.getAppointments = async (payload) => {
         status = 200;
         message = "All appointments retrieved";
         console.log(message);
-        var stringAppointments = appointments.join();
+        var stringAppointments = JSON.stringify(appointments);
         return status +"/"+ message +"/"+ stringAppointments
     }catch (error) {
         status = 400; 

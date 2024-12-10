@@ -94,7 +94,7 @@ export default {
     },
     async updateAppointment(appointmentID){
       this.appointment.available = false;
-      await Api.put(`/appointments/${appointmentID}`,this.appointment).then(response => {
+      await Api.put(`/appointments/update/${appointmentID}`,this.appointment).then(response => {
 
       }).catch(error => {
         console.log(error.message);
@@ -102,7 +102,7 @@ export default {
 
       },
       async checkAvailability(appointmentID) {
-        Api.get(`/appointments/${appointmentID}`).then(response => {
+        Api.get(`/appointments/get/specific/${appointmentID}`).then(response => {
           if (response.status === 200) {
             this.appointment = response.data.appointment
             var clinicID = this.appointment.dentist_clinic_id 

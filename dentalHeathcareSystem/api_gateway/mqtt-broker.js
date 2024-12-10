@@ -43,6 +43,7 @@ function connectToBroker() {
         console.log("On topic: " + topic);
         console.log(packet);
         var stringPayload = payload.toString();
+        console.log("upon message: ", stringPayload);
         
         if (topic.startsWith("response/")){
             var newResponse = {topic : topic, payload: stringPayload}
@@ -54,16 +55,12 @@ function connectToBroker() {
 async function publishToBroker(topic, payload) {
     const resTopic = "response/"+topic;
     await mqttClient.publish(topic, payload, {qos: 0, retain: false})
+
     return new Promise((resolve) => {        
         const checkResponse = () => {
-            var arrayLength = responseArr.length
-            console.log("array length before: ",arrayLength);
             const response = responseArr.find(response => response.topic === resTopic);
             if(response){
-                responseArr = responseArr.filter(response => response.topic !== resTopic);
-                
-                arrayLength = responseArr.length
-                console.log("array length after: ",arrayLength);
+                responseArr = responseArr.filter(response => response.topic !== resTopic);  
                 resolve(response.payload);
             }else {
                 setTimeout(checkResponse, 100);
