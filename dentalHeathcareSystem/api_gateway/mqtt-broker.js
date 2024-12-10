@@ -1,12 +1,11 @@
-import mqtt from "mqtt";
-
+const mqtt = require('async-mqtt');
 var mqttClient;
 
 const host = "127.0.0.1";
 const protocol = "mqtt";
 const port = "1883";
+var responseArr = [];
 
-var subPayload = "";
 
 function connectToBroker() {
     const clientId = "client" + Math.random() + Date.now();
@@ -43,19 +42,37 @@ function connectToBroker() {
         console.log("Message received: " + payload.toString());
         console.log("On topic: " + topic);
         console.log(packet);
-        // var publishTopic = "response/" + topic;
-        // console.log("publishTopic =", publishTopic);
-        subPayload = payload;
+        var stringPayload = payload.toString();
+        
+        if (topic.startsWith("response/")){
+            var newResponse = {topic : topic, payload: stringPayload}
+            responseArr.push(newResponse);
+        }
     });
 }
 
-export function publishToBroker(topic, payload) {
-    mqttClient.publish(topic, payload, {qos: 0, retain: false})
-    return subscribeToBroker("response/" + topic);
+async function publishToBroker(topic, payload) {
+    const resTopic = "response/"+topic;
+    await mqttClient.publish(topic, payload, {qos: 0, retain: false})
+    return new Promise((resolve) => {        
+        const checkResponse = () => {
+            const response = responseArr.find(response => response.topic === resTopic);
+            if(response){
+                resolve(response.payload);
+            }else {
+                setTimeout(checkResponse, 100);
+            }
+        };
+        checkResponse();
+    })
 };
 
 function subscribeToBroker(topic) {
     mqttClient.subscribe(topic, {qos: 0})
-    return subPayload;
+    console.log("subscribed to topic: ",topic);
 };
 connectToBroker();
+subscribeToBroker("response/#");
+
+
+module.exports = {publishToBroker};

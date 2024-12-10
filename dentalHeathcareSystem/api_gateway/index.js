@@ -104,18 +104,24 @@ app.post("/api/*", async (req, res) => {
         var adaptedURL = adaptRequestURL(reqURL);
         console.log(adaptedURL);
         var topic = adaptedURL + "/" + giveUniqueID();
+        console.log("TOPIC =",topic);
 
 
-        var mqttResponse = mqttBroker.publishToBroker(topic, payload);
-        console.log("mqtt response topic is : " + topic);
-        var adaptedResponse = JSON.parse(mqttResponse);
+        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        if(!mqttResponse){
+            res.status(400).json({message: "could not create appointment"})
+            return
+        }
+        var responseArr = mqttResponse.split("/");
+        
+        var adaptedResponse = JSON.parse(responseArr[2]);
         console.log("adapted response is " + adaptedResponse);
-        res.status(200).json(adaptedResponse);
+        res.status(200).json({ message: responseArr[1], adaptedResponse: adaptedResponse });
         console.log("We were successful");
-
+        return;
 
     } catch (error) {
-        res.status(500).json("error happened don't know what");
+        res.status(400).json({message: "something went wrong"});
     }
 });
 
