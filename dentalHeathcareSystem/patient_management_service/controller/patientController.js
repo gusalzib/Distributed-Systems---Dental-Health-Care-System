@@ -70,9 +70,12 @@ exports.createPatient = async (payload) => {
 }
 
 exports.fetchAllPatients = async (payload) => {
-    try{
-        const patients = await Patient.find();
+    try {
+        
         var status = "";
+        var message = "";
+
+        const patients = await Patient.find();
 
         if(patients.length === 0){
             status = 404
@@ -83,7 +86,6 @@ exports.fetchAllPatients = async (payload) => {
         status = 200;
         message = "All patients retrieved";
         var stringPatients = JSON.stringify(patients);
-        console.log(patients);
         
         return status + "/" + message + "/" + stringPatients;
 
@@ -94,8 +96,33 @@ exports.fetchAllPatients = async (payload) => {
     }
 }
 
-exports.fetchSpecificPatient = async (payload) => {
-    
+exports.fetchSpecificPatient = async (topic) => {
+    try{
+        var status = 0;
+        var message = "";
+
+        var topicArr = topic.split("/");
+        const id = topicArr[3];
+        console.log("id: ", id);
+        
+        const patient = await Patient.findById(id);
+        if(!patient){
+            status = 404
+            message = "No patient found";
+            return status +"/"+ message;
+        }
+        
+        status = 200;
+        message = "Patient retrieved";
+        var stringPatient = JSON.stringify(patient);
+        
+        return status + "/" + message + "/" + stringPatient;
+
+    }catch (error) {
+        status = 400; 
+        message = "Something went wrong!" 
+        return status + "/" + message + "/" + error.message;
+    }
 }
 
 exports.updateSpecificPatient = async (payload) => {
