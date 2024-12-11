@@ -6,7 +6,7 @@ var logger = require('morgan');
 var mongoose = require('mongoose')
 var cors = require('cors');
 const mqtt = require('mqtt');
-
+const MqttBroker = require("./mqtt-broker"); //starts the broker
 
 var app = express();
 var port = 3002; 
@@ -54,6 +54,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const {createAppointment, getAllAppointments,getSpecificAppointment,getPatientsAppointments,updateAppointment,deleteAppointment,getAvailableAppointments,getClinicAppointments} = require("./controller/appointmentController");
 
+
 app.post("/api/appointments/create", createAppointment);
 app.get("/api/appointments/get", getAllAppointments); //added "get" to url
 app.get("/api/appointments/get/specific/:appointment_id", getSpecificAppointment); //added "get" to url
@@ -65,8 +66,9 @@ app.delete("/api/appointments/delete/:appointment_id",deleteAppointment);
 
 
 app.get("/active", (req,res) =>{
-  res.sendStatus(200)
+  res.sendStatus(200).json("appointment")
 })
+
 
 
 app.listen(port, function (err) {

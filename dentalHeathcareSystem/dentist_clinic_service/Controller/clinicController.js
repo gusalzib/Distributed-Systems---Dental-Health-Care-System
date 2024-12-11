@@ -1,7 +1,161 @@
 var Clinic = require("../models/clinic.js");
 const emailValidator = require('validator');
+const MqttBroker = require("../mqtt-broker");
 
-exports.createClinic = async (req, res) => {
+
+
+exports.clinicCreate = async (payload) => {
+    try {
+        var status = 0;
+        const newClinic = JSON.parse(payload);
+    
+        const newClinicValidation = validateClinic(newClinic);
+        if(!newClinicValidation.success) {
+            status = 400
+            return status +"/"+ newClinicValidation.message;
+        }
+     
+        const clinic = new Clinic(newClinic);
+        await clinic.save();
+        message = "Clinic created"
+        var stringClinic = JSON.stringify(clinic) 
+        status = 200;
+        return status +"/"+ message +"/"+ stringClinic;
+
+    } catch(error) {
+        status = 400
+        return status +"/"+ error.message;
+    }
+};
+
+exports.getClinics = async (payload) => {
+    try {
+        var status = 0;
+        const clinics = await Clinic.find();
+
+        if (!clinics) {
+            status = 400
+            message = "No clinics found!";
+            return status +"/"+ message; 
+        }
+        status = 200;
+        message = "All clinics retrieved";
+        var stringClinics = JSON.stringify(clinics);
+        return status +"/"+ message +"/"+ stringClinics;
+        
+    } catch (error) {
+        status = 400; 
+        return status +"/"+ error.message;
+    }
+};
+
+exports.getOneClinic = async (payload) => {
+    try {
+        var status = 0;
+        const id = JSON.parse(payload);
+        const clinic = await Clinic.findById(id);
+        
+        if (!clinic) {
+            status = 400; 
+            message = "No clinic found!";
+            return status +"/"+ message; 
+        }
+        status = 200;
+        message = "Clinic retrieved successfully!";
+        var stringClinic = JSON.stringify(clinic);
+        return status +"/"+ message +"/"+ stringClinic;
+
+    } catch (error) {
+        status = 400; 
+        return status +"/"+ error.message;
+    }
+};
+exports.updateAClinic = async (id,payload) => {
+    try {
+        var status = 0;
+        const clinic = JSON.parse(payload); 
+        
+        const existingClinic = await Clinic.findById(id);
+
+        var name = clinic.name ? clinic.name : existingClinic.name;
+        var email = clinic.email ? clinic.email : existingClinic.email;
+        var phoneNumber = clinic.phoneNumber ? clinic.phoneNumber : existingClinic.phoneNumber;        
+        var address = clinic.address ? clinic.address : existingClinic.address;
+        var dentists = clinic.dentists ? clinic.dentists : existingClinic.dentists;
+        var appointments = clinic.appointments ? clinic.appointments : existingClinic.appointments;
+        
+        var updatedClinic = await Clinic.findByIdAndUpdate(id, {
+            name: name,
+            email: email,
+            phoneNumber: phoneNumber,
+            address: address, 
+            dentists: dentists,
+            appointments: appointments},
+            {new: true}
+        );
+            status = 200;
+            message = "Clinic information updated successfully";
+            var stringClinic = JSON.stringify(updatedClinic);
+            return status +"/"+ message +"/"+ stringClinic;
+
+    } catch (error) {
+        status = 400; 
+        return status +"/"+ error.message;
+    }
+};
+
+exports.getDentistFromClinic = async (payload) => {
+    try {
+        var status = 0;
+        const id = JSON.parse(payload);
+        const clinic = await Clinic.findById(id);
+        
+        if (!clinic) {
+            status = 400; 
+            message = "No clinic found!";
+            return status +"/"+ message; 
+        }
+        const clinicDentists = clinic.dentists;
+        if (!clinicDentists) {
+            status = 400; 
+            message = "No clinic found!";
+            return status +"/"+ message; 
+        }
+        status = 200;
+        message = "Clinics dentists retrieved successfully!"; 
+        var stringDentists = JSON.stringify(clinicDentists);
+        return status +"/"+ message +"/"+ stringDentists;
+
+  } catch (error) {
+    status = 400; 
+    return status +"/"+ error.message;
+  }
+};
+
+exports.deleteAClinic = async (payload) => {
+    try{
+        var status = 0;
+        const id = JSON.parse(payload);
+        const clinic = await Clinic.findByIdAndDelete(id);
+        if(!clinic){
+            status = 404
+            message = "No clinic found";
+            return status +"/"+ message; 
+        }
+        status =200;
+        message = "Clinic deleted";
+        var stringClinic = JSON.stringify(clinic);
+        return status +"/"+ message +"/"+ stringClinic;
+
+    }catch (error) {
+        status = 400; 
+        return status +"/"+ error.message;
+    }
+}
+
+
+
+exports.createClinic = async (req, res) => {   //DONE
     
     try {
         var email = req.body.email;
@@ -51,7 +205,7 @@ exports.createClinic = async (req, res) => {
         res.status(400).json({message: "Failed to create Clinic", error_message: error.message});
     }
 };
-exports.retrieveAllClinics = async (req, res) => { 
+exports.retrieveAllClinics = async (req, res) => {                  //DONE
     try {
         const clinics = await Clinic.find();
 
@@ -64,7 +218,7 @@ exports.retrieveAllClinics = async (req, res) => {
         res.status(400).json({ message: "Something went wrong!", error_message: error.message });
     }
 }
-exports.retrieveSpecificClinic = async (req, res) => {
+exports.retrieveSpecificClinic = async (req, res) => {          //DONE
     try {
         const id = req.params.clinic_id;
         const clinic = await Clinic.findById(id);
@@ -79,7 +233,7 @@ exports.retrieveSpecificClinic = async (req, res) => {
   }
 };
 // This method should come from dentist management service, but since we dont have that servie implemented yet, we can use this method until it is done 
-exports.retrieveDentistsInSpecificClinic = async (req, res) => {
+exports.retrieveDentistsInSpecificClinic = async (req, res) => {                //DONE
     try {
         const id = req.params.clinic_id;
         const clinic = await Clinic.findById(id);
@@ -98,7 +252,7 @@ exports.retrieveDentistsInSpecificClinic = async (req, res) => {
     res.status(400).json({ message: "Something went wrong!", error_message: error.message });
   }
 };
-exports.updateClinic = async (req, res) => {
+exports.updateClinic = async (req, res) => {                        //DONE
     try {
         const id = req.params.clinic_id; 
         const existingClinic = await Clinic.findById(id);
@@ -126,7 +280,7 @@ exports.updateClinic = async (req, res) => {
         res.status(400).json({message: "Something went wrong", error_message: error.message})
     }
 };
-exports.deleteClinic = async (req, res) => {
+exports.deleteClinic = async (req, res) => {                    //DONE
     try{
         const id = req.params.clinic_id;
         const clinic = await Clinic.findByIdAndDelete(id);
@@ -137,5 +291,17 @@ exports.deleteClinic = async (req, res) => {
         res.status(200).json({ message: "Clinic deleted", clinic: clinic });
     }catch (error) {
         res.status(400).json({ message: "Something went wrong!", error_message: error.message});
+    }
+}
+
+function validateClinic(clinic) {
+    const {name, address, email, phoneNumber} = clinic; //destructuring the received clinic Object.
+    if (!name || !address || !email || !phoneNumber ) {
+        return {
+            success: false,
+            message: "You missed to fill in required fields!"
+        }
+    } else {
+        return {success: true, message: "Success"}
     }
 }

@@ -43,25 +43,30 @@ function connectToBroker() {
         console.log("On topic: " + topic);
         console.log(packet);
         var stringPayload = payload.toString();
-        console.log("upon message: ", stringPayload);
+        
         
         if (topic.startsWith("response/")){
             var newResponse = {topic : topic, payload: stringPayload}
             responseArr.push(newResponse);
+        }else if(topic.startsWith("/active")){
+
         }
     });
 }
 
 async function publishToBroker(topic, payload) {
+    
     const resTopic = "response/"+topic;
     await mqttClient.publish(topic, payload, {qos: 0, retain: false})
 
     return new Promise((resolve) => {        
         const checkResponse = () => {
+            
             const response = responseArr.find(response => response.topic === resTopic);
             if(response){
                 responseArr = responseArr.filter(response => response.topic !== resTopic);  
                 resolve(response.payload);
+                console.log("did we get here");
             }else {
                 setTimeout(checkResponse, 100);
             }
@@ -76,6 +81,7 @@ function subscribeToBroker(topic) {
 };
 connectToBroker();
 subscribeToBroker("response/#");
+subscribeToBroker("active/#")
 
 
 module.exports = {publishToBroker};

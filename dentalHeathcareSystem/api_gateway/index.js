@@ -91,9 +91,55 @@ app.use(express.json());
 
 
 //-----------http mqtt adapter---------------//
+// var activeServices = [];
+// var checkServices = [];
+// exports.saveActiveService = async (topic, payload) => {
+    
+//     var service = {topic: topic, entity:payload}
+//     var alreadyExists = activeServices.find(service => service.payload === payload)
+
+//     if (!alreadyExists){
+//     activeServices.push(service)
+//     }
+// }
+
+
+// const services = [                                      //Service array
+//     {
+//       service: "appointments",
+//       topics: [
+//         {topic:"appointment",isActive:true},
+//         {topic:"appointment2",isActive:true},
+//         {topic:"appointment3",isActive:true}
+//       ],
+//       index:0
+//     },
+//     {
+//       service: "patients",
+//       topics: [
+//             {topic:"patients",isActive:true}
+//       ],
+//       index:0
+//     },
+//     {
+//       service: "clinics",
+//       topics: [
+//         {topic: "clinics", isActive: true}
+//       ],
+//       index:0
+//     },
+//     {
+//       service: "dentists",
+//       topics: [
+//         {topic: "dentists", isActive: true},
+//       ],
+//       index:0
+//     },
+//    ];
 
 app.post("/api/*", async (req, res) => {
     try {
+        console.log("in post");
         //get the body and make it a string
         var body = req.body;
         const payload = JSON.stringify(body);
@@ -103,6 +149,10 @@ app.post("/api/*", async (req, res) => {
         var adaptedURL = adaptRequestURL(reqURL);
         var topic = adaptedURL + "/" + giveUniqueID();
         
+
+        console.log("topic is: ",topic, "payload is: ",payload);
+
+
         //Publish request
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
@@ -165,6 +215,7 @@ app.get("/api/*", async (req, res) => {
 app.put("/api/*", async (req, res) => {
     try {
         //get the body and make it a string
+        console.log("TEST");
         var body = req.body;
         const payload = JSON.stringify(body);
 
