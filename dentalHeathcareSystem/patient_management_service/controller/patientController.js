@@ -70,7 +70,28 @@ exports.createPatient = async (payload) => {
 }
 
 exports.fetchAllPatients = async (payload) => {
-    
+    try{
+        const patients = await Patient.find();
+        var status = "";
+
+        if(patients.length === 0){
+            status = 404
+            message = "No patients found"
+            return status +"/"+ message
+        }
+
+        status = 200;
+        message = "All patients retrieved";
+        var stringPatients = JSON.stringify(patients);
+        console.log(patients);
+        
+        return status + "/" + message + "/" + stringPatients;
+
+    }catch (error) {
+        status = 400; 
+        message = "Something went wrong!" 
+        return status + "/" + message + "/" + error.message;
+    }
 }
 
 exports.fetchSpecificPatient = async (payload) => {
