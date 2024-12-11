@@ -44,7 +44,7 @@ function connectToBroker() {
         var publishTopic = "response/" + topic;
         console.log("publishTopic =",publishTopic);
 
-        if (topic.startsWith( 'patients/create/')) {
+        if (topic.startsWith('patients/create/')) {
             console.log("create a patient");
             patientCtrl.createPatient(payload).then(response => {
                 publishToBroker(publishTopic, response);

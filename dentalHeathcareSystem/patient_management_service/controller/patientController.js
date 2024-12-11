@@ -1,6 +1,91 @@
 const Patient = require("../models/Patient.js");
 const emailValidator = require('validator');
 
+exports.createPatient = async (payload) => {
+    try {
+        var status = 0; 
+        var message = "";
+
+        const patient = JSON.parse(payload);
+        
+        const email = patient.email;
+        const exisitingPatient = await Patient.findOne({ email });
+
+        // check if patient already exist. If not then check if email is valid
+        if (exisitingPatient) {
+            status = 400
+            message = "Email already exists."
+            return status +"/"+ message;
+                
+        } else if (!emailValidator.isEmail(email)) {
+            status = 400
+            message = "Invalid email"
+            return status +"/"+ message;
+        }
+
+        var newPatient = new Patient(patient);
+
+        await newPatient.save();
+        console.log("Patient =", newPatient);
+
+        var patient_id = newPatient._id;
+        var retrievedPatient = await Patient.find(patient_id);
+
+        // make sure the patient is created and saved in the database. 
+        if (!patient_id) {
+            status = 400
+            message = "failed to register patient";
+            return status +"/"+ message 
+        }else if (!retrievedPatient) {
+            status = 400
+            message = "failed to register patient";
+            return status +"/"+ message 
+        }
+
+
+        var stringPatient = JSON.stringify(retrievedPatient); 
+
+        message = "Patient registered successfully"
+        console.log(message);
+        status = 200;
+        return status + "/" + message + "/" + stringPatient;
+        
+    }catch(error){
+        if (error.name === 'ValidatorError') {
+            status = 400
+            message = "Invalid email"
+            return status +"/"+ message;
+
+        }
+        else if (error.code === 11000 && error.keyValue?.ssn){
+            status = 400
+            message = "SSN already exists"
+            return status +"/"+ message;
+        } else {            
+            status = 400
+            message = "Something went wrong. Failed to register patient."
+            return status +"/"+ message;
+        }
+    }
+}
+
+exports.fetchAllPatients = async (payload) => {
+    
+}
+
+exports.fetchSpecificPatient = async (payload) => {
+    
+}
+
+exports.updateSpecificPatient = async (payload) => {
+    
+}
+
+exports.deleteSpecificPatient = async (payload) => {
+    
+}
+
+/* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX HTTP METHODS XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 exports.registerPatient = async (req, res) => {
   try {
     const {email} = req.body;
