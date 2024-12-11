@@ -71,7 +71,7 @@ export default {
   },
     methods: {
       async getAllClinics(){
-      await Api.get("/clinics").then(response =>{
+      await Api.get("/clinics/get").then(response =>{
         if(response.status === 200){
           this.clinics = response.data.clinics
           console.log(this.clinics)
@@ -84,7 +84,7 @@ export default {
         })
     },
     async getAllAppointments(){
-      await Api.get("/appointments/available/appointment").then(response =>{
+      await Api.get("/appointments/get/available/appointments").then(response =>{
         if(response.status === 200){
           this.appointments = response.data.appointments
         }
@@ -94,15 +94,15 @@ export default {
     },
     async updateAppointment(appointmentID){
       this.appointment.available = false;
-      await Api.put(`/appointments/${appointmentID}`,this.appointment).then(response => {
-
+      await Api.put(`/appointments/update/${appointmentID}`,this.appointment).then(response => {
+        console.log("response: ",response.data);
       }).catch(error => {
         console.log(error.message);
       })
 
       },
       async checkAvailability(appointmentID) {
-        Api.get(`/appointments/${appointmentID}`).then(response => {
+        Api.get(`/appointments/get/specific/${appointmentID}`).then(response => {
           if (response.status === 200) {
             this.appointment = response.data.appointment
             var clinicID = this.appointment.dentist_clinic_id 

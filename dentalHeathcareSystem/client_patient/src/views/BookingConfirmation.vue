@@ -60,7 +60,7 @@
       methods: {
         async getAppointment(){
             const appointmentID = this.$route.params.appointmentID;
-            await Api.get(`/appointments/${appointmentID}`).then(response =>{
+            await Api.get(`/appointments/get/specific/${appointmentID}`).then(response =>{
                 if(response.status === 200){
                     this.appointment = response.data.appointment
                 }

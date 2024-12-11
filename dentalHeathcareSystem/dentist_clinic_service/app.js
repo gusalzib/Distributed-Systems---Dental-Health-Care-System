@@ -50,12 +50,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const {createClinic,retrieveAllClinics,retrieveSpecificClinic,updateClinic,deleteClinic,retrieveDentistsInSpecificClinic} = require("./Controller/clinicController");
 
-app.post("/api/clinics", createClinic);
-app.get("/api/clinics", retrieveAllClinics);
-app.get("/api/clinics/:clinic_id",retrieveSpecificClinic);
-app.get("/api/clinics/:clinic_id/dentists",retrieveDentistsInSpecificClinic);
-app.put("/api/clinics/:clinic_id",updateClinic);
-app.delete("/api/clinics/:clinic_id",deleteClinic);
+app.post("/api/clinics/create", createClinic);
+app.get("/api/clinics/get", retrieveAllClinics);
+app.get("/api/clinics/get/:clinic_id",retrieveSpecificClinic);
+app.get("/api/clinics/get/dentists/:clinic_id",retrieveDentistsInSpecificClinic);
+app.put("/api/clinics/update/:clinic_id",updateClinic);
+app.delete("/api/clinics/delete/:clinic_id",deleteClinic);
 
 app.get("/active", (req,res) =>{
   res.sendStatus(200)

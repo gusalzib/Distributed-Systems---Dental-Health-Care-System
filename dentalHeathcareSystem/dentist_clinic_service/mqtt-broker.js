@@ -44,34 +44,39 @@ function connectToBroker() {
         var publishTopic = "response/" + topic;
        
 
-        if (topic.startsWith( 'clinic/create/')) {
+        if (topic.startsWith( 'clinics/create/')) {
+            console.log("clinic create");
             clinicCtrl.clinicCreate(payload).then(response =>{ 
                 publishToBroker(publishTopic,response);  
 
             });
-        }else if (topic.startsWith('clinic/get/all/')){
-            
-            clinicCtrl.getClinics(payload).then( response => {
+        }else if('clinics/delete/'){
+            console.log("clinic delete");
+            clinicCtrl.deleteAClinic(payload).then(response => {
                 publishToBroker(publishTopic, response);
             })
-        }else if (topic.startsWith('clinic/get/one/')){
+        }else if (topic.startsWith('clinics/get/specific/')){
+            console.log("get specific clinic");
             clinicCtrl.getOneClinic(payload).then(response => {
                 publishToBroker(publishTopic, response);
             })
-        }else if (topic.startsWith('clinic/update/')){
+        }else if(topic.startsWith('clinics/get/dentists/')){
+            console.log("get the clinics dentists");
+            clinicCtrl.getDentistFromClinic(payload).then(response => {
+                publishToBroker(publishTopic, response);
+            })
+        }else if (topic.startsWith('clinics/get/')){
+            console.log("get all clinics");
+            clinicCtrl.getClinics(payload).then( response => {
+                publishToBroker(publishTopic, response);
+            })
+        }else if (topic.startsWith('clinics/update/')){
+            console.log("update clinics");
             var topicArr = topic.split("/");
             var id = topicArr[2];
             
             clinicCtrl.updateAClinic(id,payload).then(response => {
                 publishToBroker(publishTopic,response);
-            })
-        }else if(topic.startsWith('clinic/dentists/get/')){
-            clinicCtrl.getDentistFromClinic(payload).then(response => {
-                publishToBroker(publishTopic, response);
-            })
-        }else if('clinic/delete/'){
-            clinicCtrl.deleteAClinic(payload).then(response => {
-                publishToBroker(publishTopic, response);
             })
         }
         
@@ -89,11 +94,12 @@ function publishToBroker(topic, payload) {
 
 function subscribeToBroker(topic) {
     mqttClient.subscribe(topic, {qos: 0, retain: false})
+    console.log("subscribed to topic: ",topic);
 };
 connectToBroker();
-subscribeToBroker("clinic/create/+");
-subscribeToBroker("clinic/get/all/+");
-subscribeToBroker("clinic/get/one/+");
-subscribeToBroker("clinic/update/+");
-subscribeToBroker("clinic/dentists/get/+")
-subscribeToBroker("clinic/delete/+")
+subscribeToBroker("clinics/create/+");
+subscribeToBroker("clinics/get/+");
+subscribeToBroker("clinics/get/specific/+");
+subscribeToBroker("clinics/update/+");
+subscribeToBroker("clinics/get/dentists/+")
+subscribeToBroker("clinics/delete/+")

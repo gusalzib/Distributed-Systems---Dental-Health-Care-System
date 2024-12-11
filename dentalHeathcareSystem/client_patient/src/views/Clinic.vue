@@ -127,7 +127,7 @@ export default {
 
         async getClinicsAppointment(){
             this.clinicID = this.$route.params.clinicID;
-            await Api.get(`/appointments/${this.clinicID}/clinics/appointment`).then(response =>{
+            await Api.get(`/appointments/get/clinics/appointments//${this.clinicID}`).then(response =>{
                 if(response.status === 200){
                     this.appointments = response.data.appointments
                     for (let i = 0; i<= this.appointments.length-1; i++){
