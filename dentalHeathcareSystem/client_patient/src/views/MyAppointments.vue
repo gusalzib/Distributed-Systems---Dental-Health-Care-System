@@ -129,7 +129,7 @@ export default {
 
           const appointmentId = appointmentIDs[index].appointment_id ? appointmentIDs[index].appointment_id : appointmentIDs[index]._id;
           
-          const response = await Api.get(`/appointments/${appointmentId}`);
+          const response = await Api.get(`/appointments/get/specific/${appointmentId}`);
 
           if (response.status === 200) {
 
@@ -160,7 +160,7 @@ export default {
       console.log(appointmentId);
       
       try {
-        const response = await Api.put(`/appointments/${appointmentId}`, this.bookedAppointemnt);
+        const response = await Api.put(`/appointments/update/${appointmentId}`, this.bookedAppointemnt);
 
         if (response.status === 200) {
           await this.removeBookedAppointment(appointmentId)

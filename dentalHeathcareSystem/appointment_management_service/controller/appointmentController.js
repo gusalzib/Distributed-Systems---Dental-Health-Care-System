@@ -1,5 +1,5 @@
 const Appointment = require("../models/Appointment.js");
-const MqttBroker = require("../mqtt-broker");
+// const MqttBroker = require("../mqtt-broker");
 
 
 
@@ -18,17 +18,21 @@ exports.makeAppointment = async (payload) => {
         }
      
         const appointment = new Appointment(newAppointment);
+        await appointment.save();
         console.log("Appointment =",appointment);
 
-     
-
+        var appoinmentId = appointment._id;
+        if (!appoinmentId) {
+            status = 400
+            message = "failed to register clinic";
+            return status +"/"+ message 
+        }
+        var retrievedAppointment = await Appointment.find(appoinmentId);
         message = "Appointment created"
         console.log(message);
-        var stringAppointment = JSON.stringify(appointment) 
+        var stringAppointment = JSON.stringify(retrievedAppointment) 
         status = 200;
-        response = status +"/"+ message +"/"+ stringAppointment;
-        
-        return response;
+        return status +"/"+ message +"/"+ stringAppointment;
 
     } catch(error) {
         status = 400; 
@@ -38,6 +42,7 @@ exports.makeAppointment = async (payload) => {
 };
 exports.getAppointments = async (payload) => {
     try{
+        console.log("IN GETT ALL");
         const appointments = await Appointment.find().sort({"date_and_time_from": 1});
         var status = "";
         if(appointments.length === 0){
@@ -49,7 +54,7 @@ exports.getAppointments = async (payload) => {
         status = 200;
         message = "All appointments retrieved";
         console.log(message);
-        var stringAppointments = appointments.join();
+        var stringAppointments = JSON.stringify(appointments);
         return status +"/"+ message +"/"+ stringAppointments
     }catch (error) {
         status = 400; 
@@ -58,10 +63,15 @@ exports.getAppointments = async (payload) => {
     }
 };
 
-exports.getOneAppointment = async (payload) => {
+exports.getOneAppointment = async (topic) => {
     try{
         var status = 0;
-        const id = JSON.parse(payload);
+        console.log("topic in method: ",topic);
+        
+        
+        var topicArr = topic.split("/");
+        const id = topicArr[3];
+        console.log("id: ",id);
         const appointment = await Appointment.findById(id);
         if(!appointment){
             status = 404
@@ -80,10 +90,13 @@ exports.getOneAppointment = async (payload) => {
     }
 };
 
-exports.updateOneAppointment = async (_id, payload) => {
+exports.updateOneAppointment = async (topic, payload) => {
     try {
             
         var status = 0;
+        var topicArr = topic.split("/");
+        const _id = topicArr[2];
+
         const existing_appointment = await Appointment.findById(_id);
         if(!existing_appointment){
             status = 400;
@@ -161,22 +174,22 @@ exports.fetchPatientAppointments = async (payload) => {
     }
 }
 
-exports.removeAppointment = async (payload) => {
+exports.removeAppointment = async (topic) => {
     try{
         var status = 0;
-        var appointment_id = JSON.parse(payload);
-        console.log('this is the delete payload: ', appointment_id);
+        var topicArr = topic.split("/");
+        const id = topicArr[2];
         
-        const appointment = await Appointment.findByIdAndDelete(appointment_id);
+        const appointment = await Appointment.findByIdAndDelete(id);
         if (!appointment) {
             status = 404; 
             message = "No appointment found" 
             return status + "/" + message;
         }
-
+        var stringAppointment = JSON.stringify(appointment)
         status = 200; 
         message = "Appointment deleted"; 
-        return status + "/" + message + "/" + appointment;
+        return status + "/" + message + "/" + stringAppointment;
 
     } catch (error) {
         status = 404; 
@@ -200,7 +213,7 @@ exports.fetchAvailableAppointments = async (payload) => {
         status = 200;
         message = "All appointments retrieved";
 
-        var stringAppointments = appointments.join();
+        var stringAppointments = JSON.stringify(appointments);
         
         return status + "/" + message + "/" + stringAppointments;
 
