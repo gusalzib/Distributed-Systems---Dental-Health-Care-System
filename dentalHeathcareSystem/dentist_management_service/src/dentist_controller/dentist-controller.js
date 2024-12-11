@@ -55,11 +55,41 @@ exports.getAllDentists = async (payload) => {
 
     } catch (error) {
         status = 400;
-        message = "Something went wrong!";
+        error.message = "Something went wrong!";
         return status + "/" + error.message;
     }
 };
 
+exports.getSpecificDentist = async (topic) => {
+    console.log("we're getting one dentist");
+    let status = "";
+    let message = "";
+    try {
+        console.log(topic);
+        let topicArray = topic.split("/");
+        let id = topicArray[3];
+        console.log("Dentist ID = " + id);
+        const dentist = await Dentist.findById(id);
+        if (!dentist) {
+            status = 404;
+            message = "No dentist with this ID";
+            return status + "/" + message;
+        }
+
+        status = 200;
+        message = "Dentist retrieved!";
+        console.log(message)
+        let stringifiedDentist = JSON.stringify(dentist);
+        let messageToReturn = status + "/" + message + "/" + stringifiedDentist;
+        console.log(messageToReturn);
+        return messageToReturn;
+
+    } catch (error) {
+        status = 400;
+        error.message = "Something went wrong!";
+        return status + "/" + error.message;
+    }
+}
 
 
 /*=========== HTTP endpoints ==============*/

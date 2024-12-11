@@ -49,13 +49,21 @@ function connectToBroker() {
                 publishToBroker(publishTopic, response);
             });
 
-        } else if (topic.startsWith('dentists/get/')) {
-            console.log("get all appointments");
+        } else if (topic === 'dentists/get') {
+            console.log("get all dentists");
             dentistCtrl.getAllDentists(payload).then(response => {
-                console.log("all appointments = ", response);
+                console.log("all dentists = ", response);
                 console.log("publish topic=", publishTopic);
                 publishToBroker(publishTopic, response);
-            })
+            });
+
+        } else if (topic.startsWith('dentists/get/specific/')) {
+            console.log("get a specific dentist ongoing");
+            dentistCtrl.getSpecificDentist(topic).then(response => {
+                console.log("specific dentist = ", response);
+                console.log("publish topic = ", publishTopic);
+                publishToBroker(publishTopic, response);
+            });
         }
     });
 }
@@ -70,4 +78,5 @@ function subscribeToBroker(topic) {
 
 connectToBroker();
 subscribeToBroker('dentists/create/+');
-subscribeToBroker('dentists/get/+');
+subscribeToBroker('dentists/get');
+subscribeToBroker('dentists/get/specific/+');
