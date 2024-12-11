@@ -115,7 +115,7 @@ exports.fetchSpecificPatient = async (topic) => {
         status = 200;
         message = "Patient retrieved";
         var stringPatient = JSON.stringify(patient);
-        
+
         return status + "/" + message + "/" + stringPatient;
 
     }catch (error) {
@@ -125,8 +125,57 @@ exports.fetchSpecificPatient = async (topic) => {
     }
 }
 
-exports.updateSpecificPatient = async (payload) => {
-    
+exports.updateSpecificPatient = async (topic, payload) => {
+    try {
+            
+        var status = 0;
+        var message = ""; 
+
+        var topicArr = topic.split("/");
+        const _id = topicArr[3];
+        console.log("patient update id: ", _id);
+        
+        const existingPatient = await Patient.findById(_id);
+        if(!existingPatient){
+            status = 400;
+            message = "No patient found";
+            return status +"/"+ message;
+        }
+        var newPatient = JSON.parse(payload)
+        console.log("new patient =",newPatient);
+
+        const patient = {
+            name: newPatient.name ? newPatient.name : existingPatient.name,
+            address: newPatient.address ? newPatient.address : existingPatient.address,
+            email: newPatient.email ? newPatient.email : existingPatient.email,
+            phone_number: newPatient.phone_number ? newPatient.phone_number : existingPatient.phone_number,
+            ssn: newPatient.ssn ? newPatient.ssn : existingPatient.ssn,
+            medical_journal: newPatient.medical_journal ? newPatient.medical_journal : existingPatient.medical_journal,
+            appointments: newPatient.appointments ? newPatient.appointments : existingPatient.appointments
+        }
+
+        if (!patient) {
+            status = 400;
+            message = "Failed to update patient";
+            return status + "/"+ message;
+        };
+
+        const updatedPatient = await Patient.findByIdAndUpdate(_id, patient, {new: true});
+
+        status = 200; 
+        message= "Patient updated";
+        var stringUpdatedPatient = JSON.stringify(updatedPatient);
+        return status +"/"+ message +"/"+ stringUpdatedPatient;
+
+
+    } catch (error) {
+            status = 400; 
+        message = "Something went wrong. Failed to update patient." 
+        console.log(error.message);
+        
+            return status + "/" + message;
+                
+        }
 }
 
 exports.deleteSpecificPatient = async (payload) => {
