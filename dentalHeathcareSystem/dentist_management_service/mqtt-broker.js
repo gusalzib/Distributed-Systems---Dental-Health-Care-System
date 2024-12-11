@@ -60,8 +60,16 @@ function connectToBroker() {
         } else if (topic.startsWith('dentists/get/specific/')) {
             console.log("get a specific dentist ongoing");
             dentistCtrl.getSpecificDentist(topic).then(response => {
-                console.log("specific dentist = ", response);
-                console.log("publish topic = ", publishTopic);
+                console.log("specific dentist = " + response);
+                console.log("publish topic = " + publishTopic);
+                publishToBroker(publishTopic, response);
+            });
+
+        } else if (topic.startsWith('dentists/update/')) {
+            console.log("updating dentist...");
+            dentistCtrl.updateSpecificDentist(topic, payload).then(response => {
+                console.log("specific dentist to update = " + response);
+                console.log("publish topic = " + publishTopic);
                 publishToBroker(publishTopic, response);
             });
         }
@@ -80,3 +88,4 @@ connectToBroker();
 subscribeToBroker('dentists/create/+');
 subscribeToBroker('dentists/get');
 subscribeToBroker('dentists/get/specific/+');
+subscribeToBroker('dentists/update/+');

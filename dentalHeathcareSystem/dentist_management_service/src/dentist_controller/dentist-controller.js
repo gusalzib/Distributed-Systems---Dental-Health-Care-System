@@ -91,6 +91,57 @@ exports.getSpecificDentist = async (topic) => {
     }
 }
 
+exports.updateSpecificDentist = async (topic, payload) => {
+    console.log("we're updating one dentist");
+    let status;
+    let message;
+    try {
+        console.log(topic + payload);
+        let topicArray = topic.split("/");
+        let id = topicArray[2];
+        console.log("Dentist ID = " + id);
+
+        const foundDentist = await Dentist.findById(id);
+        if (!foundDentist) {
+            status = 404;
+            message = "No dentist with this ID";
+            return status + "/" + message;
+        }
+
+        const newDentist = JSON.parse(payload);
+
+        const dentist = {
+            clinic_id: newDentist.clinic_id ? newDentist.clinic_id : foundDentist.clinic_id,
+            name: newDentist.name ? newDentist.name : foundDentist.name,
+            address: newDentist.address ? newDentist.address : foundDentist.address,
+            phone_number: newDentist.phone_number ? newDentist.phone_number : foundDentist.phone_number,
+            email: newDentist.email ? newDentist.email : foundDentist.email,
+            password: newDentist.password ? newDentist.password : foundDentist.password,
+            appointments: newDentist.appointments ? newDentist.appointments : foundDentist.appointments
+        }
+
+        const newDentistValidation = validateDentist(dentist);
+        if(!newDentistValidation.success) {
+            status = 400;
+            message = newDentistValidation.message;
+            return status + "/" + message;
+        }
+
+        const updatedDentist = await Dentist.findByIdAndUpdate(id, dentist, {new: true});
+        status = 200;
+        message = "Dentist has been updated!";
+        console.log(message)
+        let stringifiedUpdatedDentist = JSON.stringify(updatedDentist);
+        let messageToReturn = status + "/" + message + "/" + stringifiedUpdatedDentist;
+        console.log(messageToReturn);
+        return messageToReturn;
+
+    } catch (error) {
+        status = 400;
+        error.message = "Something went wrong!";
+        return status + "/" + error.message;
+    }
+};
 
 /*=========== HTTP endpoints ==============*/
 
