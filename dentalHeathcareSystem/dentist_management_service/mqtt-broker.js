@@ -72,6 +72,15 @@ function connectToBroker() {
                 console.log("publish topic = " + publishTopic);
                 publishToBroker(publishTopic, response);
             });
+
+        } else if (topic.startsWith('dentists/delete/')) {
+            console.log("deleting dentist...");
+            dentistCtrl.deleteSpecificDentist(topic).then(response => {
+                console.log("");
+                console.log("specific dentist to delete = " + response);
+                console.log("publish topic = " + publishTopic);
+                publishToBroker(publishTopic, response);
+            })
         }
     });
 }
@@ -89,3 +98,4 @@ subscribeToBroker('dentists/create/+');
 subscribeToBroker('dentists/get');
 subscribeToBroker('dentists/get/specific/+');
 subscribeToBroker('dentists/update/+');
+subscribeToBroker('dentists/delete/+');

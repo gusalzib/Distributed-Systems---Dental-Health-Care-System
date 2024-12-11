@@ -143,6 +143,39 @@ exports.updateSpecificDentist = async (topic, payload) => {
     }
 };
 
+exports.deleteSpecificDentist = async (topic) => {
+    console.log("we're deleting one dentist");
+    let status;
+    let message;
+    try {
+        console.log(topic);
+        let topicArray = topic.split("/");
+        let id = topicArray[2];
+        console.log("Dentist ID = " + id);
+
+        const dentistToDelete = await Dentist.findByIdAndDelete(id);
+        if (!dentistToDelete) {
+            status = 404;
+            message = "No dentist with this ID";
+            console.log(message);
+            return status + "/" + message;
+        }
+
+        let stringifiedDeletedDentist = JSON.stringify(dentistToDelete);
+        status = 200;
+        message = "Dentist has been Deleted!";
+        let messageToReturn = status + "/" + message + "/" + stringifiedDeletedDentist;
+        console.log(messageToReturn);
+        return messageToReturn;
+
+    } catch (error) {
+        status = 400;
+        error.message = "Something went wrong!";
+        return status + "/" + error.message;
+    }
+};
+
+
 /*=========== HTTP endpoints ==============*/
 
 
