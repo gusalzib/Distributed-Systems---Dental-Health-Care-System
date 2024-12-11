@@ -148,7 +148,9 @@ export default {
             
             await Api.get(`${this.appointments_get_specific_url}${appointmentID}`).then(response => {
                 if (response.status === 200) {
-                    this.appointment = response.data.appointment;
+                    this.appointment = response.data.appointments;
+                    console.log("this is the appointment",this.appointment);
+                    
                     
                     
                 }
@@ -180,7 +182,6 @@ export default {
         async updateAppointment() {
             const appointmentID = this.$route.params.appointmentID;
             this.appointment.available = true; //update the state of the appointment before sending the put request
-            console.log(this.appointment);
             
             /* The appointment is reserved until the countdown timer is over or the appointment is booked */
             await Api.put(`${this.update_appointment_url}${appointmentID}`, this.appointment).then(response => {
@@ -272,7 +273,11 @@ export default {
                 var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                document.getElementById("timer").innerHTML =  minutes + "m " + seconds + "s ";
+                var timer = document.getElementById("timer")
+                if (timer) {
+                    timer.innerHTML =  minutes + "m " + seconds + "s ";
+                }
+                
                     
                 if (distance < 0) {
                     clearInterval(x);
