@@ -1,5 +1,5 @@
 const mqtt = require('mqtt');
-const dentistCtrl = require('./src/dentist_controller/dentist-controller.js');
+const dentistCtrl = require('./src/dentist_controller/dentist-controller');
 let mqttClient;
 
 const host = "127.0.0.1";
@@ -41,23 +41,33 @@ function connectToBroker() {
         console.log("Message received: " + payload.toString());
         console.log("On topic: " + topic);
         console.log(packet);
-        var publishTopic = "response/" + topic;
+        let publishTopic = "response/" + topic;
         console.log("publishTopic =", publishTopic);
 
-        if (topic.startsWith('dentist/create/')) {
-            dentistCtrl.registerDentist(payload).then(response => {
+        if (topic.startsWith('dentists/create/')) {
+            dentistCtrl.createDentist(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
+
+        } else if (topic.startsWith('dentists/get/')) {
+            console.log("get all appointments");
+            dentistCtrl.getAllDentists(payload).then(response => {
+                console.log("all appointments = ", response);
+                console.log("publish topic=", publishTopic);
+                publishToBroker(publishTopic, response);
+            })
         }
     });
 }
 
 function publishToBroker(topic, payload) {
-            mqttClient.publish(topic, payload, {qos: 0, retain: false})
-        };
+    mqttClient.publish(topic, payload, {qos: 0, retain: false})
+};
 
-        function subscribeToBroker(topic) {
-            mqttClient.subscribe(topic, {qos: 0})
-        };
-        connectToBroker();
-        subscribeToBroker('dentist/create/+');
+function subscribeToBroker(topic) {
+    mqttClient.subscribe(topic, {qos: 0})
+}
+
+connectToBroker();
+subscribeToBroker('dentists/create/+');
+subscribeToBroker('dentists/get/+');

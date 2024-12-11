@@ -1,3 +1,4 @@
+var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -47,8 +48,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const { registerDentist, retrieveDentists, retrieveASpecificDentist, updateDentist, deleteDentistByID } = require("./src/dentist_controller/dentist-controller");
 
-app.post("/api/dentists", registerDentist)
-app.get("/api/dentists", retrieveDentists)
+app.post("/api/dentists/create", registerDentist)
+app.get("/api/dentists/get", retrieveDentists)
 app.get("/api/dentists/:dentist_id", retrieveASpecificDentist)
 app.put("/api/dentists/:dentist_id", updateDentist)
 app.delete("/api/dentists/:dentist_id", deleteDentistByID)

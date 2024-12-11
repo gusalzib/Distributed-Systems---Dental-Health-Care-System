@@ -1,7 +1,7 @@
-const Dentist = require("../dentist_model/Dentist");
-const mqttBroker = require("../../mqtt-broker.js");
+const Dentist = require("../dentist_model/Dentist.js");
+const MqttBroker = require("../../mqtt-broker");
 
-exports.registerDentist = async (payload) => {
+exports.createDentist = async (payload) => {
     let message;
     let response;
     try {
@@ -30,6 +30,71 @@ exports.registerDentist = async (payload) => {
         status = 400;
         message = "Failed to register. Something went wrong!"
         return status + "/" + message + "/" + error.message;
+    }
+};
+
+exports.getAllDentists = async (payload) => {
+    console.log("are we getting here?");
+    let status = "";
+    let message = "";
+    try {
+        const dentists = await Dentist.find();
+        if (!dentists) {
+            status = 200;
+            message = "Clinic has no dentists yet!";
+            return status + "/" + message;
+        }
+
+        status = 200;
+        message = "Dentists retrieved!";
+        console.log(message)
+        let stringifiedDentists = JSON.stringify(dentists);
+        let messageToReturn = status + "/" + message + "/" + stringifiedDentists;
+        console.log(messageToReturn);
+        return messageToReturn;
+
+    } catch (error) {
+        status = 400;
+        message = "Something went wrong!";
+        return status + "/" + error.message;
+    }
+};
+
+
+
+/*=========== HTTP endpoints ==============*/
+
+
+exports.registerDentist = async (req, res) => {
+    try {
+        const dentist = {
+            clinic_id: req.body.clinic_id,
+            name: req.body.name,
+            address: req.body.address,
+            phone_number: req.body.phone_number,
+            email: req.body.email,
+            password: req.body.password,
+            appointments: [],
+        };
+
+        const newDentistValidation = validateDentist(dentist);
+        if(!newDentistValidation.success) {
+            res.status(400).json({message: newDentistValidation.message})
+            return;
+        }
+
+        const newDentsit = new Dentist(dentist);
+        await newDentsit.save();
+        res.status(200).json({
+            message: "Registered successfully!",
+            dentist: newDentsit});
+    } catch(error) {
+        res
+            .status(400)
+            .json({
+                message: "Failed to register",
+                error_message: error.message,
+            });
     }
 };
 
@@ -126,6 +191,7 @@ exports.deleteDentistByID = async (req, res) => {
                 error_message: error.message})
     }
 }
+
 
 function validateDentist(dentist) {
     const {clinic_id, name, address, phone_number, email, password} = dentist; //destructuring the received dentist Object.
