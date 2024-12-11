@@ -178,8 +178,30 @@ exports.updateSpecificPatient = async (topic, payload) => {
         }
 }
 
-exports.deleteSpecificPatient = async (payload) => {
-    
+exports.deleteSpecificPatient = async (topic) => {
+    try{
+        var status = 0;
+        var message = "";
+
+        var topicArr = topic.split("/");
+        const id = topicArr[2];
+        
+        const patient = await Patient.findByIdAndDelete(id);
+        if (!patient) {
+            status = 404; 
+            message = "No patient found" 
+            return status + "/" + message;
+        }
+        var stringPatient = JSON.stringify(patient)
+        status = 200; 
+        message = "Patient deleted"; 
+        return status + "/" + message + "/" + stringPatient;
+
+    } catch (error) {
+        status = 404; 
+        message = "Something went wrong!"
+        return status + "/" + message + "/" + error.message;
+    }
 }
 
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX HTTP METHODS XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
