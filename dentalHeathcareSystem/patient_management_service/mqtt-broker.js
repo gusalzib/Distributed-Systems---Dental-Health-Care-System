@@ -60,7 +60,7 @@ function connectToBroker() {
             patientCtrl.fetchSpecificPatient(topic).then(response => {
                 publishToBroker(publishTopic, response);
             })
-        } else if (topic.startsWith('patients/update/specific')){
+        } else if (topic.startsWith('patients/update/specific/')){
             console.log("update patient");
             patientCtrl.updateSpecificPatient(topic,payload).then(response => {
                 publishToBroker(publishTopic, response);

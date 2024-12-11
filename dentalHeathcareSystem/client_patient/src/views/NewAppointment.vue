@@ -61,11 +61,20 @@ export default {
       clinicID: "",
       clinic_address: "",
       error_message: '',
-      confirmation_message: ''
+      confirmation_message: '',
 
+      appointments_get_specific_url: '',
+      update_appointment_url: '',
+      get_available_appointments_url: '',
+
+        
     }
   },
   mounted() {
+    this.appointments_get_specific_url = import.meta.env.VITE_APPOINTMENTS_GET_SPECIFIC_URL;
+    this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
+    this.get_available_appointments_url = import.meta.env.VITE_GET_AVAILABLE_APPOINTMENTS;
+
     this.getAllAppointments(),
     this.getAllClinics();
   },
@@ -84,7 +93,7 @@ export default {
         })
     },
     async getAllAppointments(){
-      await Api.get("/appointments/get/available/appointments").then(response =>{
+      await Api.get(`${this.get_available_appointments_url}`).then(response =>{
         if(response.status === 200){
           this.appointments = response.data.appointments
         }
@@ -94,7 +103,7 @@ export default {
     },
     async updateAppointment(appointmentID){
       this.appointment.available = false;
-      await Api.put(`/appointments/update/${appointmentID}`,this.appointment).then(response => {
+      await Api.put(`${this.update_appointment_url}${appointmentID}`,this.appointment).then(response => {
         console.log("response: ",response.data);
       }).catch(error => {
         console.log(error.message);
@@ -102,12 +111,11 @@ export default {
 
       },
       async checkAvailability(appointmentID) {
-        Api.get(`/appointments/get/specific/${appointmentID}`).then(response => {
+        Api.get(`${this.appointments_get_specific_url}${appointmentID}`).then(response => {
           if (response.status === 200) {
-            this.appointment = response.data.appointment
-            var clinicID = this.appointment.dentist_clinic_id 
-            console.log(this.appointment);
-            if (!this.appointment.available) {
+            this.appointment = response.data
+            var clinicID = this.appointment.appointments.dentist_clinic_id 
+            if (!this.appointment.appointments.available) {
               this.error_message = 'Sorry this apointment was just taken by another user. '
                 + 'Please choose another one!';
 
@@ -119,7 +127,7 @@ export default {
               router.push({path: `/single/appointment/${appointmentID}`})
             }
           }
-        }).catch(error => {
+        }).catch(error => {          
           this.error_message = error.response?.data.message;
             setTimeout(() => {
                 this.error_message = '';

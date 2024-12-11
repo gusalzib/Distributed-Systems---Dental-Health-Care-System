@@ -92,8 +92,7 @@ export default {
             address: '',
             appointments: []
         },
-        patient_service_url: 'http://localhost:3000/api',
-        current_patient_placeholder: '673a51d9934efda9cdfa63a6',
+        current_patient_placeholder: '6759e3a31a2ea8b210628ad7',
         // current_patient_placeholder:'674516312f3c59c02e4df78d',
         confirmation_message: '',
         error_message: '',
@@ -109,11 +108,22 @@ export default {
         allowedTimeMinutes: 3,
         date: '',
         appointmentStart: '',
-        appointmentEnd: ''
+        appointmentEnd: '',
 
+        patient_get_specific_url: '',
+        appointments_get_specific_url: '',
+        update_appointment_url: '',
+        update_patient_specific_url: '',
+
+        
     }
   },
-    mounted() {
+  mounted() {
+        this.patient_get_specific_url = import.meta.env.VITE_PATIENT_GET_SPECIFIC_URL;
+        this.update_patient_specific_url = import.meta.env.VITE_UPDATE_PATIENT_SPECIFIC_URL;
+        this.appointments_get_specific_url = import.meta.env.VITE_APPOINTMENTS_GET_SPECIFIC_URL;
+        this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
+        
         this.watchActivity();
         this.getAppointmentInfo();
         this.extractTimeAndDate();
@@ -136,7 +146,7 @@ export default {
         async getAppointmentInfo() {
             const appointmentID = this.$route.params.appointmentID;
             
-            await Api.get(`/appointments/get/specific/${appointmentID}`).then(response => {
+            await Api.get(`${this.appointments_get_specific_url}${appointmentID}`).then(response => {
                 if (response.status === 200) {
                     this.appointment = response.data.appointment;
                     
@@ -156,7 +166,7 @@ export default {
             this.appointment.available = false; 
             
             this.appointment.patient_id = this.current_patient_placeholder;
-                await Api.put(`/appointments/update/${appointmentID}`, this.appointment).then(response => {
+                await Api.put(`${this.update_appointment_url}${appointmentID}`, this.appointment).then(response => {
                 if (response.status === 200) {
                     router.push({path: `/bookingConfirmation/${appointmentID}`})
                 }
@@ -173,7 +183,7 @@ export default {
             console.log(this.appointment);
             
             /* The appointment is reserved until the countdown timer is over or the appointment is booked */
-            await Api.put(`/appointments/update/${appointmentID}`, this.appointment).then(response => {
+            await Api.put(`${this.update_appointment_url}${appointmentID}`, this.appointment).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'The appointment is reserved in the system until the timer is up!';
                     setTimeout(() => {
@@ -192,9 +202,11 @@ export default {
             booking the appointment. The information is displayed in editable input fields. The patient has the option to change the details 
             prior to booking the appointment. Example: the patient wants to change the contact phone number or email for this particular appointment */
 
-            await Api.get(`/patients/${this.current_patient_placeholder}`).then(response => {
+            await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`).then(response => {
                 if (response.status === 200) {
                     this.patient = response.data.patients;
+                    console.log(response.data);
+                    
                     
                 }
             }).catch(error => {
@@ -208,7 +220,7 @@ export default {
             
         },
         async updatePatientInfo() {
-            await Api.put(`/patients/${this.current_patient_placeholder}`, this.patient).then(response => {
+            await Api.put(`${this.update_patient_specific_url}${this.current_patient_placeholder}`, this.patient).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'Updated successfully'
                     setTimeout(() => {
@@ -228,7 +240,7 @@ export default {
             var newAppointment= {appointment_id: appointmentID};
             this.patient.appointments.push(newAppointment);
             
-            await Api.put(`/patients/${this.current_patient_placeholder}`,this.patient).then(response => {
+            await Api.put(`${this.update_patient_specific_url}${this.current_patient_placeholder}`,this.patient).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'Updated successfully'
                     this.getPatientInformation();

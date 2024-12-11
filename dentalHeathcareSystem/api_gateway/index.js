@@ -195,7 +195,7 @@ app.get("/api/*", async (req, res) => {
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
 
         if(!mqttResponse){
-            res.status(400).json({message: "could not create appointment"})
+            res.status(400).json({message: "information not found"})
             return
         }
          //exstract information from topic and response, parse the payload and return http response

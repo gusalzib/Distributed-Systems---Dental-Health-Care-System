@@ -77,7 +77,7 @@ const { registerPatient, retrieveAllPatients, retrieveSpecificPatient, updatePat
 app.post("/api/patients/create", registerPatient)
 app.get("/api/patients/get/patients", retrieveAllPatients)
 app.get("/api/patients/get/specific/:patient_id", retrieveSpecificPatient)
-app.put("/api/patients/update/specific:patient_id", updatePatient)
+app.put("/api/patients/update/specific/:patient_id", updatePatient)
 app.delete("/api/patients/delete/:patient_id", deletePatientByID)
 
 app.get("/active", (req,res) =>{
