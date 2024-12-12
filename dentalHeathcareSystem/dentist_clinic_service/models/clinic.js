@@ -38,7 +38,7 @@ clinicSchema.pre('save', async function (next) {
 
     this.address = undefined
     next();
-    // console.log(location);
+    console.log(loc);
     
 })
 

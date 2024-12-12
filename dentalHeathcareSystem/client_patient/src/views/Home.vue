@@ -2,8 +2,8 @@
 <template>
   <main>
     <div class="map-container">
-      <h2>Map of all dentists in Gothenburg (Just a placeholder map actually :-])</h2>
-      <iframe id="google-map" src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d20820.916983666586!2d11.9831004988628!3d57.70592486446396!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2sse!4v1732126327706!5m2!1sen!2sse"  allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <h2>Map of all dentists in Gothenburg </h2>
+      <div id='mapbox'></div>
     </div>
 
     <div id="divider"></div>
@@ -83,22 +83,38 @@
   </main>
 </template>
 
-
 <script>
 // @ is an alias to /src
 import { Api } from '@/Api'
-
+import mapboxgl from 'mapbox-gl'
 export default {
   name: 'home',
   data() {
     return {
-
+      map: ''
     }
   },
   mounted() {
-
+    this.initializeMap();
+    window.addEventListener('resize', this.onResize)
   },
   methods: {
+    initializeMap() {
+      mapboxgl.accessToken = 'pk.eyJ1IjoiaWJyYWhpbS1hbHoiLCJhIjoiY200bG81NzNpMDN4ODJpc2Njbm80czRvayJ9.kSStc_U7hL0xeFYjXyAhkA';
+      this.map = new mapboxgl.Map({
+        container: 'mapbox',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [11.9746, 57.7089],
+        zoom: 8
+      });
+
+      this.map.on('load', () => {
+        this.map.resize();
+      })
+    },
+    onResize(){
+      this.map.resize();
+    }
   }
 }
 </script>

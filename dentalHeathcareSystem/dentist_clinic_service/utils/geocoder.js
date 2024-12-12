@@ -4,9 +4,9 @@ const options = {
   provider: process.env.GEOCODER_PROVIDER,
 
   // Optional depending on the providers
-//   fetch: 'http',
-  apiKey: process.env.GEOCODER_API_KEY, // for Mapquest, OpenCage, APlace, Google Premier
-  formatter: null // 'gpx', 'string', ...
+    httpAdapter: 'https',
+  apiKey: process.env.GEOCODER_API_KEY, 
+  formatter: null 
 };
 
 const geocoder = NodeGeocoder(options);
