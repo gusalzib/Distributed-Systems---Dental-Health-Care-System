@@ -4,12 +4,11 @@ const MqttBroker = require("../../mqtt-broker");
 exports.createDentist = async (payload) => {
     let message;
     let response;
+    let status;
     try {
-        var status = 0;
         const newDentist = JSON.parse(payload);
-        console.log("New dentist = ", newDentist);
-
         const newDentistValidation = validateDentist(newDentist);
+
         if (!newDentistValidation.success) {
             console.log(newDentistValidation.message);
             status = 400
@@ -18,9 +17,7 @@ exports.createDentist = async (payload) => {
 
         const dentist = new Dentist(newDentist);
         await dentist.save();
-        console.log("Dentist = ", dentist);
         message = "Dentist registered successfully!"
-        console.log(message);
         let stringDentist = JSON.stringify(dentist)
         status = 200;
         response = status + "/" + message + "/" + stringDentist;
@@ -34,9 +31,8 @@ exports.createDentist = async (payload) => {
 };
 
 exports.getAllDentists = async (payload) => {
-    console.log("are we getting here?");
-    let status = "";
-    let message = "";
+    let status;
+    let message;
     try {
         const dentists = await Dentist.find();
         if (!dentists) {
@@ -47,10 +43,8 @@ exports.getAllDentists = async (payload) => {
 
         status = 200;
         message = "Dentists retrieved!";
-        console.log(message)
         let stringifiedDentists = JSON.stringify(dentists);
         let messageToReturn = status + "/" + message + "/" + stringifiedDentists;
-        console.log(messageToReturn);
         return messageToReturn;
 
     } catch (error) {
@@ -61,15 +55,13 @@ exports.getAllDentists = async (payload) => {
 };
 
 exports.getSpecificDentist = async (topic) => {
-    console.log("we're getting one dentist");
-    let status = "";
-    let message = "";
+    let status;
+    let message;
     try {
-        console.log(topic);
         let topicArray = topic.split("/");
         let id = topicArray[3];
-        console.log("Dentist ID = " + id);
         const dentist = await Dentist.findById(id);
+
         if (!dentist) {
             status = 404;
             message = "No dentist with this ID";
@@ -78,10 +70,8 @@ exports.getSpecificDentist = async (topic) => {
 
         status = 200;
         message = "Dentist retrieved!";
-        console.log(message)
         let stringifiedDentist = JSON.stringify(dentist);
         let messageToReturn = status + "/" + message + "/" + stringifiedDentist;
-        console.log(messageToReturn);
         return messageToReturn;
 
     } catch (error) {
@@ -92,14 +82,11 @@ exports.getSpecificDentist = async (topic) => {
 }
 
 exports.updateSpecificDentist = async (topic, payload) => {
-    console.log("we're updating one dentist");
     let status;
     let message;
     try {
-        console.log(topic + payload);
         let topicArray = topic.split("/");
         let id = topicArray[2];
-        console.log("Dentist ID = " + id);
 
         const foundDentist = await Dentist.findById(id);
         if (!foundDentist) {
@@ -130,10 +117,9 @@ exports.updateSpecificDentist = async (topic, payload) => {
         const updatedDentist = await Dentist.findByIdAndUpdate(id, dentist, {new: true});
         status = 200;
         message = "Dentist has been updated!";
-        console.log(message)
+
         let stringifiedUpdatedDentist = JSON.stringify(updatedDentist);
         let messageToReturn = status + "/" + message + "/" + stringifiedUpdatedDentist;
-        console.log(messageToReturn);
         return messageToReturn;
 
     } catch (error) {
@@ -144,20 +130,16 @@ exports.updateSpecificDentist = async (topic, payload) => {
 };
 
 exports.deleteSpecificDentist = async (topic) => {
-    console.log("we're deleting one dentist");
     let status;
     let message;
     try {
-        console.log(topic);
         let topicArray = topic.split("/");
         let id = topicArray[2];
-        console.log("Dentist ID = " + id);
 
         const dentistToDelete = await Dentist.findByIdAndDelete(id);
         if (!dentistToDelete) {
             status = 404;
             message = "No dentist with this ID";
-            console.log(message);
             return status + "/" + message;
         }
 
@@ -165,7 +147,6 @@ exports.deleteSpecificDentist = async (topic) => {
         status = 200;
         message = "Dentist has been Deleted!";
         let messageToReturn = status + "/" + message + "/" + stringifiedDeletedDentist;
-        console.log(messageToReturn);
         return messageToReturn;
 
     } catch (error) {
@@ -233,7 +214,6 @@ exports.retrieveASpecificDentist = async (req, res) => {
     try {
         const id = req.params.dentist_id;
         const dentist = await Dentist.findById(id);
-        console.log(dentist)
         if (!dentist) {
             res.status(400).json({ message: "Dentist was not found!" });
             return;

@@ -38,49 +38,33 @@ function connectToBroker() {
     });
 
     mqttClient.on("message", (topic, payload, packet) => {
-        console.log("Message received: " + payload.toString());
-        console.log("On topic: " + topic);
-        console.log(packet);
+        // console.log("Message received: " + payload.toString());
+        // console.log("On topic: " + topic);
         let publishTopic = "response/" + topic;
-        console.log("publishTopic =", publishTopic);
 
         if (topic.startsWith('dentists/create/')) {
             dentistCtrl.createDentist(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
 
-        } else if (topic === 'dentists/get') {
-            console.log("get all dentists");
-            dentistCtrl.getAllDentists(payload).then(response => {
-                console.log("all dentists = ", response);
-                console.log("publish topic=", publishTopic);
-                publishToBroker(publishTopic, response);
-            });
-
         } else if (topic.startsWith('dentists/get/specific/')) {
-            console.log("get a specific dentist ongoing");
             dentistCtrl.getSpecificDentist(topic).then(response => {
-                console.log("specific dentist = " + response);
-                console.log("publish topic = " + publishTopic);
                 publishToBroker(publishTopic, response);
             });
 
         } else if (topic.startsWith('dentists/update/')) {
-            console.log("updating dentist...");
             dentistCtrl.updateSpecificDentist(topic, payload).then(response => {
-                console.log("specific dentist to update = " + response);
-                console.log("publish topic = " + publishTopic);
                 publishToBroker(publishTopic, response);
             });
 
         } else if (topic.startsWith('dentists/delete/')) {
-            console.log("deleting dentist...");
             dentistCtrl.deleteSpecificDentist(topic).then(response => {
-                console.log("");
-                console.log("specific dentist to delete = " + response);
-                console.log("publish topic = " + publishTopic);
                 publishToBroker(publishTopic, response);
             })
+        } else if (topic.startsWith('dentists/get/')) {
+            dentistCtrl.getAllDentists(payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
         }
     });
 }
@@ -95,7 +79,7 @@ function subscribeToBroker(topic) {
 
 connectToBroker();
 subscribeToBroker('dentists/create/+');
-subscribeToBroker('dentists/get');
+subscribeToBroker('dentists/get/+');
 subscribeToBroker('dentists/get/specific/+');
 subscribeToBroker('dentists/update/+');
 subscribeToBroker('dentists/delete/+');
