@@ -53,6 +53,7 @@ app.get("/api/dentists/get", retrieveDentists)
 app.get("/api/dentists/:dentist_id", retrieveASpecificDentist)
 app.put("/api/dentists/:dentist_id", updateDentist)
 app.delete("/api/dentists/:dentist_id", deleteDentistByID)
+// app.get("api/dentists/get/clinics/dentists/:clinic_id")      added with mqtt
 
 app.get("/active", (req,res) =>{
     res.sendStatus(200)
