@@ -66,7 +66,6 @@ async function publishToBroker(topic, payload) {
             if(response){
                 responseArr = responseArr.filter(response => response.topic !== resTopic);  
                 resolve(response.payload);
-                console.log("did we get here");
             }else {
                 setTimeout(checkResponse, 100);
             }

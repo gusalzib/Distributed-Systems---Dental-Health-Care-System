@@ -139,7 +139,6 @@ app.use(express.json());
 
 app.post("/api/*", async (req, res) => {
     try {
-        console.log("in post");
         //get the body and make it a string
         var body = req.body;
         const payload = JSON.stringify(body);
@@ -149,10 +148,6 @@ app.post("/api/*", async (req, res) => {
         var adaptedURL = adaptRequestURL(reqURL);
         var topic = adaptedURL + "/" + giveUniqueID();
         
-
-        console.log("topic is: ",topic, "payload is: ",payload);
-
-
         //Publish request
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
@@ -164,10 +159,14 @@ app.post("/api/*", async (req, res) => {
         var topicArr = topic.split("/");
         var nameOfEntity = topicArr[0]
         var responseArr = mqttResponse.split("/");
-        
-        var adaptedResponse = JSON.parse(responseArr[2]);
-        res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        if(responseArr.length <=2){
+            res.status(responseArr[0]).json({message : responseArr[1]});
+        }else{
+        var adaptedResponse = JSON.parse(responseArr[2]);        
+    
+        res.status(responseArr[0]).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
+        }
 
     } catch (error) {
         res.status(400).json({message: "something went wrong"});
@@ -193,29 +192,32 @@ app.get("/api/*", async (req, res) => {
 
         //publish request
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-
+        
         if(!mqttResponse){
-            res.status(400).json({message: "could not create appointment"})
+            res.status(400).json({message: "could not find dentists in this clinic"})
             return
         }
+    
          //exstract information from topic and response, parse the payload and return http response
         var topicArr = topic.split("/");
         var nameOfEntity = topicArr[0]
-        var responseArr = mqttResponse.split("/");
-        var entityString = responseArr[2]
-        var adaptedResponse = JSON.parse(entityString);
-        
-        res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        var responseArr = mqttResponse.split("/"); 
+        if(responseArr.length <=2){
+            res.status(responseArr[0]).json({message : responseArr[1]});
+        }else{
+        var adaptedResponse = JSON.parse(responseArr[2]);        
+    
+        res.status(responseArr[0]).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
+        }
 
     } catch (error) {
-        res.status(400).json({message: "something went wrong"});
+        res.status(responseArr[0]).json({message: "something went wrong"});
     }
 });
 app.put("/api/*", async (req, res) => {
     try {
         //get the body and make it a string
-        console.log("TEST");
         var body = req.body;
         const payload = JSON.stringify(body);
 
@@ -239,11 +241,11 @@ app.put("/api/*", async (req, res) => {
             return
         }
          //exstract information from topic and response, parse the payload and return http response
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0]
-        var responseArr = mqttResponse.split("/");
-        var entityString = responseArr[2]
-        var adaptedResponse = JSON.parse(entityString);
+         var topicArr = topic.split("/");
+         var nameOfEntity = topicArr[0]
+         var responseArr = mqttResponse.split("/");
+         
+         var adaptedResponse = JSON.parse(responseArr[2]);
         
         res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
@@ -272,19 +274,17 @@ app.delete("/api/*", async (req, res) => {
 
         //publish request
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-        console.log("back in index");
         if(!mqttResponse){
             res.status(400).json({message: "could not delete appointment"})
             return
         }
          //exstract information from topic and response, parse the payload and return http response
         var topicArr = topic.split("/");
-        console.log("after split");
+        var topicArr = topic.split("/");
         var nameOfEntity = topicArr[0]
         var responseArr = mqttResponse.split("/");
-        var entityString = responseArr[2]
-        var adaptedResponse = JSON.parse(entityString);
-        console.log("adapted response: ",adaptedResponse);
+        
+        var adaptedResponse = JSON.parse(responseArr[2]);
         
         res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
@@ -307,8 +307,6 @@ function checkForId(adaptedURL){
     var urlArr = adaptedURL.split("/")
     var index = urlArr.length -1
     var lastElement = urlArr[index];
-    console.log("last element length: ",lastElement.length);
-    console.log("last element: ",lastElement);
     if(lastElement.length < 24){
         
         console.log( "element is not an id");
