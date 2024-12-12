@@ -159,12 +159,14 @@ app.post("/api/*", async (req, res) => {
         var topicArr = topic.split("/");
         var nameOfEntity = topicArr[0]
         var responseArr = mqttResponse.split("/");
+        var status = parseInt(responseArr[0]);
+        
         if(responseArr.length <=2){
-            res.status(responseArr[0]).json({message : responseArr[1]});
+            res.status(status).json({message : responseArr[1]});
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);        
     
-        res.status(responseArr[0]).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
         }
 
@@ -201,12 +203,12 @@ app.get("/api/*", async (req, res) => {
         var topicArr = topic.split("/");
         var nameOfEntity = topicArr[0]
         var responseArr = mqttResponse.split("/"); 
+        var status = parseInt(responseArr[0]);
         if(responseArr.length <=2){
-            res.status(responseArr[0]).json({message : responseArr[1]});
+            res.status(status).json({message : responseArr[1]});
         }else{
-        var adaptedResponse = JSON.parse(responseArr[2]);   
-        console.log("do we have a problem here?");     
-        res.status(responseArr[0]).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        var adaptedResponse = JSON.parse(responseArr[2]);     
+        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
         }
 
@@ -243,11 +245,15 @@ app.put("/api/*", async (req, res) => {
          var topicArr = topic.split("/");
          var nameOfEntity = topicArr[0]
          var responseArr = mqttResponse.split("/");
-         
-         var adaptedResponse = JSON.parse(responseArr[2]);
-        
-        res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+         var status = parseInt(responseArr[0]);
+        if(responseArr.length <=2){
+            res.status(status).json({message : responseArr[1]});
+        }else{
+        var adaptedResponse = JSON.parse(responseArr[2]);     
+        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
+        }
+      
 
     } catch (error) {
         res.status(400).json({message: "something went wrong"});
@@ -283,10 +289,15 @@ app.delete("/api/*", async (req, res) => {
         var nameOfEntity = topicArr[0]
         var responseArr = mqttResponse.split("/");
         
-        var adaptedResponse = JSON.parse(responseArr[2]);
-        
-        res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        var status = parseInt(responseArr[0]);
+        if(responseArr.length <=2){
+            res.status(status).json({message : responseArr[1]});
+        }else{
+        var adaptedResponse = JSON.parse(responseArr[2]);     
+        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
+        }
+        
 
     } catch (error) {
         res.status(400).json({message: "something went wrong"});
