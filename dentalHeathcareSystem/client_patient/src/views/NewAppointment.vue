@@ -71,19 +71,18 @@ export default {
     }
   },
   mounted() {
-    this.appointments_get_specific_url = import.meta.env.VITE_APPOINTMENTS_GET_SPECIFIC_URL;
+    this.appointments_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_APPOINTMENTS_URL;
     this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
-    this.get_available_appointments_url = import.meta.env.VITE_GET_AVAILABLE_APPOINTMENTS;
-
-    this.getAllAppointments(),
+    this.get_available_appointments_url = import.meta.env.VITE_GET_AVAILABLE_APPOINTMENTS_URL;
+    this.clinics_get_all_ulr = import.meta.env.VITE_GET_ALL_CLINICS_URL;
+    this.getAvailableAppointments(),
     this.getAllClinics();
   },
     methods: {
       async getAllClinics(){
-      await Api.get("/clinics/get").then(response =>{
+      await Api.get(`${this.clinics_get_all_ulr}`).then(response =>{
         if(response.status === 200){
           this.clinics = response.data.clinics
-          console.log(this.clinics)
         }
       }).catch(error =>{
         this.error_message = error.response?.data.message;
@@ -92,7 +91,7 @@ export default {
             }, 5000);
         })
     },
-    async getAllAppointments(){
+    async getAvailableAppointments(){
       await Api.get(`${this.get_available_appointments_url}`).then(response =>{
         if(response.status === 200){
           this.appointments = response.data.appointments
@@ -104,7 +103,6 @@ export default {
     async updateAppointment(appointmentID){
       this.appointment.available = false;
       await Api.put(`${this.update_appointment_url}${appointmentID}`,this.appointment).then(response => {
-        console.log("response: ",response.data);
       }).catch(error => {
         console.log(error.message);
       })
@@ -135,7 +133,6 @@ export default {
         })
     },
     rerouting(targetPath){
-      console.log("target",targetPath);
             router.push({path: `${targetPath}`})
     },
   }, 

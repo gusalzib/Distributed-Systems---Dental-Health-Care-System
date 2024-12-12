@@ -19,23 +19,23 @@
                     
                         <label>Name: </label>
                         <input v-model="patient.name" type="text" id="name"/>
-                        </br>
+                        <br>
                         <label>Email: </label>
                         <input v-model="patient.email" type="email" id="email"/>
-                        </br>
+                        <br>
                         <label>SSN: </label>
                         <input v-model="patient.ssn" type="text" id="ssn"/>
-                        </br>
+                        <br>
                         <label>Phone number: </label>
                         <input v-model="patient.phone_number" type="text" id="phone_number"/>
-                        </br>
+                        <br>
                         <label>Address: </label>
                         <input v-model="patient.address" type="address" id="address"/>
-                        </br>
+                        <br>
                         <label>Password: </label>
                         <input v-model="patient.password" type="password" id="password"/>
                         <input type="checkbox" v-on:click="toggle()">
-                        </br>
+                        <br>
 
                         <button id="update-button" class="submit-button" v-on:click="updatePatientInfo()" type="button">Update</button>
                 </div>
@@ -111,7 +111,7 @@ export default {
       error_message: '',
           confirmation_message: '',
           activeSection: '',
-        current_patient_placeholder: '6759e3a31a2ea8b210628ad7',
+        current_patient_placeholder: '674e34c3e46d107d24c9c0e4',
           // current_patient_placeholder:'674516312f3c59c02e4df78d',
           bookedAppoinmentsIds: [],
           bookedAppoinments: [],

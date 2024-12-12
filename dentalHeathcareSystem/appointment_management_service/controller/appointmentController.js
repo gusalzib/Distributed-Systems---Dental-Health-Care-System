@@ -1,8 +1,4 @@
 const Appointment = require("../models/Appointment.js");
-// const MqttBroker = require("../mqtt-broker");
-
-
-
 
 exports.makeAppointment = async (payload) => {
     try {
@@ -92,7 +88,7 @@ exports.getOneAppointment = async (topic) => {
 
 exports.updateOneAppointment = async (topic, payload) => {
     try {
-            console.log("topic in update method: ",topic);
+            
         var status = 0;
         var topicArr = topic.split("/");
         const _id = topicArr[2];
@@ -201,6 +197,7 @@ exports.removeAppointment = async (topic) => {
 
 exports.fetchAvailableAppointments = async (payload) => {    
     try{
+        console.log("just testing");
         const appointments = await Appointment.find({available: true}).sort({"date_and_time_from": 1});
         var status = 0;
 

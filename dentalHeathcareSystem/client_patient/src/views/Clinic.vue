@@ -80,6 +80,10 @@ export default {
         }
     },
     mounted() {
+        this.clinics_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_CLINIC_URL;
+        this.clinics_get_dentists_url = import.meta.env.VITE_GET_CLINICS_DENTISTS_URL;
+        this.appointments_get_clinics_appoitnments_url = import.meta.env.VITE_GET_CLINICS_APPOINTMENTS_URL
+       
         this.getSpecificClinic();
         this.getClinicsAppointment();
         
@@ -97,9 +101,9 @@ export default {
 
         async getSpecificClinic(){
             this.clinicID = this.$route.params.clinicID;
-            await Api.get(`/clinics/${this.clinicID}`).then(response =>{
+            await Api.get(`${this.clinics_get_specific_url}${this.clinicID}`).then(response =>{
                 if(response.status === 200){
-                this.clinic = response.data.clinic;
+                this.clinic = response.data.clinics;
                 }
             this.getDentistsFromSpecificClinic();
         }).catch(error =>{
@@ -112,7 +116,7 @@ export default {
 
         async getDentistsFromSpecificClinic(){
             this.clinicID = this.$route.params.clinicID;
-            await Api.get(`/clinics/${this.clinicID}/dentists`).then(response =>{
+            await Api.get(`${this.clinics_get_dentists_url}${this.clinicID}`).then(response =>{
                 if(response.status === 200){
                 this.dentists = response.data.clinicDentists;
             }
@@ -127,7 +131,7 @@ export default {
 
         async getClinicsAppointment(){
             this.clinicID = this.$route.params.clinicID;
-            await Api.get(`/appointments/get/clinics/appointments//${this.clinicID}`).then(response =>{
+            await Api.get(`${this.appointments_get_clinics_appoitnments_url}${this.clinicID}`).then(response =>{
                 if(response.status === 200){
                     this.appointments = response.data.appointments
                     for (let i = 0; i<= this.appointments.length-1; i++){

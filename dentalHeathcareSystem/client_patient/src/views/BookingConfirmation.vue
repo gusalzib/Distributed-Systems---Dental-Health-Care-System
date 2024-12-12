@@ -54,13 +54,15 @@
       }
     },
     mounted() {
+      this.appointments_get_specific_url = import.meta.env.VITE_APPOINTMENTS_GET_SPECIFIC_URL;
+      this.clinics_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_CLINIC_URL;
       this.getAppointment();
       this.extractTimeAndDate();
     },
       methods: {
         async getAppointment(){
             const appointmentID = this.$route.params.appointmentID;
-            await Api.get(`/appointments/get/specific/${appointmentID}`).then(response =>{
+            await Api.get(`${this.appointments_get_specific_url},${appointmentID}`).then(response =>{
                 if(response.status === 200){
                     this.appointment = response.data.appointment
                 }
@@ -73,7 +75,7 @@
         },
         async getClinic(){
             const clinic_id = this.appointment.dentist_clinic_id
-            await Api.get(`/clinics/${clinic_id}`).then(response =>{
+            await Api.get(`${this.clinics_get_specific_url}${clinic_id}`).then(response =>{
                 if(response.status === 200){
                     this.clinic = response.data.clinic;   
                     

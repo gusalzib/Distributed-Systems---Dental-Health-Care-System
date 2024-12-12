@@ -189,7 +189,6 @@ app.get("/api/*", async (req, res) => {
         }else{
             topic = adaptedURL;
         }
-
         //publish request
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         
@@ -205,8 +204,8 @@ app.get("/api/*", async (req, res) => {
         if(responseArr.length <=2){
             res.status(responseArr[0]).json({message : responseArr[1]});
         }else{
-        var adaptedResponse = JSON.parse(responseArr[2]);        
-    
+        var adaptedResponse = JSON.parse(responseArr[2]);   
+        console.log("do we have a problem here?");     
         res.status(responseArr[0]).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
         }
