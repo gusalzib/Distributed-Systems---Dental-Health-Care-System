@@ -41,7 +41,7 @@ export default {
   name: 'my_appointments',
   data() {
     return {
-        current_patient_placeholder: '673a51d9934efda9cdfa63a6',
+        current_patient_placeholder: '6759e3a31a2ea8b210628ad7',
     //  current_patient_placeholder:'674516312f3c59c02e4df78d',
         confirmation_message: '',
         error_message: '',
@@ -63,10 +63,21 @@ export default {
             ssn: '',
             address: '',
             appointments: []
-          },
+      },
+      patient_get_specific_url: '',
+      appointments_get_specific_url: '',
+      update_appointment_url: '',
+      update_patient_specific_url: '',
+
+        
     }
   },
   mounted() {
+    this.patient_get_specific_url = import.meta.env.VITE_PATIENT_GET_SPECIFIC_URL;
+    this.update_patient_specific_url = import.meta.env.VITE_UPDATE_PATIENT_SPECIFIC_URL;
+    this.appointments_get_specific_url = import.meta.env.VITE_APPOINTMENTS_GET_SPECIFIC_URL;
+    this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
+    
     this.getPatientInformation();
   },
   methods: {
@@ -100,7 +111,7 @@ export default {
             this.bookedAppointmentsIds = []
 
             try {
-              const response = await Api.get(`/patients/${this.current_patient_placeholder}`)
+              const response = await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`)
               if (response.status === 200) {
                     this.patient = response.data.patients;
 
@@ -129,7 +140,7 @@ export default {
 
           const appointmentId = appointmentIDs[index].appointment_id ? appointmentIDs[index].appointment_id : appointmentIDs[index]._id;
           
-          const response = await Api.get(`/appointments/get/specific/${appointmentId}`);
+          const response = await Api.get(`${this.appointments_get_specific_url}${appointmentId}`);
 
           if (response.status === 200) {
 
@@ -160,7 +171,7 @@ export default {
       console.log(appointmentId);
       
       try {
-        const response = await Api.put(`/appointments/update/${appointmentId}`, this.bookedAppointemnt);
+        const response = await Api.put(`${this.update_appointment_url}${appointmentId}`, this.bookedAppointemnt);
 
         if (response.status === 200) {
           await this.removeBookedAppointment(appointmentId)
@@ -187,7 +198,7 @@ export default {
       this.patient.appointments = this.bookedAppointments;
 
       try {
-        const response = await Api.put(`/patients/${this.current_patient_placeholder}`, this.patient)
+        const response = await Api.put(`${this.update_patient_specific_url}${this.current_patient_placeholder}`, this.patient)
           if (response.status === 200) {
               this.confirmation_message = 'Appointment cancelled'
               await this.getPatientInformation();

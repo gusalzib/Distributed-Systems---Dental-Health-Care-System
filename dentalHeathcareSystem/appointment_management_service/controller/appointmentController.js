@@ -92,7 +92,7 @@ exports.getOneAppointment = async (topic) => {
 
 exports.updateOneAppointment = async (topic, payload) => {
     try {
-            
+            console.log("topic in update method: ",topic);
         var status = 0;
         var topicArr = topic.split("/");
         const _id = topicArr[2];

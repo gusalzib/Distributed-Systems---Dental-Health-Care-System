@@ -194,7 +194,7 @@ app.get("/api/*", async (req, res) => {
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         
         if(!mqttResponse){
-            res.status(400).json({message: "could not find dentists in this clinic"})
+            res.status(400).json({message: "information not found"})
             return
         }
     
