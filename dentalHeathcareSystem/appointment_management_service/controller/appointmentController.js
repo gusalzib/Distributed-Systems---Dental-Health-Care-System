@@ -243,7 +243,7 @@ exports.fetchClinicAppointments = async (payload) => {
             }
         }
         if (appointments.length === 0) {
-            status = 404; 
+            status = 400; 
             message = "This clinic has no appointments"
             return status + "/" + message;
 
