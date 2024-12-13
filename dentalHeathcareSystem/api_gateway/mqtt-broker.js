@@ -78,9 +78,18 @@ function subscribeToBroker(topic) {
     mqttClient.subscribe(topic, {qos: 0})
     console.log("subscribed to topic: ",topic);
 };
+function unsubscribe(topic){
+    mqttClient.unsubscribe(topic).then((successful) => {
+        console.log("You've successfully unsubscribed");
+    })
+    .catch((e) => {
+        console.log("Unsubscribing failed");
+    }) 
+};
+
 connectToBroker();
-subscribeToBroker("response/#");
+// subscribeToBroker("response/#");
 subscribeToBroker("active/#")
 
 
-module.exports = {publishToBroker};
+module.exports = {publishToBroker,unsubscribe,subscribeToBroker};

@@ -147,14 +147,15 @@ app.post("/api/*", async (req, res) => {
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         var topic = adaptedURL + "/" + giveUniqueID();
-        
+        var responseTopic = 'response/'+topic
         //Publish request
+        mqttBroker.subscribeToBroker(responseTopic);
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
             res.status(400).json({message: "could not create appointment"})
             return
         }
-
+        mqttBroker.unsubscribe(responseTopic)
         //exstract information from topic and response, parse the payload and return http response
         var topicArr = topic.split("/");
         var nameOfEntity = topicArr[0]
@@ -191,6 +192,9 @@ app.get("/api/*", async (req, res) => {
         }else{
             topic = adaptedURL;
         }
+        var responseTopic = 'response/'+topic
+        //Publish request
+        mqttBroker.subscribeToBroker(responseTopic);
         //publish request
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         
@@ -198,7 +202,7 @@ app.get("/api/*", async (req, res) => {
             res.status(400).json({message: "information not found"})
             return
         }
-    
+        mqttBroker.unsubscribe(responseTopic);
          //exstract information from topic and response, parse the payload and return http response
         var topicArr = topic.split("/");
         var nameOfEntity = topicArr[0]
@@ -233,7 +237,9 @@ app.put("/api/*", async (req, res) => {
         }else{
             topic = adaptedURL;
         }
-
+        var responseTopic = 'response/'+topic
+        //Publish request
+        mqttBroker.subscribeToBroker(responseTopic);
         //publish request
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
 
@@ -241,6 +247,7 @@ app.put("/api/*", async (req, res) => {
             res.status(400).json({message: "could not find appointment"})
             return
         }
+        mqttBroker.unsubscribe(responseTopic);
          //exstract information from topic and response, parse the payload and return http response
          var topicArr = topic.split("/");
          var nameOfEntity = topicArr[0]
@@ -276,13 +283,16 @@ app.delete("/api/*", async (req, res) => {
         }else{
             topic = adaptedURL;
         }
-
+        var responseTopic = 'response/'+topic
+        //Publish request
+        mqttBroker.subscribeToBroker(responseTopic);
         //publish request
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
             res.status(400).json({message: "could not delete appointment"})
             return
         }
+        mqttBroker.unsubscribe(responseTopic);
          //exstract information from topic and response, parse the payload and return http response
         var topicArr = topic.split("/");
         var topicArr = topic.split("/");
