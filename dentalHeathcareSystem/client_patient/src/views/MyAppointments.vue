@@ -18,7 +18,7 @@
           <button class="cancel-button" @click="cancelAppointment(bookedAppointment._id)">Yes</button>
           <button @click="rejectCancellation()">NO</button>
         </div>
-            <button>Contact Clinic</button>
+            <button @click="rerouting(`/clinic/${bookedAppointment.dentist_clinic_id}`)" >Contact Clinic</button>
             <button class="cancel-button" @click="confirmCancellation()">Cancel Appointment</button>
         </div>
           <div class="confirmation_message">{{ confirmation_message }}</div>
@@ -35,13 +35,14 @@
 // @ is an alias to /src
 import { Api } from '@/Api'
 import axios from 'axios';
+import router from '@/router'
 
 
 export default {
   name: 'my_appointments',
   data() {
     return {
-        current_patient_placeholder: '6759e3a31a2ea8b210628ad7',
+        current_patient_placeholder: '674e34c3e46d107d24c9c0e4',
     //  current_patient_placeholder:'674516312f3c59c02e4df78d',
         confirmation_message: '',
         error_message: '',
@@ -75,7 +76,7 @@ export default {
   mounted() {
     this.patient_get_specific_url = import.meta.env.VITE_PATIENT_GET_SPECIFIC_URL;
     this.update_patient_specific_url = import.meta.env.VITE_UPDATE_PATIENT_SPECIFIC_URL;
-    this.appointments_get_specific_url = import.meta.env.VITE_APPOINTMENTS_GET_SPECIFIC_URL;
+    this.appointments_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_APPOINTMENTS_URL;
     this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
     
     this.getPatientInformation();
@@ -120,7 +121,9 @@ export default {
                     this.bookedAppointmentsIds = this.patient.appointments;
                                         
                     //extract appointments using the array of appointment ids 
+
                     await this.extractAppointments()
+                    
                 }
             } catch (error) {
                 this.error_message = 'Something went wrong. Patient information not found!'
@@ -133,19 +136,14 @@ export default {
       async extractAppointments() {
 
         var appointmentIDs = this.bookedAppointmentsIds;
-
-        
-        
         for (let index = 0; index < appointmentIDs.length; index++) {
 
-          const appointmentId = appointmentIDs[index].appointment_id ? appointmentIDs[index].appointment_id : appointmentIDs[index]._id;
-          
+          const appointmentId = appointmentIDs[index].appointment_id ? appointmentIDs[index].appointment_id : appointmentIDs[index].appointment_id;
           const response = await Api.get(`${this.appointments_get_specific_url}${appointmentId}`);
 
           if (response.status === 200) {
 
-            var tempBookedAppointemnt = response.data.appointment;
-
+            var tempBookedAppointemnt = response.data.appointments;
             var date_and_time = this.extractTimeAndDate(tempBookedAppointemnt.date_and_time_from)
             
             tempBookedAppointemnt.date_and_time_from = date_and_time[0];
@@ -171,7 +169,7 @@ export default {
       console.log(appointmentId);
       
       try {
-        const response = await Api.put(`${this.update_appointment_url}${appointmentId}`, this.bookedAppointemnt);
+        const response = await Api.put(`${this.update_appointment_url}${appointmentId}`, this.bookedAppointemnt); 
 
         if (response.status === 200) {
           await this.removeBookedAppointment(appointmentId)
@@ -189,14 +187,12 @@ export default {
 
     },
     async removeBookedAppointment(appointmentId) {
+      
       this.bookedAppointments = this.bookedAppointments.filter(appointment => appointment._id !== appointmentId);
       
-      this.bookedAppointmentsIds = this.bookedAppointmentsIds.filter(appointment => appointment.appointment_id !== appointmentId);
-      this.bookedAppointmentsIds = this.bookedAppointmentsIds.filter(appointment => appointment._id !== appointmentId);
-      
-      
-      this.patient.appointments = this.bookedAppointments;
-
+      this.bookedAppointmentsIds = this.bookedAppointmentsIds.filter(appointment => appointment.appointment_id !== appointmentId);  
+      this.patient.appointments = this.bookedAppointmentsIds;
+    
       try {
         const response = await Api.put(`${this.update_patient_specific_url}${this.current_patient_placeholder}`, this.patient)
           if (response.status === 200) {
@@ -212,9 +208,11 @@ export default {
             setTimeout(() => {
                 this.error_message = '';
             }, 5000);
-      }
-            
-        }
+      }        
+    },
+    rerouting(targetPath){
+            router.push({path: `${targetPath}`})
+    },
   }
 }
 </script>

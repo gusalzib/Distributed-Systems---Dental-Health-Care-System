@@ -92,7 +92,7 @@ export default {
             address: '',
             appointments: []
         },
-        current_patient_placeholder: '6759e3a31a2ea8b210628ad7',
+        current_patient_placeholder: '674e34c3e46d107d24c9c0e4',
         // current_patient_placeholder:'674516312f3c59c02e4df78d',
         confirmation_message: '',
         error_message: '',
@@ -121,7 +121,7 @@ export default {
   mounted() {
         this.patient_get_specific_url = import.meta.env.VITE_PATIENT_GET_SPECIFIC_URL;
         this.update_patient_specific_url = import.meta.env.VITE_UPDATE_PATIENT_SPECIFIC_URL;
-        this.appointments_get_specific_url = import.meta.env.VITE_APPOINTMENTS_GET_SPECIFIC_URL;
+        this.appointments_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_APPOINTMENTS_URL;
         this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
         
         this.watchActivity();
@@ -149,9 +149,6 @@ export default {
             await Api.get(`${this.appointments_get_specific_url}${appointmentID}`).then(response => {
                 if (response.status === 200) {
                     this.appointment = response.data.appointments;
-                    console.log("this is the appointment",this.appointment);
-                    
-                    
                     
                 }
             }).catch(error => {
@@ -205,9 +202,7 @@ export default {
 
             await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`).then(response => {
                 if (response.status === 200) {
-                    this.patient = response.data.patients;
-                    console.log(response.data);
-                    
+                    this.patient = response.data.patients;    
                     
                 }
             }).catch(error => {

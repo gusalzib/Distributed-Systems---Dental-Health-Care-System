@@ -38,7 +38,7 @@ function connectToBroker() {
     });
 
     mqttClient.on("message", (topic, payload, packet) => {
-        console.log("Message received: " + payload.toString());
+        // console.log("Message received: " + payload.toString());
         console.log("On topic: " + topic); 
         console.log(packet);
         var publishTopic = "response2/" + topic;
@@ -99,7 +99,7 @@ function publishToBroker(topic, payload) {
 
 function subscribeToBroker(topic) {
     mqttClient.subscribe(topic, {qos: 0})
-    console.log("subscribed to topic: ",topic);
+    // console.log("subscribed to topic: ",topic);
 };
 connectToBroker();
 subscribeToBroker('appointments2/create/+');

@@ -28,7 +28,7 @@ exports.clinicCreate = async (payload) => {
     }
 };
 
-exports.getClinics = async (payload) => {
+exports.getClinics = async () => {
     try {
         var status = 0;
         const clinics = await Clinic.find();
@@ -49,10 +49,11 @@ exports.getClinics = async (payload) => {
     }
 };
 
-exports.getOneClinic = async (payload) => {
+exports.getOneClinic = async (topic) => {
     try {
         var status = 0;
-        const id = JSON.parse(payload);
+        var topicArr = topic.split("/");
+        const id = topicArr[3];
         const clinic = await Clinic.findById(id);
         
         if (!clinic) {
@@ -70,13 +71,16 @@ exports.getOneClinic = async (payload) => {
         return status +"/"+ error.message;
     }
 };
-exports.updateAClinic = async (id,payload) => {
+exports.updateAClinic = async (topic,payload) => {
     try {
         var status = 0;
-        const clinic = JSON.parse(payload); 
-        
-        const existingClinic = await Clinic.findById(id);
+        var topicArr = topic.split("/");
+        const id = topicArr[2];; 
 
+        var clinic = JSON.parse(payload);
+
+        const existingClinic = await Clinic.findById(id);
+        
         var name = clinic.name ? clinic.name : existingClinic.name;
         var email = clinic.email ? clinic.email : existingClinic.email;
         var phoneNumber = clinic.phoneNumber ? clinic.phoneNumber : existingClinic.phoneNumber;        
@@ -104,10 +108,12 @@ exports.updateAClinic = async (id,payload) => {
     }
 };
 
-exports.getDentistFromClinic = async (payload) => {
+exports.getDentistFromClinic = async (topic) => {
     try {
+       
         var status = 0;
-        const id = JSON.parse(payload);
+        var topicArr = topic.split("/");
+        const id = topicArr[3];
         const clinic = await Clinic.findById(id);
         
         if (!clinic) {
@@ -115,10 +121,11 @@ exports.getDentistFromClinic = async (payload) => {
             message = "No clinic found!";
             return status +"/"+ message; 
         }
+        
         const clinicDentists = clinic.dentists;
-        if (!clinicDentists) {
+        if (clinicDentists.length <= 0) {
             status = 400; 
-            message = "No clinic found!";
+            message = "No dentists found!";
             return status +"/"+ message; 
         }
         status = 200;
@@ -132,10 +139,11 @@ exports.getDentistFromClinic = async (payload) => {
   }
 };
 
-exports.deleteAClinic = async (payload) => {
+exports.deleteAClinic = async (topic) => {
     try{
         var status = 0;
-        const id = JSON.parse(payload);
+        var topicArr = topic.split("/");
+        const id = topicArr[2];
         const clinic = await Clinic.findByIdAndDelete(id);
         if(!clinic){
             status = 404
@@ -153,6 +161,9 @@ exports.deleteAClinic = async (payload) => {
     }
 }
 
+
+
+// -------------------------------- HTTP Methods -----------------------------------
 
 
 exports.createClinic = async (req, res) => {   //DONE

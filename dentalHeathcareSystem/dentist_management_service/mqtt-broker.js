@@ -47,7 +47,12 @@ function connectToBroker() {
                 publishToBroker(publishTopic, response);
             });
 
-        } else if (topic.startsWith('dentists/get/specific/')) {
+        }else if(topic.startsWith('dentists/get/clinics/dentists/')){
+            dentistCtrl.fetchClinicsDentists(topic).then(response => {
+                publishToBroker(publishTopic,response);
+            })
+
+        }else if (topic.startsWith('dentists/get/specific/')) {
             dentistCtrl.getSpecificDentist(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
@@ -83,3 +88,4 @@ subscribeToBroker('dentists/get/+');
 subscribeToBroker('dentists/get/specific/+');
 subscribeToBroker('dentists/update/+');
 subscribeToBroker('dentists/delete/+');
+subscribeToBroker('dentists/get/clinics/dentists/+');

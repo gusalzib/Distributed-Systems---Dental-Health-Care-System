@@ -3,10 +3,10 @@
       <div class="booking-confirmation-container">
           <h1>Confirmation:</h1>
           <div class="booking-confirmation-details">
-            <h2>You have booked this kind of appointment: "kind of appointment"</h2>
-              <h2>Date: {{date}} | Time: {{ appointmentStart }}  | Clinic name: clinic name</h2>
+            <h2>You have booked this kind of appointment: {{appointment.type_of_appointment}}</h2>
+              <h2>Date: {{date}} | Time: {{ appointmentStart }}  | Clinic name: {{clinic.name}}</h2>
               
-              <p>Address to clinic: "Address to clinic" </p>
+              <p>Address to clinic: {{clinic.address}} </p>
               <br>
               <p>Note: Please note that cancelling an appointment less than 24 hours in 
                 advance will result in additional fees up to 200 SEK. If the appointment 
@@ -41,8 +41,8 @@
             available:"",
         },
         clinic:{
-            clinic_name:"",
-            clinic_adress:"",
+            name:"",
+            address:"",
 
         },
         date: '',
@@ -54,15 +54,18 @@
       }
     },
     mounted() {
+      this.appointments_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_APPOINTMENTS_URL;
+      this.clinics_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_CLINIC_URL;
       this.getAppointment();
       this.extractTimeAndDate();
+      this.getClinic()
     },
       methods: {
         async getAppointment(){
             const appointmentID = this.$route.params.appointmentID;
-            await Api.get(`/appointments/get/specific/${appointmentID}`).then(response =>{
+            await Api.get(`${this.appointments_get_specific_url}${appointmentID}`).then(response =>{
                 if(response.status === 200){
-                    this.appointment = response.data.appointment
+                    this.appointment = response.data.appointments;
                 }
             }).catch(error =>{
                 this.error_message = error.response?.data.message;
@@ -72,10 +75,11 @@
             })
         },
         async getClinic(){
+            await this.getAppointment();
             const clinic_id = this.appointment.dentist_clinic_id
-            await Api.get(`/clinics/${clinic_id}`).then(response =>{
+            await Api.get(`${this.clinics_get_specific_url}${clinic_id}`).then(response =>{
                 if(response.status === 200){
-                    this.clinic = response.data.clinic;   
+                    this.clinic = response.data.clinics;   
                     
                 }
             }).catch(error =>{
@@ -86,6 +90,7 @@
             })
         },
         async extractTimeAndDate() {
+          
             await this.getAppointment();
 
             var tempFrom = this.appointment.date_and_time_from
