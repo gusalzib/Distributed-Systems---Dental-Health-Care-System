@@ -23,7 +23,7 @@
         </div>
           <div class="confirmation_message">{{ confirmation_message }}</div>
           <div class="error_message">{{ error_message }}</div>
-          @click="rerouting(`/clinic/${appointment.dentist_clinic_id}`)
+
     </div>
 
 
