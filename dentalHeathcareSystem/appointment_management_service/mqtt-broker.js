@@ -52,7 +52,7 @@ function connectToBroker() {
         
         }else if (topic.startsWith('appointments/get/patient/appointments/')) {
             console.log("get a patients appointments");
-            appointmentCtrl.fetchPatientAppointments(payload).then(response => {
+            appointmentCtrl.fetchPatientAppointments(topic).then(response => {
                 publishToBroker(publishTopic, response)
             })
         }else if (topic.startsWith('appointments/get/available/appointments/')) {
@@ -62,7 +62,7 @@ function connectToBroker() {
             })
         } else if (topic.startsWith('appointments/get/clinic/appointments/')) {
             console.log("get a clinics appointments");
-            appointmentCtrl.fetchAvailableAppointments(topic).then(response => {
+            appointmentCtrl.fetchClinicAppointments(topic).then(response => {
                 publishToBroker(publishTopic, response);
             })
         }else if (topic.startsWith('appointments/get/specific/')){

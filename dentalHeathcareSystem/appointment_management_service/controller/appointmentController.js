@@ -137,7 +137,7 @@ exports.fetchPatientAppointments = async (topic) => {
             return status + "/" + message;
         }
 
-        const patientAppointments = appointments.filter(appointment => appointment.patient_id && appointment.patient_id.equals(_id._id));
+        const patientAppointments = appointments.filter(appointment => appointment.patient_id && appointment.patient_id.equals(_id));
         if (patientAppointments.length === 0) {
             status = 400; 
             message = "This patient has no appointments booked"; 
@@ -208,9 +208,12 @@ exports.fetchAvailableAppointments = async (payload) => {
 }
 
 
-exports.fetchClinicAppointments = async (payload) => {
+exports.fetchClinicAppointments = async (topic) => {
     try {
-        const clinicID = JSON.parse(payload)
+        
+        var topicArr = topic.split("/");
+        const _id = topicArr[4];
+        
         var status = 0;
         const allAppointments = await Appointment.find().sort({"date_and_time_from": 1});
        
@@ -218,25 +221,18 @@ exports.fetchClinicAppointments = async (payload) => {
             status = 400; 
             message = "No appointments found"
             return status + "/" + message;
+        }
 
-        }
-        
-        var appointments=[];
-        for (let i = 0; i<= allAppointments.length-1; i++){
-            var appointment = allAppointments[i];
-            if(appointment.dentist_clinic_id.equals(clinicID)){
-                appointments.push(appointment)
-            }
-        }
-        if (appointments.length === 0) {
-            status = 404; 
-            message = "This clinic has no appointments"
+        const clinicAppointments = allAppointments.filter(appointment => appointment.dentist_clinic_id && appointment.dentist_clinic_id.equals(_id));
+        if (clinicAppointments.length === 0) {
+            status = 400; 
+            message = "This clinic has no appointments"; 
             return status + "/" + message;
-
         }
+        var stringAppointments = JSON.stringify(clinicAppointments)
         status = 200; 
         message = "All available appointments retrieved"
-        return status + "/" + message + "/" + appointments;
+        return status + "/" + message + "/" + stringAppointments;
 
     }catch (error) {
         status = 400; 

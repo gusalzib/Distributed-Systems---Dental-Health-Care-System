@@ -149,9 +149,6 @@ export default {
             await Api.get(`${this.appointments_get_specific_url}${appointmentID}`).then(response => {
                 if (response.status === 200) {
                     this.appointment = response.data.appointments;
-                    console.log("this is the appointment",this.appointment);
-                    
-                    
                     
                 }
             }).catch(error => {
@@ -205,9 +202,7 @@ export default {
 
             await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`).then(response => {
                 if (response.status === 200) {
-                    this.patient = response.data.patients;
-                    console.log(response.data);
-                    
+                    this.patient = response.data.patients;    
                     
                 }
             }).catch(error => {
