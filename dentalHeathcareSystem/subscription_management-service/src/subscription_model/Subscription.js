@@ -11,12 +11,15 @@ let subscriptionSchema = new Schema({
     subscription_type: [{
         clinic_subscription: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Clinic'},
+            ref: 'Clinic',
+            isActive: Boolean
+        },
 
         period_subscription: {
             sub_from: Date,
             sub_until: Date,
-            required: true
+            required: true,
+            isActive: Boolean
         }
     }],
 
@@ -33,6 +36,11 @@ let subscriptionSchema = new Schema({
     notification_means: {
         type: String,
         required: true
+    },
+
+    createdAt: {
+        type: Date,
+        default: Date.now()
     }
 
 });

@@ -151,7 +151,8 @@ exports.updateSpecificPatient = async (topic, payload) => {
             phone_number: newPatient.phone_number ? newPatient.phone_number : existingPatient.phone_number,
             ssn: newPatient.ssn ? newPatient.ssn : existingPatient.ssn,
             medical_journal: newPatient.medical_journal ? newPatient.medical_journal : existingPatient.medical_journal,
-            appointments: newPatient.appointments ? newPatient.appointments : existingPatient.appointments
+            appointments: newPatient.appointments ? newPatient.appointments : existingPatient.appointments,
+            subscriptions: newPatient.subscriptions ? newPatient.subscriptions : existingPatient.subscriptions
         }
 
         if (!patient) {
@@ -244,8 +245,10 @@ exports.registerPatient = async (req, res) => {
     newPatient.ssn = patientSSN;
     newPatient.appointments = [];
     newPatient.medical_journal = patientMedicalJournal;
+    newPatient.subscriptions = [];
 
-    await newPatient.save();
+
+      await newPatient.save();
 
     var patientId = newPatient._id;
     if (!patientId) {
@@ -321,6 +324,8 @@ exports.updatePatient = async (req, res) => {
         var address = req.body.address ? req.body.address : existingPatient.address
         var medical_journal = req.body.medical_journal ? req.body.medical_journal : existingPatient.medical_journal
         var appointments = req.body.appointments ? req.body.appointments : existingPatient.appointments
+        var subscriptions = req.body.subscriptions ? req.body.subscriptions : existingPatient.subscriptions
+
 
         var updatedPatient = await Patient.findByIdAndUpdate(id, {
             name: name,
@@ -329,7 +334,8 @@ exports.updatePatient = async (req, res) => {
             address: address, 
             ssn: ssn,
             medical_journal: medical_journal,
-            appointments: appointments
+            appointments: appointments,
+            subscriptions: subscriptions
         })
 
             res.status(200).json({message: "Patient information updated successfully", patient: updatedPatient})
