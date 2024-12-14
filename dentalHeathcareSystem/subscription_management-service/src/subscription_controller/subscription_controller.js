@@ -54,7 +54,6 @@ exports.getAllSubscriptions = async (payload) => {
         message = "Subscriptions retrieved!";
         let stringifiedSubscriptions = JSON.stringify(subscriptions);
         let messageToReturn = status + "/" + message + "/" + stringifiedSubscriptions;
-        console.log(messageToReturn);
         return messageToReturn;
 
     } catch (error) {
@@ -63,6 +62,33 @@ exports.getAllSubscriptions = async (payload) => {
         return status + "/" + error.message;
     }
 };
+
+exports.getSpecificSubscription = async (topic) => {
+    let status;
+    let message;
+    try {
+        let topicArray = topic.split("/");
+        let id = topicArray[3];
+        const subscription = await Subscription.findById(id);
+
+        if (!subscription) {
+            status = 404;
+            message = "No such subscription";
+            return status + "/" + message;
+        }
+
+        status = 200;
+        message = "Subscription retrieved!";
+        let stringifiedSubscription = JSON.stringify(subscription);
+        let messageToReturn = status + "/" + message + "/" + stringifiedSubscription;
+        return messageToReturn;
+
+    } catch (error) {
+        status = 400;
+        error.message = "Something went wrong!";
+        return status + "/" + error.message;
+    }
+}
 
 /*=========== HTTP endpoints ==============*/
 
@@ -117,7 +143,28 @@ exports.retrieveSubscriptions = async (req, res) => {
         res.status(400).json({ message: "Something went wrong!",
             error_message: error.message });
     }
-}
+};
+
+exports.retrieveASpecificSubscription = async (req, res) => {
+    try {
+        console.log("are we getting to specific sub?")
+        const id = req.params.subscription_id;
+        const subscription = await Subscription.findById(id);
+        if (!subscription) {
+            res.status(400).json({ message: "Subscription was not found!" });
+            return;
+        }
+        res.status(200).json({message: "Subscription is retrieved",
+            subscription: subscription})
+        console.log(subscription);
+    } catch (error) {
+        res
+            .status(400)
+            .json({ message: "Something went wrong!",
+                error_message: error.message });
+    }
+};
+
 
 function validateSubscription(subscription) {
     const {patient_id, appointment_type, clinic_subscription, period_subscription,
