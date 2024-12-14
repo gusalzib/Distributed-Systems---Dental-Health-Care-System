@@ -62,7 +62,7 @@ function connectToBroker() {
             })
         } else if (topic.startsWith('appointments/get/clinic/appointments/')) {
             console.log("get a clinics appointments");
-            appointmentCtrl.fetchAvailableAppointments(payload).then(response => {
+            appointmentCtrl.fetchClinicAppointments(topic).then(response => {
                 publishToBroker(publishTopic, response);
             })
         }else if (topic.startsWith('appointments/get/specific/')){

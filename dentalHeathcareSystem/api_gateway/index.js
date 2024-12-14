@@ -151,7 +151,7 @@ app.post("/api/*", async (req, res) => {
         //Publish request
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
-            res.status(400).json({message: "could not create appointment"})
+            res.status(400).json({message: "could not create object"})
             return
         }
 
@@ -205,7 +205,6 @@ app.get("/api/*", async (req, res) => {
             res.status(responseArr[0]).json({message : responseArr[1]});
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);   
-        console.log("do we have a problem here?");     
         res.status(responseArr[0]).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
         }

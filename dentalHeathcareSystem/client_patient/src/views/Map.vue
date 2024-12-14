@@ -4,6 +4,7 @@
     <div class="map-container">
       <h2>Map of all dentists in Gothenburg </h2>
       <div id='mapbox'></div>
+      <div class="error_message">{{ error_message }}</div>
     </div>
 </main>
 </template>
@@ -19,15 +20,33 @@ export default {
         map: '',
         get_all_clinics_url: '',
         get_all_clinic_appointments: '',
+        get_specific_appointment_url: '',
         error_message: '',
         confirmation_message: '',
         clinicID: '',
-        icon_color: 'red',
+        icon_color: '',
+        
+        clinics: [{
+            name: '',
+            availabilityFlag: false,
+            clinicColor: '',
+            email: '',
+            phoneNumber: '',
+            appointments: [],
+            dentists: [],
+            location: {
+                type: '',
+                coordinates: [],
+                formattedAddress: '',
+            },
+            
+        }]
 
     }
   },
     mounted() {
         this.initializeMap();
+        this.get_specific_appointment_url = import.meta.env.VITE_GET_SPECIFIC_APPOINTMENTS_URL;
         this.get_all_clinic_appointments = import.meta.env.VITE_GET_CLINICS_APPOINTMENTS_URL;
         this.get_all_clinics_url = import.meta.env.VITE_GET_ALL_CLINICS_URL;
         this.getClinics();
@@ -40,8 +59,8 @@ export default {
         mapboxgl.accessToken = 'pk.eyJ1IjoiaWJyYWhpbS1hbHoiLCJhIjoiY200bG81NzNpMDN4ODJpc2Njbm80czRvayJ9.kSStc_U7hL0xeFYjXyAhkA';
         this.map = new mapboxgl.Map({
             container: 'mapbox',
-            style: 'mapbox://styles/mapbox/standard-satellite',
-            // style: 'mapbox://styles/mapbox/streets-v11',
+            // style: 'mapbox://styles/mapbox/standard-satellite',
+            style: 'mapbox://styles/mapbox/streets-v11',
             center: [11.9746, 57.7089],
             zoom: 8,
             collectResourceTiming: false,
@@ -54,38 +73,40 @@ export default {
     onResize(){
       this.map.resize();
       },
-      async checkAvailableAppointments(clinicID) {
 
-        var clinicAppointments = []
+      async checkAppointmentAvailability(appointmentsArr) {
+        var tempArr = []
+        appointmentsArr.forEach(appointment => {
+            if (this.getAppointment(appointment.appointment_id)) {
+                tempArr.push(appointment)
+            } 
+          });
+        if (tempArr.length === 0) {
+            return false;
+        }else{
+            return  true;
+        }
+        //return appointmentsArr.some(appointment => appointment.appointments.available)
+      },
+      async getAppointment(appointmentID){
         try {
-            var response = await Api.get(`${this.get_all_clinic_appointments}${clinicID}`);
+            var response = await Api.get(`${this.get_specific_appointment_url}${appointmentID}`)
+
             if (response.status === 200) {
-                clinicAppointments = response.data.appointments;
+                var available = response.data.appointments.available
+                // console.log("availability checks ", available, 'appointment id: ', appointmentID);
                 
-            }
-
-            
-
-            if (clinicAppointments.length > 0) {                
-                clinicAppointments.forEach(appointment => {
-                    // console.log("this is the appointment printed: ", appointment);
-                    if (appointment.available) {
-                        this.icon_color = 'green'
-                        return;
-                    }
-                    
-                });
-            }
-            const hasAvailableAppointment = false;
-
-
+                if (available === true) {
+                    return available;
+                } else {
+                    return false;
+                }
+            } 
         } catch (error) {
-            console.log(error.message);
-            
-            this.error_message = 'Something went wrong. Clinics appointment information not found!'
-            setTimeout(() => {
-                    this.error_message = ''
-            }, 5000);
+                this.error_message = 'Something went wrong. Appointments information not found!'
+                setTimeout(() => {
+                        this.error_message = ''
+                }, 5000);
         }
       },
       async getClinics() {
@@ -96,13 +117,42 @@ export default {
 
               if (response.status === 200) {
                 
-                  clinicArr = response.data.clinics;
+                  this.clinics = response.data.clinics;
 
-                  clinicArr.forEach(clinic => {
-                    this.checkAvailableAppointments(clinic._id);
-                  });
-
+                  await Promise.all(
+                    this.clinics.map(async (clinic) => {
+                        clinic.availabilityFlag = await this.checkAppointmentAvailability(clinic.appointments);
+                        if (clinic.availabilityFlag) {
+                            clinic.clinicColor = 'green'
+                        } else {
+                            clinic.clinicColor = 'red'
+                        }
+                    })
+                  )
               }
+            //   await this.checkAppointmentAvailability(clinicArr)
+              console.log("all clinics", this.clinics);
+              
+              let clinics = this.clinics.map((clinic) => {        
+                
+                return {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [
+                            clinic.location.coordinates[0],
+                            clinic.location.coordinates[1],
+
+                        ]
+                    },
+                    properties: {
+                        clinic_name: clinic.name,
+                        color: clinic.clinicColor,
+                        icon: 'hospital',
+                    }
+                }
+            });
+            this.loadMap(clinics)
           } catch (error) {
                 this.error_message = 'Something went wrong. Clinics information not found!'
                 setTimeout(() => {
@@ -110,30 +160,10 @@ export default {
                 }, 5000);
           }
           
-
-          var clinics = clinicArr.map(clinic => {
-              return {
-                  type: 'Feature',
-                  geometry: {
-                      type: 'Point',
-                      coordinates: [
-                          clinic.location.coordinates[0],
-                          clinic.location.coordinates[1],
-
-                      ]
-                  },
-                  properties: {
-                      clinic_name: clinic.name,
-                      icon: 'hospital',
-                  }
-              }
-
-          });
-
-          this.loadMap(clinics)
+          
       },
       loadMap(clinics) {
-          this.map.on('load', () => {
+            this.map.on('load', () => {
 
               this.map.addSource('clinics',{
                   type: 'geojson',
@@ -150,7 +180,7 @@ export default {
                   source: 'clinics',
                   paint: {
                       'circle-radius': 8,
-                      'circle-color': this.icon_color,
+                      'circle-color': ['get', 'color'],
                       'circle-stroke-width': 2,
                       'circle-stroke-color': 'black',
 

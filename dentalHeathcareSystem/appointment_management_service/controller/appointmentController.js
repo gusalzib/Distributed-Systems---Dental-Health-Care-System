@@ -1,4 +1,5 @@
 const Appointment = require("../models/Appointment.js");
+const mongoose = require('mongoose');
 
 exports.makeAppointment = async (payload) => {
     try {
@@ -197,7 +198,6 @@ exports.removeAppointment = async (topic) => {
 
 exports.fetchAvailableAppointments = async (payload) => {    
     try{
-        console.log("just testing");
         const appointments = await Appointment.find({available: true}).sort({"date_and_time_from": 1});
         var status = 0;
 
@@ -222,35 +222,25 @@ exports.fetchAvailableAppointments = async (payload) => {
 }
 
 
-exports.fetchClinicAppointments = async (payload) => {
+exports.fetchClinicAppointments = async (topic) => {
     try {
-        const clinicID = JSON.parse(payload)
+        var topicArr = topic.split("/");
+        const id = topicArr[4];
+
         var status = 0;
-        const allAppointments = await Appointment.find().sort({"date_and_time_from": 1});
+        var allAppointments = []
+        allAppointments = await Appointment.find({ dentist_clinic_id: id });
+        console.log("clinic appointment array length: ", allAppointments.length);
        
         if (allAppointments.length === 0) {
-            status = 400; 
+            status = 200; 
             message = "No appointments found"
-            return status + "/" + message;
-
-        }
-        
-        var appointments=[];
-        for (let i = 0; i<= allAppointments.length-1; i++){
-            var appointment = allAppointments[i];
-            if(appointment.dentist_clinic_id.equals(clinicID)){
-                appointments.push(appointment)
-            }
-        }
-        if (appointments.length === 0) {
-            status = 400; 
-            message = "This clinic has no appointments"
-            return status + "/" + message;
+            return status + "/" + message + allAppointments;
 
         }
         status = 200; 
         message = "All available appointments retrieved"
-        return status + "/" + message + "/" + appointments;
+        return status + "/" + message + "/" + allAppointments;
 
     }catch (error) {
         status = 400; 
