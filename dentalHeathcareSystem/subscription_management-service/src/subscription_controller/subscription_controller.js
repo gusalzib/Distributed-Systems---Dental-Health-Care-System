@@ -140,6 +140,33 @@ exports.updateSpecificSubscription = async (topic, payload) => {
     }
 };
 
+exports.deleteSpecificSubscription = async (topic) => {
+    let status;
+    let message;
+    try {
+        let topicArray = topic.split("/");
+        let id = topicArray[2];
+
+        const subscriptionToDelete = await Subscription.findByIdAndDelete(id);
+        if (!subscriptionToDelete) {
+            status = 404;
+            message = "No subscription with this ID";
+            return status + "/" + message;
+        }
+
+        let stringifiedDeletedSub = JSON.stringify(subscriptionToDelete);
+        status = 200;
+        message = "Subscription has been Deleted!";
+        let messageToReturn = status + "/" + message + "/" + stringifiedDeletedSub;
+        return messageToReturn;
+
+    } catch (error) {
+        status = 400;
+        error.message = "Something went wrong!";
+        return status + "/" + error.message;
+    }
+};
+
 /*=========== HTTP endpoints ==============*/
 
 
@@ -249,6 +276,25 @@ exports.updateSubscription = async (req, res) => {
     } catch (error) {
         res.status(400)
             .json({message: "Something went wrong!",
+                error_message: error.message})
+    }
+}
+
+exports.deleteSubscription = async (req, res) => {
+    try {
+        const id = req.params.subscription_id;
+        const deletedSubscription = await Subscription.findByIdAndDelete(id)
+        if(!deletedSubscription) {
+            res.status(400)
+                .json({ message: "Subscription was not found" });
+            return;
+        }
+        res.status(200)
+            .json({message: "Subscription was deleted successfully",
+                subscription: deletedSubscription})
+    } catch (error) {
+        res.status(400)
+            .json({message: "Something went wrong",
                 error_message: error.message})
     }
 }

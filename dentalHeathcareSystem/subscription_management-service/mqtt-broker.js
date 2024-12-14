@@ -60,6 +60,10 @@ function connectToBroker() {
                 publishToBroker(publishTopic, response);
             });
 
+        } else if (topic.startsWith('subscriptions/delete/')) {
+            subscriptionCtrl.deleteSpecificSubscription(topic).then(response => {
+                publishToBroker(publishTopic, response);
+            })
         } else if (topic.startsWith('subscriptions/get/')) {
             subscriptionCtrl.getAllSubscriptions(payload).then(response => {
                 publishToBroker(publishTopic, response);
@@ -84,3 +88,5 @@ subscribeToBroker('subscriptions/create/+');
 subscribeToBroker('subscriptions/get/+');
 subscribeToBroker('subscriptions/get/specific/+');
 subscribeToBroker('subscriptions/update/+');
+subscribeToBroker('subscriptions/delete/+');
+
