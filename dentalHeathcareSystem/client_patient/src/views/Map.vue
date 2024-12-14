@@ -122,6 +122,7 @@ export default {
                   await Promise.all(
                     this.clinics.map(async (clinic) => {
                         clinic.availabilityFlag = await this.checkAppointmentAvailability(clinic.appointments);
+                        console.log('addresses ', clinic.location.formattedAddress)
                         if (clinic.availabilityFlag) {
                             clinic.clinicColor = 'green'
                         } else {
@@ -148,6 +149,7 @@ export default {
                     properties: {
                         clinic_name: clinic.name,
                         color: clinic.clinicColor,
+                        formattedAddress: clinic.location.formattedAddress,
                         icon: 'hospital',
                     }
                 }
@@ -205,6 +207,32 @@ export default {
                   }
               })
 
+              const popup = new mapboxgl.Popup({
+                  closeButton: false,
+                  closeOnClick: false,
+                
+              })
+
+                this.map.on('mouseenter', 'clinic-circles', (element) => {
+                    this.map.getCanvas().style.cursor = 'Pointer';
+
+                    const coordinates = element.features[0].geometry.coordinates.slice();
+                    const formattedAddress = element.features[0].properties.formattedAddress;
+
+                    if (['mercator', 'equirectangular'].includes(this.map.getProjection().name)) {
+                        while (Math.abs(element.lngLat.lng - coordinates[0]) > 180) {
+                            coordinates[0] += element.lngLat.lng > coordinates[0] ? 360 : -360;
+                        }
+                    }
+                    popup.setLngLat(coordinates).setHTML(`<p>${formattedAddress}</p>`).addTo(this.map);
+
+                });
+
+                this.map.on('mouseleave', 'clinic-circles', () => {
+                    this.map.getCanvas().style.cursor = '';
+
+                    popup.remove();
+                });
               // below is the code for hospital clinic icon. The icon color cannot be changed which is why i replaced with a circle. 
             //   this.map.addLayer({
             //       id: 'points', 

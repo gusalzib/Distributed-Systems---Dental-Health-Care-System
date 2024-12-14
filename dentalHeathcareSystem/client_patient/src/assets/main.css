@@ -178,6 +178,10 @@ label{
   margin: auto;
 }
 .mapboxgl-popup {
+  z-index: 1000;
+  border: 1px red solid;
+  background-color: whitesmoke;
+  color: black;
     max-width: 400px;
     font:
         12px/20px 'Helvetica Neue',
