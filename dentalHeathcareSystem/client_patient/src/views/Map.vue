@@ -2,7 +2,7 @@
 <template>
 <main>
     <div class="map-container">
-      <h2>Map of all dentists in Gothenburg </h2>
+      <h2>Map of all dental clinics in Gothenburg </h2>
       <div id='mapbox'></div>
       <div class="error_message">{{ error_message }}</div>
     </div>
@@ -21,6 +21,7 @@ export default {
         get_all_clinics_url: '',
         get_all_clinic_appointments: '',
         get_specific_appointment_url: '',
+        mapbox_access_token: '',
         error_message: '',
         confirmation_message: '',
         clinicID: '',
@@ -46,10 +47,12 @@ export default {
     }
   },
     mounted() {
-        this.initializeMap();
+        
+        this.mapbox_access_token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
         this.get_specific_appointment_url = import.meta.env.VITE_GET_SPECIFIC_APPOINTMENTS_URL;
         this.get_all_clinic_appointments = import.meta.env.VITE_GET_CLINICS_APPOINTMENTS_URL;
         this.get_all_clinics_url = import.meta.env.VITE_GET_ALL_CLINICS_URL;
+        this.initializeMap();
         this.getClinics();
         
         window.addEventListener('resize', this.onResize);
@@ -57,7 +60,7 @@ export default {
   },
   methods: {
     initializeMap() {
-        mapboxgl.accessToken = 'pk.eyJ1IjoiaWJyYWhpbS1hbHoiLCJhIjoiY200bG81NzNpMDN4ODJpc2Njbm80czRvayJ9.kSStc_U7hL0xeFYjXyAhkA';
+        mapboxgl.accessToken = this.mapbox_access_token;
         this.map = new mapboxgl.Map({
             container: 'mapbox',
             // style: 'mapbox://styles/mapbox/standard-satellite',
@@ -91,7 +94,6 @@ export default {
             }
             return result;
         } else {
-            console.log('temp arr length', tempArr.length);
             
             result = {
                 available: true,
@@ -99,7 +101,6 @@ export default {
             }
             return  result;
         }
-        //return appointmentsArr.some(appointment => appointment.appointments.available)
       },
       async getAppointment(appointmentID){
         try {
@@ -107,7 +108,6 @@ export default {
 
             if (response.status === 200) {
                 var available = response.data.appointments.available
-                // console.log("availability checks ", available, 'appointment id: ', appointmentID);
                 
                 if (available === true) {
                     return available;
@@ -119,12 +119,11 @@ export default {
                 this.error_message = 'Something went wrong. Appointments information not found!'
                 setTimeout(() => {
                         this.error_message = ''
-                }, 5000);
+                }, 10000);
         }
       },
       async getClinics() {
           
-          var  clinicArr = [];
           try {
               var response = await Api.get(`${this.get_all_clinics_url}`);
 
@@ -137,7 +136,6 @@ export default {
                         var result = await this.checkAppointmentAvailability(clinic.appointments)
                           clinic.availabilityFlag = result.available;
                           clinic.numOfAvailableAppointments = result.numOfAppointments;
-                        console.log('addresses ', clinic.location.formattedAddress)
                         if (clinic.availabilityFlag) {
                             clinic.clinicColor = 'green'
                         } else {
@@ -146,8 +144,6 @@ export default {
                     })
                   )
               }
-            //   await this.checkAppointmentAvailability(clinicArr)
-              console.log("all clinics", this.clinics);
               
               let clinics = this.clinics.map((clinic) => {        
                 
@@ -176,7 +172,7 @@ export default {
                 this.error_message = 'Something went wrong. Clinics information not found!'
                 setTimeout(() => {
                         this.error_message = ''
-                }, 5000);
+                }, 10000);
           }
           
           
@@ -265,30 +261,11 @@ export default {
                         this.error_message = 'Something went wrong. Clinics information not found!'
                         setTimeout(() => {
                                 this.error_message = ''
-                        }, 5000);
+                        }, 10000);
                     }
 
                 })
-              // below is the code for hospital clinic icon. The icon color cannot be changed which is why i replaced with a circle. 
-            //   this.map.addLayer({
-            //       id: 'points', 
-            //       type: 'symbol',
-            //       source: 'clinics',
-            //       layout: {
-            //           'icon-image': '{icon}-15',
-            //           'icon-size': 3,
-            //           'icon-color': 'red',
-            //           'text-field': '{clinic_name}',
-            //           'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-            //           'text-offset': [0, 0.9],
-            //           'text-anchor': 'top',
-            //     },
-            //       paint: {
-            //           'icon-color': ['get', 'color'],
-            //           'text-color': 'black',
-                    
-            //     }
-            // })
+
         })
     }
   }

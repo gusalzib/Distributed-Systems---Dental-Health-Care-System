@@ -228,7 +228,7 @@ exports.fetchClinicAppointments = async (topic) => {
         var stringAppointments = JSON.stringify(clinicAppointments)
         status = 200; 
         message = "All available appointments retrieved"
-        return status + "/" + message + "/" + allAppointments;
+        return status + "/" + message + "/" + stringAppointments;
 
     }catch (error) {
         status = 400; 
@@ -236,9 +236,6 @@ exports.fetchClinicAppointments = async (topic) => {
         return status + "/" + message + "/" + error.message;
     }
 }
-
-
-
 
 
 
