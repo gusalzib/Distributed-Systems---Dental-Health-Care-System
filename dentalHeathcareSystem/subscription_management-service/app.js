@@ -7,7 +7,6 @@ var mongoose = require('mongoose')
 var cors = require('cors');
 const mqtt = require('mqtt');
 
-
 var app = express();
 var port = 3020;
 
@@ -45,6 +44,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+const {registerSubscription} = require("./src/subscription_controller/subscription_controller");
+
+app.post("/api/subscriptions/create", registerSubscription);
 
 
 app.get("/active", (req,res) =>{

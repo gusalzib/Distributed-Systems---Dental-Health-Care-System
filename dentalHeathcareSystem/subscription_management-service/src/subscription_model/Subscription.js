@@ -1,27 +1,32 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const emailValidator = require("validator");
 
-let subscriptionSchema = new Schema({
+
+var subscriptionSchema = new Schema({
 
     patient_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref:"Patient"
     },
 
-    subscription_type: [{
-        clinic_subscription: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Clinic',
-            isActive: Boolean
+    clinic_subscription: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Clinic',
+        isActive: Boolean
         },
 
-        period_subscription: {
-            sub_from: Date,
-            sub_until: Date,
-            required: true,
-            isActive: Boolean
-        }
-    }],
+    period_subscription: {
+        sub_from: {
+            type: Date,
+            required: true
+        },
+        sub_until: {
+            type: Date,
+            required: true
+        },
+        isActive: Boolean
+    },
 
     appointment_type: {
         type: String,
@@ -33,9 +38,16 @@ let subscriptionSchema = new Schema({
         required: true
     },
 
-    notification_means: {
+    email_notification: {
         type: String,
-        required: true
+        validate: [emailValidator.isEmail, "invalid email"],
+        unique: true
+    },
+
+    phone_notification: {
+        type: String,
+        required: true,
+        match: [ /^\d+$/, "Phone number has to be only digits"]
     },
 
     createdAt: {
@@ -45,4 +57,4 @@ let subscriptionSchema = new Schema({
 
 });
 module.exports = mongoose.model(
-    "subscription",subscriptionSchema);
+    "subscription", subscriptionSchema);
