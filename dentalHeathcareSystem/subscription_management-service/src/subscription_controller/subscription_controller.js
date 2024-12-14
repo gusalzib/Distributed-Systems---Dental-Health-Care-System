@@ -12,6 +12,7 @@ exports.createSubscription = async (payload) => {
         console.log("second parsed payload", payload);
         const newSubscriptionValidation = validateSubscription(newSubscription);
 
+        console.log("parsed payload " + JSON.stringify(newSubscription));
         if (!newSubscriptionValidation.success) {
             status = 400
             return status + "/" + newSubscriptionValidation.message;
@@ -37,6 +38,31 @@ exports.createSubscription = async (payload) => {
     }
 };
 
+
+exports.getAllSubscriptions = async (payload) => {
+    let status;
+    let message;
+    try {
+        const subscriptions = await Subscription.find();
+        if (!subscriptions) {
+            status = 200;
+            message = "There are no subscriptions!";
+            return status + "/" + message;
+        }
+
+        status = 200;
+        message = "Subscriptions retrieved!";
+        let stringifiedSubscriptions = JSON.stringify(subscriptions);
+        let messageToReturn = status + "/" + message + "/" + stringifiedSubscriptions;
+        console.log(messageToReturn);
+        return messageToReturn;
+
+    } catch (error) {
+        status = 400;
+        error.message = "Something went wrong!";
+        return status + "/" + error.message;
+    }
+};
 
 /*=========== HTTP endpoints ==============*/
 
@@ -76,11 +102,29 @@ exports.registerSubscription = async (req, res) => {
     }
 };
 
+exports.retrieveSubscriptions = async (req, res) => {
+    try {
+        const subscriptions = await Subscription.find();
+
+        if (!subscriptions) {
+            res.status(400).json({ message: "There are no subscriptions!" })
+            return;
+        }
+        res.status(200).json({
+            message: "Subscriptions retrieved",
+            subscriptions: subscriptions });
+    } catch (error) {
+        res.status(400).json({ message: "Something went wrong!",
+            error_message: error.message });
+    }
+}
+
 function validateSubscription(subscription) {
     const {patient_id, appointment_type, clinic_subscription, period_subscription,
         notification_preference, email_notification, phone_notification} = subscription;
 
-    console.log("are we validating?")
+    console.log("are we validating?");
+    console.log("my email is " + email_notification);
     if (!patient_id || !(clinic_subscription || period_subscription) || !appointment_type ||
         !notification_preference || !(email_notification || phone_notification)) {
         return {

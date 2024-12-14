@@ -1,5 +1,6 @@
 const mqtt = require('mqtt');
 const subscriptionCtrl = require("./src/subscription_controller/subscription_controller")
+const {retrieveSubscriptions} = require("./src/subscription_controller/subscription_controller");
 let mqttClient;
 
 const host = "127.0.0.1";
@@ -49,6 +50,10 @@ function connectToBroker() {
             subscriptionCtrl.createSubscription(payload).then(response => {
                 publishToBroker(publishTopic, response);
             })
+        } else if (topic.startsWith('subscriptions/get/')) {
+            subscriptionCtrl.getAllSubscriptions(payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
         }
     });
 }
@@ -66,3 +71,4 @@ function subscribeToBroker(topic) {
 connectToBroker();
 
 subscribeToBroker('subscriptions/create/+');
+subscribeToBroker('subscriptions/get/+');

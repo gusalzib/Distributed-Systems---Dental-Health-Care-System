@@ -41,12 +41,13 @@ var subscriptionSchema = new Schema({
     email_notification: {
         type: String,
         validate: [emailValidator.isEmail, "invalid email"],
-        unique: true
+        unique: true,
+        sparse: true
     },
 
     phone_notification: {
         type: String,
-        required: true,
+        required: false,
         match: [ /^\d+$/, "Phone number has to be only digits"]
     },
 
