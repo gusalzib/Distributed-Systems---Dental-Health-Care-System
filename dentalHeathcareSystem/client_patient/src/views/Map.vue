@@ -29,6 +29,7 @@ export default {
         clinics: [{
             name: '',
             availabilityFlag: false,
+            numOfAvailableAppointments: 0,
             clinicColor: '',
             email: '',
             phoneNumber: '',
@@ -80,11 +81,23 @@ export default {
             if (this.getAppointment(appointment.appointment_id)) {
                 tempArr.push(appointment)
             } 
-          });
+        });
+          var result = ''
         if (tempArr.length === 0) {
-            return false;
-        }else{
-            return  true;
+            result = {
+                available: false,
+                numOfAppointments: tempArr.length,
+                
+            }
+            return result;
+        } else {
+            console.log('temp arr length', tempArr.length);
+            
+            result = {
+                available: true,
+                numOfAppointments: tempArr.length,
+            }
+            return  result;
         }
         //return appointmentsArr.some(appointment => appointment.appointments.available)
       },
@@ -120,8 +133,10 @@ export default {
                   this.clinics = response.data.clinics;
 
                   await Promise.all(
-                    this.clinics.map(async (clinic) => {
-                        clinic.availabilityFlag = await this.checkAppointmentAvailability(clinic.appointments);
+                      this.clinics.map(async (clinic) => {
+                        var result = await this.checkAppointmentAvailability(clinic.appointments)
+                          clinic.availabilityFlag = result.available;
+                          clinic.numOfAvailableAppointments = result.numOfAppointments;
                         console.log('addresses ', clinic.location.formattedAddress)
                         if (clinic.availabilityFlag) {
                             clinic.clinicColor = 'green'
@@ -150,6 +165,8 @@ export default {
                         clinic_name: clinic.name,
                         color: clinic.clinicColor,
                         formattedAddress: clinic.location.formattedAddress,
+                        numOfAppointments: clinic.numOfAvailableAppointments,
+                        clinicID: clinic._id,
                         icon: 'hospital',
                     }
                 }
@@ -218,13 +235,16 @@ export default {
 
                     const coordinates = element.features[0].geometry.coordinates.slice();
                     const formattedAddress = element.features[0].properties.formattedAddress;
+                    const availableAppointments = element.features[0].properties.numOfAppointments;
 
                     if (['mercator', 'equirectangular'].includes(this.map.getProjection().name)) {
                         while (Math.abs(element.lngLat.lng - coordinates[0]) > 180) {
                             coordinates[0] += element.lngLat.lng > coordinates[0] ? 360 : -360;
                         }
                     }
-                    popup.setLngLat(coordinates).setHTML(`<p>${formattedAddress}</p>`).addTo(this.map);
+                    popup.setLngLat(coordinates).setHTML(`<p><span>Address:</span> ${formattedAddress}</p>
+                    <p><span>Number of available appointments:</span> ${availableAppointments}</p>
+                    <p><em>Click to go to clinic page<em></p>`).addTo(this.map);
 
                 });
 
@@ -233,6 +253,22 @@ export default {
 
                     popup.remove();
                 });
+
+                this.map.on('click', 'clinic-circles', (element) => {
+                    const properties = element.features[0].properties;
+
+                    const clinicID = properties.clinicID;
+
+                    if (clinicID) {
+                        this.$router.push(`/clinic/${clinicID}`)
+                    } else {
+                        this.error_message = 'Something went wrong. Clinics information not found!'
+                        setTimeout(() => {
+                                this.error_message = ''
+                        }, 5000);
+                    }
+
+                })
               // below is the code for hospital clinic icon. The icon color cannot be changed which is why i replaced with a circle. 
             //   this.map.addLayer({
             //       id: 'points', 

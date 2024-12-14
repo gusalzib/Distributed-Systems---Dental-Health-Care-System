@@ -189,7 +189,9 @@ label{
         Helvetica,
         sans-serif;
 }
-
+.mapboxgl-popup span{
+  font-weight: bold;
+}
 .home-page-container{
   /* border: 1px red solid; */
   width: 90%;
