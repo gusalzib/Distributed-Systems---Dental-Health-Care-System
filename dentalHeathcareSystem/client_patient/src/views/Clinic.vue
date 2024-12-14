@@ -33,7 +33,7 @@
                         <div v-for="dentist in dentists" :key = "dentist._id">
                             <div>
                                 <hr>
-                                <p>{{ dentist.dentist_id }}</p> 
+                                <p>{{ dentist.name }}</p> 
                             </div>
                         </div>
                     </div>
@@ -118,7 +118,7 @@ export default {
             this.clinicID = this.$route.params.clinicID;
             await Api.get(`${this.clinics_get_dentists_url}${this.clinicID}`).then(response =>{
                 if(response.status === 200){
-                this.dentists = response.data.clinicDentists;
+                this.dentists = response.data.dentists;
             }
         }).catch(error =>{
             this.error_message = error.response?.data.message;

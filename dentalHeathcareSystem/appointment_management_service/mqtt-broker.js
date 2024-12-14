@@ -52,7 +52,7 @@ function connectToBroker() {
         
         }else if (topic.startsWith('appointments/get/patient/appointments/')) {
             console.log("get a patients appointments");
-            appointmentCtrl.fetchPatientAppointments(payload).then(response => {
+            appointmentCtrl.fetchPatientAppointments(topic).then(response => {
                 publishToBroker(publishTopic, response)
             })
         }else if (topic.startsWith('appointments/get/available/appointments/')) {

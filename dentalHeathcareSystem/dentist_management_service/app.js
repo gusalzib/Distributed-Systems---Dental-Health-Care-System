@@ -1,9 +1,12 @@
+var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose')
 var cors = require('cors');
+const mqtt = require('mqtt');
+
 
 var app = express();
 var port = 3005;
@@ -45,11 +48,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const { registerDentist, retrieveDentists, retrieveASpecificDentist, updateDentist, deleteDentistByID } = require("./src/dentist_controller/dentist-controller");
 
-app.post("/api/dentists", registerDentist)
-app.get("/api/dentists", retrieveDentists)
+app.post("/api/dentists/create", registerDentist)
+app.get("/api/dentists/get", retrieveDentists)
 app.get("/api/dentists/:dentist_id", retrieveASpecificDentist)
 app.put("/api/dentists/:dentist_id", updateDentist)
 app.delete("/api/dentists/:dentist_id", deleteDentistByID)
+// app.get("api/dentists/get/clinics/dentists/:clinic_id")      added with mqtt
 
 app.get("/active", (req,res) =>{
     res.sendStatus(200)
