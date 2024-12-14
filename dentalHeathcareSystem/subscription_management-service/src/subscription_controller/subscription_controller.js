@@ -90,6 +90,56 @@ exports.getSpecificSubscription = async (topic) => {
     }
 }
 
+exports.updateSpecificSubscription = async (topic, payload) => {
+    let status;
+    let message;
+    try {
+        let topicArray = topic.split("/");
+        let id = topicArray[2];
+
+        const foundSub = await Subscription.findById(id);
+        if (!foundSub) {
+            status = 404;
+            message = "No subscription with this id";
+            return status + "/" + message;
+        }
+
+        const newSubscription = JSON.parse(payload);
+
+        const subscription = {
+            patient_id: newSubscription.patient_id ? newSubscription.patient_id : foundSub.patient_id,
+            clinic_subscription: newSubscription.clinic_subscription ? newSubscription.clinic_subscription : foundSub.clinic_subscription,
+            period_subscription: newSubscription.period_subscription ? newSubscription.period_subscription : foundSub.period_subscription,
+            appointment_type: newSubscription.appointment_type ? newSubscription.appointment_type : foundSub.appointment_type,
+            notification_preference: newSubscription.notification_preference ? newSubscription.notification_preference : foundSub.notification_preference,
+            email_notification: newSubscription.email_notification ? newSubscription.email_notification : foundSub.email_notification,
+            phone_notification: newSubscription.phone_notification ? newSubscription.phone_notification : foundSub.phone_notification
+        }
+
+        const newSubscriptionValidation = validateSubscription(subscription);
+        if(!newSubscriptionValidation.success) {
+            status = 400;
+            message = newSubscriptionValidation.message;
+            return status + "/" + message;
+        }
+
+        const updatedSubscription = await Subscription.findByIdAndUpdate(id, subscription, {new: true});
+        status = 200;
+        message = "Subscription has been updated!";
+        console.log("updated sub: " + updatedSubscription);
+
+        let stringifiedUpdatedSub = JSON.stringify(updatedSubscription);
+        let messageToReturn = status + "/" + message + "/" + stringifiedUpdatedSub;
+        console.log(messageToReturn);
+        return messageToReturn;
+
+    } catch (error) {
+        status = 400;
+        error.message = "Something went wrong!";
+        return status + "/" + error.message;
+    }
+};
+
 /*=========== HTTP endpoints ==============*/
 
 
@@ -164,6 +214,44 @@ exports.retrieveASpecificSubscription = async (req, res) => {
                 error_message: error.message });
     }
 };
+
+exports.updateSubscription = async (req, res) => {
+    try {
+        const id = req.params.subscription_id;
+
+        const existingSub = await Subscription.findById(id);
+        if (!existingSub) {
+            res.status(400).json({ message: "Subscription was not found" })
+            return;
+        }
+
+        const subscription = {
+            patient_id: req.body.patient_id ? req.body.patient_id : existingSub.patient_id,
+            clinic_subscription: req.body.clinic_subscription ? req.body.clinic_subscription : existingSub.clinic_subscription,
+            period_subscription: req.body.period_subscription ? req.body.period_subscription : existingSub.period_subscription,
+            appointment_type: req.body.appointment_type ? req.body.appointment_type : existingSub.appointment_type,
+            notification_preference: req.body.notification_preference ? req.body.notification_preference : existingSub.notification_preference,
+            email_notification: req.body.email_notification ? req.body.email_notification : existingSub.email_notification,
+            phone_notification: req.body.phone_notification ? req.body.phone_notification : existingSub.phone_notification
+        }
+
+        const newSubValidation = validateSubscription(subscription);
+        if(!newSubValidation.success) {
+            res.status(400).json({message: newSubValidation.message})
+            return;
+        }
+
+        const updatedSubscription = await Subscription.findByIdAndUpdate(id, subscription);
+
+        res.status(200).json({message: "Subscription has been updated",
+            subscription: updatedSubscription})
+
+    } catch (error) {
+        res.status(400)
+            .json({message: "Something went wrong!",
+                error_message: error.message})
+    }
+}
 
 
 function validateSubscription(subscription) {

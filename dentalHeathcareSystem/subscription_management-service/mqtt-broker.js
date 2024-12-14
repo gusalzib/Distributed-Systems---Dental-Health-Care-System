@@ -55,6 +55,11 @@ function connectToBroker() {
                 publishToBroker(publishTopic, response);
             });
 
+        } else if (topic.startsWith('subscriptions/update/')) {
+            subscriptionCtrl.updateSpecificSubscription(topic, payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+
         } else if (topic.startsWith('subscriptions/get/')) {
             subscriptionCtrl.getAllSubscriptions(payload).then(response => {
                 publishToBroker(publishTopic, response);
@@ -78,3 +83,4 @@ connectToBroker();
 subscribeToBroker('subscriptions/create/+');
 subscribeToBroker('subscriptions/get/+');
 subscribeToBroker('subscriptions/get/specific/+');
+subscribeToBroker('subscriptions/update/+');

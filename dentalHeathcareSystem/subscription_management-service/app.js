@@ -46,12 +46,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-const {registerSubscription, retrieveSubscriptions, retrieveASpecificSubscription
+const {registerSubscription, retrieveSubscriptions, retrieveASpecificSubscription, updateSubscription
 } = require("./src/subscription_controller/subscription_controller");
 
 app.post("/api/subscriptions/create", registerSubscription);
 app.get("/api/subscriptions/get", retrieveSubscriptions);
-app.get("/api/subscriptions/:subscription_id", retrieveASpecificSubscription)
+app.get("/api/subscriptions/:subscription_id", retrieveASpecificSubscription);
+app.put("/api/subscriptions/:subscription_id", updateSubscription);
 
 
 
