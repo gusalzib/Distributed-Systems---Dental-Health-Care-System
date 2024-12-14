@@ -1,4 +1,5 @@
 const Appointment = require("../models/Appointment.js");
+const mongoose = require('mongoose');
 
 exports.makeAppointment = async (payload) => {
     try {
@@ -210,24 +211,19 @@ exports.fetchAvailableAppointments = async (payload) => {
 
 exports.fetchClinicAppointments = async (topic) => {
     try {
-        
         var topicArr = topic.split("/");
-        const _id = topicArr[4];
-        
+        const id = topicArr[4];
+
         var status = 0;
-        const allAppointments = await Appointment.find().sort({"date_and_time_from": 1});
+        var allAppointments = []
+        allAppointments = await Appointment.find({ dentist_clinic_id: id });
+        console.log("clinic appointment array length: ", allAppointments.length);
        
         if (allAppointments.length === 0) {
-            status = 400; 
+            status = 200; 
             message = "No appointments found"
-            return status + "/" + message;
-        }
+            return status + "/" + message + allAppointments;
 
-        const clinicAppointments = allAppointments.filter(appointment => appointment.dentist_clinic_id && appointment.dentist_clinic_id.equals(_id));
-        if (clinicAppointments.length === 0) {
-            status = 400; 
-            message = "This clinic has no appointments"; 
-            return status + "/" + message;
         }
         var stringAppointments = JSON.stringify(clinicAppointments)
         status = 200; 
@@ -240,9 +236,6 @@ exports.fetchClinicAppointments = async (topic) => {
         return status + "/" + message + "/" + error.message;
     }
 }
-
-
-
 
 
 

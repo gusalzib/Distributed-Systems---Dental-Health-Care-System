@@ -151,7 +151,7 @@ app.post("/api/*", async (req, res) => {
         //Publish request
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
-            res.status(400).json({message: "could not create appointment"})
+            res.status(400).json({message: "could not create object"})
             return
         }
 

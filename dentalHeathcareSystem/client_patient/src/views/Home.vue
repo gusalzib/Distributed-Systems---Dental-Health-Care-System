@@ -1,10 +1,7 @@
 
 <template>
   <main>
-    <div class="map-container">
-      <h2>Map of all dentists in Gothenburg (Just a placeholder map actually :-])</h2>
-      <iframe id="google-map" src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d20820.916983666586!2d11.9831004988628!3d57.70592486446396!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2sse!4v1732126327706!5m2!1sen!2sse"  allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-    </div>
+    <Map></Map>
 
     <div id="divider"></div>
 
@@ -83,22 +80,25 @@
   </main>
 </template>
 
-
 <script>
 // @ is an alias to /src
 import { Api } from '@/Api'
-
+import mapboxgl from 'mapbox-gl'
+import  Map  from "@/views/Map.vue";
 export default {
   name: 'home',
+  components: {
+    Map
+  },
   data() {
     return {
-
     }
   },
   mounted() {
 
   },
   methods: {
+    
   }
 }
 </script>
