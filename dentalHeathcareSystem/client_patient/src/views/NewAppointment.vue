@@ -95,9 +95,13 @@ export default {
       await Api.get(`${this.get_available_appointments_url}`).then(response =>{
         if(response.status === 200){
           this.appointments = response.data.appointments
+                    
         }
       }).catch(error =>{
-        console.log(error.message);
+        this.error_message = 'Sorry. There are no available appointments currently. Please check again later.';
+            setTimeout(() => {
+                this.error_message = '';
+            }, 5000);
       })
     },
     async updateAppointment(appointmentID){

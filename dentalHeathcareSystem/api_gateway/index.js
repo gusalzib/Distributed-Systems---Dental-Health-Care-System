@@ -231,7 +231,7 @@ app.get("/api/*", async (req, res) => {
             mqttBroker.unsubscribe(serviceTopicResponse);
         }
 
-
+        
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);

@@ -94,9 +94,11 @@ exports.updateAClinic = async (topic,payload) => {
             phoneNumber: phoneNumber,
             address: address, 
             dentists: dentists,
-            appointments: appointments},
+            appointments: appointments
+        },
             {new: true}
         );
+        await updatedClinic.save()
             status = 200;
             message = "Clinic information updated successfully";
             var stringClinic = JSON.stringify(updatedClinic);

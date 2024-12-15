@@ -1,4 +1,5 @@
 const mqtt = require('async-mqtt');
+const oldMqtt = require('mqtt');
 const appointmentCtrl = require("./controller/appointmentController")
 var mqttClient;
 
