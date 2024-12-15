@@ -1,4 +1,4 @@
-const mqtt = require('mqtt');
+const mqtt = require('async-mqtt');
 const clinicCtrl = require("./Controller/clinicController");
 var mqttClient;
 
@@ -38,43 +38,58 @@ function connectToBroker() {
     });
 
     mqttClient.on("message", (topic, payload, packet) => {
-        console.log("Message received: " + payload.toString());
+        var payloadReceived = payload.toString();
+        console.log("Message received: ", payloadReceived);
         console.log("On topic: " + topic); 
         console.log(packet);
         var publishTopic = "response/" + topic;
-       
 
-        if (topic.startsWith( 'clinics/create/')) {
+        if(topic.startsWith('clinics/topics')){
+            subscribeToBroker(payloadReceived);
+            var newPayload = '200/subscribed to topic/'+topic;
+            publishToBroker(publishTopic,newPayload);
+
+        }else if (topic.startsWith( 'clinics/create/')) {
             console.log("clinic create");
             clinicCtrl.clinicCreate(payload).then(response =>{ 
                 publishToBroker(publishTopic,response);  
-
             });
+            unsubscribe(topic);
+
         }else if(topic.startsWith('clinics/delete/')){
             console.log("delete clinic");
             clinicCtrl.deleteAClinic(topic).then(response => {
                 publishToBroker(publishTopic, response);
-            })
+            });
+            unsubscribe(topic);
+
         }else if (topic.startsWith('clinics/get/specific/')){
             console.log("get specific clinic");
             clinicCtrl.getOneClinic(topic).then(response => {
                 publishToBroker(publishTopic, response);
-            })
+            });
+            unsubscribe(topic);
+
         }else if(topic.startsWith('clinics/get/dentists/')){
             console.log("get the clinics dentists");
             clinicCtrl.getDentistFromClinic(topic).then(response => {
                 publishToBroker(publishTopic, response);
-            })
+            });
+            unsubscribe(topic);
+
         }else if (topic.startsWith('clinics/get/')){
             console.log("get all clinics");
             clinicCtrl.getClinics().then( response => {
                 publishToBroker(publishTopic, response);
-            })
+            });
+            unsubscribe(topic);
+
         }else if (topic.startsWith('clinics/update/')){
             console.log("update clinics");
             clinicCtrl.updateAClinic(topic,payload).then(response => {
                 publishToBroker(publishTopic,response);
-            })
+            });
+            unsubscribe(topic);
         }
         
 
@@ -85,18 +100,29 @@ function printPayload(payload) {
     console.log("our payload is: " + payload);
 }
 
-function publishToBroker(topic, payload) {
+async function publishToBroker(topic, payload) {
     mqttClient.publish(topic, payload, {qos: 0, retain: false})
 };
 
-function subscribeToBroker(topic) {
+async function subscribeToBroker(topic) {
     mqttClient.subscribe(topic, {qos: 0, retain: false})
     console.log("subscribed to topic: ",topic);
 };
+async function unsubscribe(topic){
+    console.log("TPOIC IN UNSUSCRIBE: ",topic);
+    mqttClient.unsubscribe(topic).then((successful) => {
+        console.log("You've successfully unsubscribed from topic: ",topic);
+    })
+    .catch((e) => {
+        console.log("Unsubscribing failed");
+    }) 
+};
+
 connectToBroker();
-subscribeToBroker("clinics/create/+");
-subscribeToBroker("clinics/get/+");
-subscribeToBroker("clinics/get/specific/+");
-subscribeToBroker("clinics/update/+");
-subscribeToBroker("clinics/get/dentists/+")
-subscribeToBroker("clinics/delete/+")
+subscribeToBroker('clinics/topics')
+// subscribeToBroker("clinics/create/+");
+// subscribeToBroker("clinics/get/+");
+// subscribeToBroker("clinics/get/specific/+");
+// subscribeToBroker("clinics/update/+");
+// subscribeToBroker("clinics/get/dentists/+")
+// subscribeToBroker("clinics/delete/+")
