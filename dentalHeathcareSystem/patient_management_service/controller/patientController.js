@@ -24,9 +24,7 @@ exports.createPatient = async (payload) => {
         }
 
         var newPatient = new Patient(patient);
-
         await newPatient.save();
-        console.log("Patient =", newPatient);
 
         var patient_id = newPatient._id;
         var retrievedPatient = await Patient.find(patient_id);
@@ -169,11 +167,9 @@ exports.updateSpecificPatient = async (topic, payload) => {
 
 
     } catch (error) {
-            status = 400; 
-        message = "Something went wrong. Failed to update patient." 
-        console.log(error.message);
-        
-            return status + "/" + message;
+        status = 400; 
+        message = "Something went wrong. Failed to update patient."   
+        return status + "/" + message + "/" + error.message;
                 
         }
 }
@@ -249,7 +245,6 @@ exports.registerPatient = async (req, res) => {
 
     var patientId = newPatient._id;
     if (!patientId) {
-        console.log("NO PATIENT FOUND");
         res.status(400).json({ message: "failed to register patient" });
         return; 
     }
@@ -264,8 +259,6 @@ exports.registerPatient = async (req, res) => {
         res.status(400).json({ message: "Ssn is not uniqe"});
         return;
     }
-    // console.log(error.message);
-    console.log("catch");
     res.status(400).json({message: "Failed to register patient",message: error.message});
   }
 };

@@ -109,7 +109,6 @@ async function subscribeToBroker(topic) {
     console.log("subscribed to topic: ",topic);
 };
 async function unsubscribe(topic){
-    console.log("TPOIC IN UNSUSCRIBE: ",topic);
     mqttClient.unsubscribe(topic).then((successful) => {
         console.log("You've successfully unsubscribed from topic: ",topic);
     })
@@ -120,9 +119,4 @@ async function unsubscribe(topic){
 
 connectToBroker();
 subscribeToBroker('clinics/topics')
-// subscribeToBroker("clinics/create/+");
-// subscribeToBroker("clinics/get/+");
-// subscribeToBroker("clinics/get/specific/+");
-// subscribeToBroker("clinics/update/+");
-// subscribeToBroker("clinics/get/dentists/+")
-// subscribeToBroker("clinics/delete/+")
+

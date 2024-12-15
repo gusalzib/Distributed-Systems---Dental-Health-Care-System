@@ -175,7 +175,7 @@ app.post("/api/*", async (req, res) => {
         
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
-            res.status(400).json({message: "could not create appointment"});
+            res.status(400).json({message: "could not create object"});
             return
         }else if(mqttResponse){
             mqttBroker.unsubscribe(responseTopic);
@@ -238,7 +238,7 @@ app.get("/api/*", async (req, res) => {
         
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
-            res.status(400).json({message: "could not create appointment"});
+            res.status(400).json({message: "could not create object"});
             return
         }else if(mqttResponse){
             mqttBroker.unsubscribe(responseTopic);
@@ -300,7 +300,7 @@ app.put("/api/*", async (req, res) => {
         
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
-            res.status(400).json({message: "could not update appointment"});
+            res.status(400).json({message: "could not update object"});
             return
         }else if(mqttResponse){
             mqttBroker.unsubscribe(responseTopic);
@@ -362,7 +362,7 @@ app.delete("/api/*", async (req, res) => {
         
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
-            res.status(400).json({message: "could not delete appointment"});
+            res.status(400).json({message: "could not delete object"});
             return
         }else if(mqttResponse){
             mqttBroker.unsubscribe(responseTopic);
