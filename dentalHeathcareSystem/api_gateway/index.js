@@ -7,6 +7,10 @@ const request = require("request");
 const app = express();
 const mqttBroker = require("./mqtt-broker.js");
 
+//sessions variables 
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
+
 const PORT = 3000;
 
 // function activityCheck(server){                           //ping and echo - is the server running
@@ -51,6 +55,17 @@ app.use(
     credentials: true
   })
 );
+
+app.use(session({
+    secret: 'secret_patient_key',
+    resave: false,
+    saveUninitialized: true,
+    store: new MongoStore({
+        url: 'mongodb://localhost:27017/dentalHealthcareSystem', 
+        ttl: 14 * 24 * 60 * 60, // this stands for: time to live (14 days)
+        autoRemove: 'native'  // an automatical removal of expired sessions offered by connect-mongo
+    })
+}))
 
 // Also, handle preflight requests for all routes
 app.options("*", cors());
