@@ -38,15 +38,15 @@ function connectToBroker() {
     });
 
     mqttClient.on("message", (topic, payload, packet) => {
-        console.log("Message received: " + payload.toString());
-        console.log("On topic: " + topic); 
-        console.log(packet);
+        // console.log("Message received: " + payload.toString());
+        // console.log("On topic: " + topic); 
+        // console.log(packet);
         var publishTopic = "response/" + topic;
-        console.log("publishTopic =",publishTopic);
+        // console.log("publishTopic =",publishTopic);
 
         if (topic.startsWith( 'authenticate/login/')) {
             console.log("Login");
-            authenticationCtrl.makeAppointment(payload).then(response => {
+            authenticationCtrl.loginAuthenticator(payload, topic, {publishToBroker, subscribeToBroker, mqttClient}).then(response => {
                 publishToBroker(publishTopic, response);
             })
         
@@ -89,6 +89,9 @@ connectToBroker();
 subscribeToBroker('authenticate/login/+');
 subscribeToBroker('authenticate/signup/+');
 
+
 module.exports = {
-    publishToBroker
+    publishToBroker,
+    subscribeToBroker,
+    mqttClient
 }

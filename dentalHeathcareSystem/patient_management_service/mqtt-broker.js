@@ -38,11 +38,11 @@ function connectToBroker() {
     });
 
     mqttClient.on("message", (topic, payload, packet) => {
-        console.log("Message received: " + payload.toString());
-        console.log("On topic: " + topic); 
-        console.log(packet);
+        // console.log("Message received: " + payload.toString());
+        // console.log("On topic: " + topic); 
+        // console.log(packet);
         var publishTopic = "response/" + topic;
-        console.log("publishTopic =",publishTopic);
+        // console.log("publishTopic =",publishTopic);
 
         if (topic.startsWith('patients/create/')) {
             console.log("create a patient");
@@ -53,6 +53,11 @@ function connectToBroker() {
         }else if (topic.startsWith('patients/get/patients/')) {
             console.log("get all patients");
             patientCtrl.fetchAllPatients(payload).then(response => {
+                publishToBroker(publishTopic, response)
+            })
+        }else if (topic.startsWith('patients/find/patient/')) {
+            console.log("find patient");
+            patientCtrl.findPatient(payload, {publishToBroker}).then(response => {
                 publishToBroker(publishTopic, response)
             })
         }else if (topic.startsWith('patients/get/specific/')) {
@@ -106,5 +111,8 @@ subscribeToBroker('patients/get/patients/+');
 subscribeToBroker('patients/get/specific/+');
 subscribeToBroker('patients/update/specific/+');
 subscribeToBroker('patients/delete/+');
+subscribeToBroker('patients/find/patient/+')
 
-
+module.exports = {
+    publishToBroker,
+}
