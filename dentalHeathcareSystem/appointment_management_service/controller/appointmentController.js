@@ -214,12 +214,10 @@ exports.fetchClinicAppointments = async (topic) => {
     try {
         var topicArr = topic.split("/");
         const id = topicArr[4];
-        console.log("ID : ",id);
 
         var status = 0;
         var allAppointments = []
         allAppointments = await Appointment.find({ dentist_clinic_id: id });
-        console.log("clinic appointment array length: ", allAppointments.length);
        
         if (allAppointments.length === 0) {
             status = 200; 

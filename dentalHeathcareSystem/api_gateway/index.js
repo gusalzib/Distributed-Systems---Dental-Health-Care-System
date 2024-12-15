@@ -229,7 +229,6 @@ app.get("/api/*", async (req, res) => {
         //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
         await mqttBroker.subscribeToBroker(serviceTopicResponse);
         var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
-        console.log("RESPONSE: ",serviceResponse);
         if(!serviceResponse){
             res.status(400).json({message: "could not find service"})
             return

@@ -47,7 +47,6 @@ function connectToBroker() {
         console.log("publishTopic =",publishTopic);
 
         if(topic.startsWith('appointments/topics')){
-            console.log("SUBSCRIVE");
             subscribeToBroker(payloadReceived);
             var newPayload = '200/subscribed to topic/'+topic;
             publishToBroker(publishTopic,newPayload);
