@@ -1,6 +1,6 @@
-const mqtt = require('mqtt');
+const mqtt = require('async-mqtt');
 const patientCtrl = require("./controller/patientController")
-var mqttClient;
+// var mqttClient;
 
 const host = "127.0.0.1";
 const protocol = "mqtt";
@@ -38,52 +38,66 @@ function connectToBroker() {
     });
 
     mqttClient.on("message", (topic, payload, packet) => {
-        console.log("Message received: " + payload.toString());
+        var payloadReceived = payload.toString()
+        console.log("Message received: ",payloadReceived);
         console.log("On topic: " + topic); 
         console.log(packet);
         var publishTopic = "response/" + topic;
         console.log("publishTopic =",publishTopic);
 
-        if (topic.startsWith('patients/create/')) {
+        if(topic.startsWith('patients/topics')){
+            subscribeToBroker(payloadReceived);
+            var newPayload = '200/subscribed to topic/'+topic;
+            publishToBroker(publishTopic,newPayload);
+
+        }else if (topic.startsWith('patients/create/')) {
             console.log("create a patient");
             patientCtrl.createPatient(payload).then(response => {
                 publishToBroker(publishTopic, response);
-            })
+            });
+            unsubscribe(topic);
         
-        }else if (topic.startsWith('patients/get/patients/')) {
-            console.log("get all patients");
-            patientCtrl.fetchAllPatients(payload).then(response => {
-                publishToBroker(publishTopic, response)
-            })
         }else if (topic.startsWith('patients/get/specific/')) {
             console.log("get specific patient");
             patientCtrl.fetchSpecificPatient(topic).then(response => {
                 publishToBroker(publishTopic, response);
-            })
-        } else if (topic.startsWith('patients/update/specific/')){
+            });
+            unsubscribe(topic);
+
+        }else if (topic.startsWith('patients/get/')) {
+            console.log("get all patients");
+            patientCtrl.fetchAllPatients(payload).then(response => {
+                publishToBroker(publishTopic, response)
+            });
+            unsubscribe(topic);
+
+        } else if (topic.startsWith('patients/update/')){
             console.log("update patient");
             patientCtrl.updateSpecificPatient(topic,payload).then(response => {
                 publishToBroker(publishTopic, response);
-            })
+            });
+            unsubscribe(topic);
+
         } else if (topic.startsWith('patients/delete/')) {
             console.log("delete patient");
             patientCtrl.deleteSpecificPatient(topic).then(response => {
                 publishToBroker(publishTopic, response)
-            })
+            });
+            unsubscribe(topic);
         }
     });
 }
-function heartbeat(){
-    var payload = "patient1"
-    var topic = "active/patient"
+// function heartbeat(){
+//     var payload = "patient1"
+//     var topic = "active/patient"
     
-    setTimeout(() => {
-        heartbeat()
-        console.log("heartbeat");
-    }, 5000);
-    publishToBroker(topic,payload);
+//     setTimeout(() => {
+//         heartbeat()
+//         console.log("heartbeat");
+//     }, 5000);
+//     publishToBroker(topic,payload);
     
-}
+// }
 
 function printPayload(payload) {
     console.log("our payload is: " + payload);
@@ -98,13 +112,17 @@ function subscribeToBroker(topic) {
     console.log("subscribed to topic: ",topic);
     
 };
+async function unsubscribe(topic){
+    mqttClient.unsubscribe(topic).then((successful) => {
+        console.log("You've successfully unsubscribed from topic: ",topic);
+    })
+    .catch((e) => {
+        console.log("Unsubscribing failed");
+    }) 
+};
+
 connectToBroker();
 // heartbeat();
-
-subscribeToBroker('patients/create/+');
-subscribeToBroker('patients/get/patients/+');
-subscribeToBroker('patients/get/specific/+');
-subscribeToBroker('patients/update/specific/+');
-subscribeToBroker('patients/delete/+');
+subscribeToBroker('patients/topics');
 
 
