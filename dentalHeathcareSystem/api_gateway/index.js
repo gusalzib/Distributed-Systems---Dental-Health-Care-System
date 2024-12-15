@@ -160,7 +160,7 @@ app.post("/api/*", async (req, res) => {
         //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
         await mqttBroker.subscribeToBroker(serviceTopicResponse);
         var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
-        
+      
         if(!serviceResponse){
             res.status(400).json({message: "could not find service"})
             return
@@ -195,7 +195,13 @@ app.post("/api/*", async (req, res) => {
         }
 
     } catch (error) {
-        res.status(400).json({message: "something went wrong"});
+        var catchArr = message.split("/")
+        if(catchArr.length===1){
+            res.status(400).json({message: "something went wrong"}); 
+        }else{
+            var status = parseInt(catchArr[0]);
+        res.status(status).json({message: catchArr[1]});
+        }
     }
 });
 app.get("/api/*", async (req, res) => {
@@ -223,7 +229,7 @@ app.get("/api/*", async (req, res) => {
         //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
         await mqttBroker.subscribeToBroker(serviceTopicResponse);
         var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
-        
+        console.log("RESPONSE: ",serviceResponse);
         if(!serviceResponse){
             res.status(400).json({message: "could not find service"})
             return
@@ -257,7 +263,13 @@ app.get("/api/*", async (req, res) => {
         }
 
     } catch (error) {
-        res.status(responseArr[0]).json({message: "something went wrong"});
+        var catchArr = message.split("/")
+        if(catchArr.length===1){
+            res.status(400).json({message: "something went wrong"}); 
+        }else{
+            var status = parseInt(catchArr[0]);
+        res.status(status).json({message: catchArr[1]});
+        }
     }
 });
 app.put("/api/*", async (req, res) => {
@@ -319,7 +331,13 @@ app.put("/api/*", async (req, res) => {
         }
 
     } catch (error) {
-        res.status(responseArr[0]).json({message: "something went wrong"});
+        var catchArr = message.split("/")
+        if(catchArr.length===1){
+            res.status(400).json({message: "something went wrong"}); 
+        }else{
+            var status = parseInt(catchArr[0]);
+        res.status(status).json({message: catchArr[1]});
+        }
     }
 });
 app.delete("/api/*", async (req, res) => {
@@ -381,7 +399,13 @@ app.delete("/api/*", async (req, res) => {
         }
 
     } catch (error) {
-        res.status(responseArr[0]).json({message: "something went wrong"});
+        var catchArr = message.split("/")
+        if(catchArr.length===1){
+            res.status(400).json({message: "something went wrong"}); 
+        }else{
+            var status = parseInt(catchArr[0]);
+        res.status(status).json({message: catchArr[1]});
+        }
     }
 });
 

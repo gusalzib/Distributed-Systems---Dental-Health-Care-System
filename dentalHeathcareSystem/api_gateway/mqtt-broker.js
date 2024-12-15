@@ -57,11 +57,18 @@ async function publishToBroker(topic, payload) {
     const resTopic = "response/"+topic;
     await mqttClient.publish(topic, payload, {qos: 0, retain: false})
 
-    return new Promise((resolve) => {        
+    return new Promise((resolve,reject) => {    
+        const timeout = setTimeout(() =>{
+            message = `400/request timed out for ${topic} `;
+
+            reject(message)
+        },10000)
+        
         const checkResponse = () => {
             
             const response = responseArr.find(response => response.topic === resTopic);
             if(response){
+                clearTimeout(timeout);
                 responseArr = responseArr.filter(response => response.topic !== resTopic);  
                 resolve(response.payload);
             }else {
@@ -70,6 +77,7 @@ async function publishToBroker(topic, payload) {
         };
         checkResponse();
     })
+   
 };
 
 async function subscribeToBroker(topic) {
