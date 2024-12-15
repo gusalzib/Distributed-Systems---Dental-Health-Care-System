@@ -48,8 +48,6 @@ function connectToBroker() {
         if (topic.startsWith("response/")){
             var newResponse = {topic : topic, payload: stringPayload}
             responseArr.push(newResponse);
-        }else if(topic.startsWith("/active")){
-
         }
     });
 }
@@ -74,13 +72,13 @@ async function publishToBroker(topic, payload) {
     })
 };
 
-function subscribeToBroker(topic) {
+async function subscribeToBroker(topic) {
     mqttClient.subscribe(topic, {qos: 0})
     console.log("subscribed to topic: ",topic);
 };
-function unsubscribe(topic){
+async function unsubscribe(topic){
     mqttClient.unsubscribe(topic).then((successful) => {
-        console.log("You've successfully unsubscribed");
+        console.log("You've successfully unsubscribed from topic: ",topic);
     })
     .catch((e) => {
         console.log("Unsubscribing failed");
@@ -88,8 +86,8 @@ function unsubscribe(topic){
 };
 
 connectToBroker();
-// subscribeToBroker("response/#");
-subscribeToBroker("active/#")
+
+
 
 
 module.exports = {publishToBroker,unsubscribe,subscribeToBroker};

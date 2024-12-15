@@ -139,26 +139,49 @@ app.use(express.json());
 
 app.post("/api/*", async (req, res) => {
     try {
-        //get the body and make it a string
+        
+        //get the body and make it a string, get url, remove "api" and give it a unique id
         var body = req.body;
         const payload = JSON.stringify(body);
-        
-        //get url, remove "api" and give it a unique id
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
+        
+        //create all topics
         var topic = adaptedURL + "/" + giveUniqueID();
         var responseTopic = 'response/'+topic
+
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0];
+        var serviceTopic = nameOfEntity+"/topics";
+        
+        var serviceTopicResponse = "response/"+serviceTopic;
+        var responseTopic = 'response/'+topic
+
+        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
+        await mqttBroker.subscribeToBroker(serviceTopicResponse);
+        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
+        
+        if(!serviceResponse){
+            res.status(400).json({message: "could not find service"})
+            return
+        }else if (serviceResponse){
+            mqttBroker.unsubscribe(serviceTopicResponse);
+        }
+        
+        
+
         //Publish request
-        mqttBroker.subscribeToBroker(responseTopic);
+        await mqttBroker.subscribeToBroker(responseTopic);
+        
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
-            res.status(400).json({message: "could not create appointment"})
+            res.status(400).json({message: "could not create appointment"});
             return
+        }else if(mqttResponse){
+            mqttBroker.unsubscribe(responseTopic);
         }
-        mqttBroker.unsubscribe(responseTopic)
+        
         //exstract information from topic and response, parse the payload and return http response
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0]
         var responseArr = mqttResponse.split("/");
         var status = parseInt(responseArr[0]);
         
@@ -222,35 +245,34 @@ app.get("/api/*", async (req, res) => {
 });
 app.put("/api/*", async (req, res) => {
     try {
-        //get the body and make it a string
-        var body = req.body;
-        const payload = JSON.stringify(body);
-
-        //get the url and call method to remove "api"
-        const reqURL = req.url;
-        var adaptedURL = adaptRequestURL(reqURL);
-        
-        // does url contain an _id? if not give it an unique id
-        var id = checkForId(adaptedURL);
-        if(!id){
-            var topic = adaptedURL + "/" + giveUniqueID();
-        }else{
-            topic = adaptedURL;
-        }
-        var responseTopic = 'response/'+topic
-        //Publish request
-        mqttBroker.subscribeToBroker(responseTopic);
-        //publish request
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-
-        if(!mqttResponse){
-            res.status(400).json({message: "could not find appointment"})
-            return
-        }
-        mqttBroker.unsubscribe(responseTopic);
+         //get the body and make it a string
+         var body = req.body;
+         const payload = JSON.stringify(body);
+ 
+         //get the url and call method to remove "api"
+         const reqURL = req.url;
+         var adaptedURL = adaptRequestURL(reqURL);
+         
+         // does url contain an _id? if not give it an unique id
+         var id = checkForId(adaptedURL);
+         if(!id){
+             var topic = adaptedURL + "/" + giveUniqueID();
+         }else{
+             topic = adaptedURL;
+         }
+         var responseTopic = 'response/'+topic
+         //Publish request
+         mqttBroker.subscribeToBroker(responseTopic);
+         //publish request
+         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+         
+         if(!mqttResponse){
+             res.status(400).json({message: "information not found"})
+             return
+         }
+         mqttBroker.unsubscribe(responseTopic);
          //exstract information from topic and response, parse the payload and return http response
-         var topicArr = topic.split("/");
-         var nameOfEntity = topicArr[0]
+        
          var responseArr = mqttResponse.split("/");
          var status = parseInt(responseArr[0]);
         if(responseArr.length <=2){
@@ -328,12 +350,10 @@ function checkForId(adaptedURL){
     var index = urlArr.length -1
     var lastElement = urlArr[index];
     if(lastElement.length < 24){
-        
-        console.log( "element is not an id");
+        //element is not an id
         return;
     }else{
         var id = lastElement;
-        console.log("this is id check. id: ",id);
         return id;
     }
 }
