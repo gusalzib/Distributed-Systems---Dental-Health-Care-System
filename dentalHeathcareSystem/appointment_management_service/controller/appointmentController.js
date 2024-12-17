@@ -415,6 +415,39 @@ exports.getClinicAppointments = async (req, res) => {
     }catch (error) {
         res.status(400).json({ message: "Something went wrong!", error_message: error.message});
     }
+};
+exports.fetchClinicsAvailableAppointments = async (topic) => {    
+    try{
+        var topicArr = topic.split("/");
+        const id = topicArr[5];
+
+        var allAppointments = []
+        allAppointments = await Appointment.find({ dentist_clinic_id: id }).sort({"date_and_time_from": 1});
+        console.log("We are here");
+        
+        const appointments = allAppointments.filter(appointment => appointment.available);
+        
+        var status = 0;
+        console.log("test");
+        console.log("appointments: ", appointments.length);
+        if(appointments.length === 0){
+            status = 404
+            message = "No available appointments found"
+            return status +"/"+ message
+        }
+
+        status = 200;
+        message = "All appointments retrieved";
+
+        var stringAppointments = JSON.stringify(appointments);
+        
+        return status + "/" + message + "/" + stringAppointments;
+
+    }catch (error) {
+        status = 400; 
+        message = "Something went wrong!" 
+        return status + "/" + message + "/" + error.message;
+    }
 }
 
 function validateAppointment(appointment) {
