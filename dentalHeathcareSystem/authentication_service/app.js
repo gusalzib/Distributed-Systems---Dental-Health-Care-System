@@ -14,6 +14,7 @@ var port = 3016;
 //app.set('views', path.join(__dirname, 'views'));
 //app.set('view engine', 'jade');
 
+// replace localhost with 127.0.0.1
 var mongoURI =  "mongodb://127.0.0.1:27017/dentalHealthcareSystem";
 // Connect to MongoDB
 mongoose
