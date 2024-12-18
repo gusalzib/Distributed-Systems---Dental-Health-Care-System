@@ -22,7 +22,7 @@ const PORT = 3000;
 //       server.isActive = false;
 //       console.log(`Server ${server.host} is not running`);
 //     }
-//   })
+//   }) 
 // }
 
 // setInterval(() => {                                     // Interval for ping and echo (every 5 seconds)
@@ -61,7 +61,7 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     store: new MongoStore({
-        mongoUrl: 'mongodb://localhost:27017/dentalHealthcareSystem', 
+        mongoUrl: 'mongodb://127.0.0.1:27017/dentalHealthcareSystem', 
         ttl: 14 * 24 * 60 * 60, // this stands for: time to live (14 days)
         autoRemove: 'native',  // an automatical removal of expired sessions offered by connect-mongo
         collectionName: 'sessions'
