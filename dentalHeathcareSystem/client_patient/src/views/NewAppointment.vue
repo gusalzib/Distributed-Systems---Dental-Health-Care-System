@@ -26,7 +26,14 @@
             {{ appointment._id }}
             <!-- Later on, the select button will have the responsibility of triggering the countdown timer for the booking process -->
             <div class="appointments-card">
-              <h2><strong>{{clinic_name}} </strong>|{{appointment.date_and_time_from}} | {{appointment.date_and_time_until }} | {{clinic_address}}</h2>
+              <div class="appointment-details">
+                <h3><strong>{{appointment.clinic_name}}</strong></h3>
+                <p>Date: {{appointment.date}}</p>
+                <p>Time: {{appointment.time }}</p>
+                <p>Type of appointment: {{appointment.type_of_appointment }}</p>
+                <p>Address: {{appointment.clinic_address}}</p>
+              </div>
+              
               <button class="clinic-button" @click="rerouting(`/clinic/${appointment.dentist_clinic_id}`)">Contact Clinic</button>
               <button class="select-button" @click="checkAvailability(appointment._id)">Select</button>
               
@@ -54,8 +61,13 @@ export default {
         type_of_appointment:"",
         date_and_time_from:"",
         date_and_time_until:"",
-        available:"",
+        available: "",
+        clinic_address: '',
+        clinic_name: '',
+        date: '',
+        time: '',
       },
+
       appointments: [],
       clinics: [],
       clinicID: "",
@@ -75,8 +87,8 @@ export default {
     this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
     this.get_available_appointments_url = import.meta.env.VITE_GET_AVAILABLE_APPOINTMENTS_URL;
     this.clinics_get_all_ulr = import.meta.env.VITE_GET_ALL_CLINICS_URL;
-    this.getAvailableAppointments(),
     this.getAllClinics();
+    this.getAvailableAppointments();
   },
     methods: {
       async getAllClinics(){
@@ -94,8 +106,34 @@ export default {
     async getAvailableAppointments(){
       await Api.get(`${this.get_available_appointments_url}`).then(response =>{
         if(response.status === 200){
-          this.appointments = response.data.appointments
-                    
+          this.appointments = response.data.appointments;
+
+
+          this.clinics.forEach(clinic => {
+            var clinicName = clinic.name;
+            var clinicAddress = clinic.location.formattedAddress;
+
+            //add clinic name and clinic address to appointment object if the ids match 
+            for (let index = 0; index < this.appointments.length; index++) {
+              const appointment = this.appointments[index];
+              if (appointment.dentist_clinic_id === clinic._id) {
+                appointment.clinic_name = clinicName;
+                appointment.clinic_address = clinicAddress;
+
+              }
+
+              //fix the time and date formatting and store them inside appointment to be displayed
+              var result = this.extractTimeAndDate(appointment.date_and_time_from)
+              console.log('this is result: ', result);
+              
+              appointment.date = result[0];
+              appointment.time = result[1];
+
+              this.appointment[index] = appointment;
+              // console.log('this is the new appointment object: ', this.appointment[index] );
+              
+            }
+          });
         }
       }).catch(error =>{
         this.error_message = 'Sorry. There are no available appointments currently. Please check again later.';
@@ -138,7 +176,21 @@ export default {
     },
     rerouting(targetPath){
             router.push({path: `${targetPath}`})
-    },
+      },
+    extractTimeAndDate(date_and_time) {
+          var date = '';
+          var time = '';
+          console.log(date_and_time);
+          
+          var tempArr = date_and_time.split('T');
+          date = tempArr[0];
+
+          var tempTime = tempArr[1].split(':')
+          time = tempTime[0] + ':' + tempTime[1];
+
+          var date_and_time_arr = [date, time]
+          return date_and_time_arr;
+        },
   }, 
   
   

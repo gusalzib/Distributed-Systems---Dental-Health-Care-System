@@ -55,6 +55,7 @@ exports.getAppointments = async (payload) => {
 
 exports.getOneAppointment = async (topic) => {
     try{
+        
         var status = 0;
         var topicArr = topic.split("/");
         const id = topicArr[3];
@@ -217,7 +218,6 @@ exports.fetchClinicAppointments = async (topic) => {
         var status = 0;
         var allAppointments = []
         allAppointments = await Appointment.find({ dentist_clinic_id: id });
-        console.log("clinic appointment array length: ", allAppointments.length);
        
         if (allAppointments.length === 0) {
             status = 200; 
@@ -225,7 +225,7 @@ exports.fetchClinicAppointments = async (topic) => {
             return status + "/" + message + allAppointments;
 
         }
-        var stringAppointments = JSON.stringify(clinicAppointments)
+        var stringAppointments = JSON.stringify(allAppointments)
         status = 200; 
         message = "All available appointments retrieved"
         return status + "/" + message + "/" + stringAppointments;
