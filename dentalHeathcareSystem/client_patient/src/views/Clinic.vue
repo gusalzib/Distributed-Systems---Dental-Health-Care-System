@@ -83,7 +83,7 @@ export default {
         this.clinics_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_CLINIC_URL;
         this.clinics_get_dentists_url = import.meta.env.VITE_GET_CLINICS_DENTISTS_URL;
         this.appointments_get_clinics_appoitnments_url = import.meta.env.VITE_GET_CLINICS_APPOINTMENTS_URL
-       
+        this.get_clinics_available_appointments_url = import.meta.env.VITE_GET_CLINICS_AVAILABLE_APPOINTMENTS_URL;
         this.getSpecificClinic();
         this.getClinicsAppointment();
         
@@ -131,7 +131,7 @@ export default {
 
         async getClinicsAppointment(){
             this.clinicID = this.$route.params.clinicID;
-            await Api.get(`${this.appointments_get_clinics_appoitnments_url}${this.clinicID}`).then(response =>{
+            await Api.get(`${this.get_clinics_available_appointments_url}${this.clinicID}`).then(response =>{
                 if(response.status === 200){
                     this.appointments = response.data.appointments
                     for (let i = 0; i<= this.appointments.length-1; i++){

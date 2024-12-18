@@ -193,14 +193,23 @@ app.post("/api/*", async (req, res) => {
         res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
         }
+        var catchArr = []
+        if (errorMessage) {
+            catchArr = errorMessage.split("/")
+        }
+
+
+
+
 
     } catch (error) {
-        const errorMessage = error;
-        var catchArr = errorMessage.split("/")
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
         if(catchArr.length===1){
             res.status(400).json({message: "something went wrong"}); 
         }else{
-            var status = parseInt(catchArr[0]);
+            const status = parseInt(catchArr[0]);
         res.status(status).json({message: catchArr[1]});
         }
     }
@@ -263,12 +272,13 @@ app.get("/api/*", async (req, res) => {
         }
 
     } catch (error) {
-        const errorMessage = error;
-        var catchArr = errorMessage.split("/")
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
         if(catchArr.length===1){
             res.status(400).json({message: "something went wrong"}); 
         }else{
-            var status = parseInt(catchArr[0]);
+            const status = parseInt(catchArr[0]);
         res.status(status).json({message: catchArr[1]});
         }
     }
@@ -332,12 +342,13 @@ app.put("/api/*", async (req, res) => {
         }
 
     } catch (error) {
-        const errorMessage = error;
-        var catchArr = errorMessage.split("/")
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
         if(catchArr.length===1){
             res.status(400).json({message: "something went wrong"}); 
         }else{
-            var status = parseInt(catchArr[0]);
+            const status = parseInt(catchArr[0]);
         res.status(status).json({message: catchArr[1]});
         }
     }
@@ -401,12 +412,13 @@ app.delete("/api/*", async (req, res) => {
         }
 
     } catch (error) {
-        const errorMessage = error;
-        var catchArr = errorMessage.split("/")
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
         if(catchArr.length===1){
             res.status(400).json({message: "something went wrong"}); 
         }else{
-            var status = parseInt(catchArr[0]);
+            const status = parseInt(catchArr[0]);
         res.status(status).json({message: catchArr[1]});
         }
     }
