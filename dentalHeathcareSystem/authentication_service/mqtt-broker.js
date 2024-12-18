@@ -46,7 +46,10 @@ function connectToBroker() {
 
         if (topic.startsWith( 'authenticate/login/')) {
             console.log("Login");
-            authenticationCtrl.loginAuthenticator(payload, topic, {publishToBroker, subscribeToBroker, mqttClient}).then(response => {
+            authenticationCtrl.loginAuthenticator(payload, topic, { publishToBroker, subscribeToBroker, mqttClient }).then(response => {
+                console.log('in broker credentials ', JSON.parse(response.toString()))
+                console.log('sdlkasdk ', publishTopic);
+                
                 publishToBroker(publishTopic, response);
             })
         

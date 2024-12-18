@@ -63,8 +63,8 @@ export default {
         mapboxgl.accessToken = this.mapbox_access_token;
         this.map = new mapboxgl.Map({
             container: 'mapbox',
-            // style: 'mapbox://styles/mapbox/standard-satellite',
-            style: 'mapbox://styles/mapbox/streets-v11',
+            style: 'mapbox://styles/mapbox/standard-satellite',
+            // style: 'mapbox://styles/mapbox/streets-v11',
             center: [11.9746, 57.7089],
             zoom: 8,
             collectResourceTiming: false,
