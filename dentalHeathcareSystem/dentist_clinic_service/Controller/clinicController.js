@@ -6,6 +6,7 @@ const MqttBroker = require("../mqtt-broker");
 
 exports.clinicCreate = async (payload) => {
     try {
+        var message ='';
         var status = 0;
         const newClinic = JSON.parse(payload);
     
@@ -30,6 +31,7 @@ exports.clinicCreate = async (payload) => {
 
 exports.getClinics = async () => {
     try {
+        var message ='';
         var status = 0;
         const clinics = await Clinic.find();
 
@@ -38,6 +40,7 @@ exports.getClinics = async () => {
             message = "No clinics found!";
             return status +"/"+ message; 
         }
+        console.log(clinics.length);
         status = 200;
         message = "All clinics retrieved";
         var stringClinics = JSON.stringify(clinics);
@@ -51,6 +54,7 @@ exports.getClinics = async () => {
 
 exports.getOneClinic = async (topic) => {
     try {
+        var message ='';
         var status = 0;
         var topicArr = topic.split("/");
         const id = topicArr[3];
@@ -73,6 +77,7 @@ exports.getOneClinic = async (topic) => {
 };
 exports.updateAClinic = async (topic,payload) => {
     try {
+        var message ='';
         var status = 0;
         var topicArr = topic.split("/");
         const id = topicArr[2];; 
@@ -112,7 +117,7 @@ exports.updateAClinic = async (topic,payload) => {
 
 exports.getDentistFromClinic = async (topic) => {
     try {
-       
+        var message ='';
         var status = 0;
         var topicArr = topic.split("/");
         const id = topicArr[3];
@@ -143,6 +148,7 @@ exports.getDentistFromClinic = async (topic) => {
 
 exports.deleteAClinic = async (topic) => {
     try{
+        var message ='';
         var status = 0;
         var topicArr = topic.split("/");
         const id = topicArr[2];

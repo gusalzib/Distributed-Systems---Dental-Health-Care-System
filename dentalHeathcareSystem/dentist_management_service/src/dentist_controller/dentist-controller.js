@@ -156,6 +156,7 @@ exports.deleteSpecificDentist = async (topic) => {
 };
 exports.fetchClinicsDentists = async (topic) => {
     try {
+        var message ='';
         var status = 0; 
         var topicArr = topic.split("/");
         const _id = topicArr[4];

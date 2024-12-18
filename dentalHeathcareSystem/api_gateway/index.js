@@ -195,7 +195,8 @@ app.post("/api/*", async (req, res) => {
         }
 
     } catch (error) {
-        var catchArr = message.split("/")
+        const errorMessage = error;
+        var catchArr = errorMessage.split("/")
         if(catchArr.length===1){
             res.status(400).json({message: "something went wrong"}); 
         }else{
@@ -262,7 +263,8 @@ app.get("/api/*", async (req, res) => {
         }
 
     } catch (error) {
-        var catchArr = message.split("/")
+        const errorMessage = error;
+        var catchArr = errorMessage.split("/")
         if(catchArr.length===1){
             res.status(400).json({message: "something went wrong"}); 
         }else{
@@ -330,7 +332,8 @@ app.put("/api/*", async (req, res) => {
         }
 
     } catch (error) {
-        var catchArr = message.split("/")
+        const errorMessage = error;
+        var catchArr = errorMessage.split("/")
         if(catchArr.length===1){
             res.status(400).json({message: "something went wrong"}); 
         }else{
@@ -398,7 +401,8 @@ app.delete("/api/*", async (req, res) => {
         }
 
     } catch (error) {
-        var catchArr = message.split("/")
+        const errorMessage = error;
+        var catchArr = errorMessage.split("/")
         if(catchArr.length===1){
             res.status(400).json({message: "something went wrong"}); 
         }else{
