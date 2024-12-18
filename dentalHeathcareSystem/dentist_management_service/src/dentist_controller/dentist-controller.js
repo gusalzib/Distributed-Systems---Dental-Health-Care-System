@@ -10,7 +10,6 @@ exports.createDentist = async (payload) => {
         const newDentistValidation = validateDentist(newDentist);
 
         if (!newDentistValidation.success) {
-            console.log(newDentistValidation.message);
             status = 400
             return status + "/" + newDentistValidation.message;
         }
