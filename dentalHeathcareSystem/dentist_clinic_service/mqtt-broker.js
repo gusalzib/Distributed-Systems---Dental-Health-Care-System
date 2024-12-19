@@ -64,6 +64,12 @@ function connectToBroker() {
             });
             unsubscribe(topic);
 
+        }else if (topic.startsWith('clinics/get/clinic/from/appointment/')){
+            console.log("clinic array");
+            clinicCtrl.getClinicInformation(payload).then(response => {
+                publishToBroker(publishTopic,response);
+            });
+            unsubscribe(topic);
         }else if (topic.startsWith('clinics/get/specific/')){
             console.log("get specific clinic");
             clinicCtrl.getOneClinic(topic).then(response => {

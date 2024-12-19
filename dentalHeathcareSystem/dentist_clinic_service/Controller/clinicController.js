@@ -167,7 +167,41 @@ exports.deleteAClinic = async (topic) => {
         status = 400; 
         return status +"/"+ error.message;
     }
-}
+};
+exports.getClinicInformation = async (payload) => {
+    try {
+        var message ='';
+        var status = 0;
+        const clinicArr = JSON.parse(payload);
+        const clinics = clinicArr.clinics
+        
+        var clinicReturnArray = []
+        for(const clinicId of clinics){
+            console.log("id : ",clinicId.dentist_clinic_id);
+            var tempClinic = await Clinic.findById(clinicId.dentist_clinic_id);
+            if (!tempClinic) {
+                status = 400; 
+                message = "No clinic found!";
+                return status +"/"+ message; 
+            }
+            var clinic = {_id : tempClinic._id,
+                        name: tempClinic.name,
+                        address: tempClinic.location}
+
+            clinicReturnArray.push(clinic);
+        };
+        console.log("clinic array: ",clinicReturnArray);
+        status = 200;
+        message = "Clinics retrieved successfully!";
+        var stringClinics = JSON.stringify(clinicReturnArray);
+        return status +"/"+ message +"/"+ stringClinics;
+
+    } catch (error) {
+        status = 400; 
+        return status +"/"+ error.message;
+    }
+};
+
 
 
 
