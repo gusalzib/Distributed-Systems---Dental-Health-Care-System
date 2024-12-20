@@ -1,52 +1,6 @@
 const Patient = require("../models/Patient.js");
 const emailValidator = require('validator');
-// const mqttBroker = require('../mqtt-broker')
 
-exports.findPatient = async (payload, mqttBroker) => {
-    /*since the authentication service does not have access to patient database,
-     it needs to request the patient service to actually check if patient exists so that the authentication service 
-     can continue it job*/
-    try {
-        var status = 0; 
-        var message = "";
-
-        const patient = JSON.parse(payload);
-        const email = patient.email;
-        
-        const existingPatient = await Patient.findOne({ email });
-
-        if (!existingPatient) {
-            status = 400
-            message = "No account is registered with this email"
-            return status +"/"+ message;
-        } 
-        var returnPatient = {
-            name: existingPatient.name,
-            email: existingPatient.email,
-            password: existingPatient.password,
-            id: existingPatient._id
-            
-        }
-
-        status = 200
-        message = "Account found!"
-        // var result = {
-        //     status: 200,
-        //     message: message,
-        //     data: existingPatient
-        // }
-        var result = status + "/" + message + "/" + existingPatient
-        console.log('returned patient object ', returnPatient);
-        
-        mqttBroker.publishToBroker('response/patients/find/patient/', JSON.stringify(returnPatient))
-        
-        return JSON.stringify(returnPatient);
-    } catch (error) {
-        status = 400
-        message = "Something went wrong."
-        return status +"/"+ message  +"/"+ error.message;
-    }
-}
 exports.createPatient = async (payload) => {
     try {
         var status = 0; 

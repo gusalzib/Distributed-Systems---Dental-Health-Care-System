@@ -1,5 +1,6 @@
 const mqtt = require('async-mqtt');
-const patientCtrl = require("./controller/patientController")
+const patientCtrl = require("./controller/patientController");
+const authenticator = require('./controller/authenticator')
 // var mqttClient;
 
 const host = "127.0.0.1";
@@ -59,7 +60,7 @@ function connectToBroker() {
         
         }else if (topic.startsWith('patients/find/patient/')) {
             console.log("find patient");
-            patientCtrl.findPatient(payload, {publishToBroker}).then(response => {
+            authenticator.authenticatePatient(topic ,payload).then(response => {
                 publishToBroker(publishTopic, response)
             })
         }else if (topic.startsWith('patients/get/specific/')) {
