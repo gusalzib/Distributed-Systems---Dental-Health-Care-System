@@ -76,7 +76,7 @@ export default {
     },
 
     onResize(){
-      if(this.map) this.map.resize();                               //IF STATEMENT
+      if(this.map) this.map.resize();                             
       },
       
       async getClinics() {
@@ -89,18 +89,14 @@ export default {
                   
                   for(const clinic of this.clinics){
                     try{
-                        console.log("TEST");
                         var responseArr = await Api.get(`${this.get_clinics_available_appointments_url}${clinic._id}`);
-                        console.log(responseArr);
+                       
                         clinic.appointments = responseArr.data.appointments;
                         clinic.numOfAvailableAppointments = clinic.appointments.length;
-                        console.log("LENGTH = ",clinic.appointments.length);
                         if (clinic.numOfAvailableAppointments === 0) {
                             clinic.clinicColor = 'red'
-                            console.log(clinic.clinicColor);
                         } else {
                             clinic.clinicColor = 'green'
-                            console.log(clinic.clinicColor);
                         }
                     }catch(error) {
                         this.error_message = error.message;
