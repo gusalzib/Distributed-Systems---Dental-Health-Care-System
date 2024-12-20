@@ -7,14 +7,14 @@
 
         <div class="my-appointments-card" v-for="bookedAppointment in bookedAppointments" :key="bookedAppointment._id">
           <ul>
-            <li><span>Clinic:</span> clinic name</li>
+            <li><span>Clinic:</span> {{bookedAppointment.clinicName}}</li>
             <li><span>Date:</span> {{ bookedAppointment.date_and_time_from }}</li>
             <li><span>Time:</span> {{ bookedAppointment.date_and_time_until }}</li>
             <li><span>Type of appointment:</span> {{ bookedAppointment.type_of_appointment || 'General checkup'}}</li>
-            <li><span>Clinic address:</span> clinic address</li>
+            <li><span>Clinic address:</span> {{bookedAppointment.clinicLocation}}</li>
           </ul>
         <div id="modal">
-          <h2>You are cancelling your appointment at [Clinic name]. Are you sure you want to proceed?</h2>
+          <h2>You are cancelling your appointment at {{bookedAppointment.clinicName}}. Are you sure you want to proceed?</h2>
           <button class="cancel-button" @click="cancelAppointment(bookedAppointment._id)">Yes</button>
           <button @click="rejectCancellation()">NO</button>
         </div>
@@ -48,10 +48,13 @@ export default {
         error_message: '',
         bookedAppointmentsIds: [],
         bookedAppointments: [],
-        bookedAppointemnt: {
+        clinicIds: [],
+        bookedAppointment: {
           patient_id: "",
           dentist_id:"",
           dentist_clinic_id: "",
+          clinicName:"",
+          clinicLocation:"",
           type_of_appointment:"",
           date_and_time_from:"",
           date_and_time_until:"",
@@ -78,6 +81,8 @@ export default {
     this.update_patient_specific_url = import.meta.env.VITE_UPDATE_PATIENT_SPECIFIC_URL;
     this.appointments_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_APPOINTMENTS_URL;
     this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
+    this.get_patients_appointments = import.meta.env.VITE_GET_PATIENTS_APPOINTMENTS_URL;
+    this.get_clinic_info_from_appointment_array = import.meta.env.VITE_GET_CLINICS_INFO_FROM_APPOINTMENT_ARRAY_URL
     
     this.getPatientInformation();
   },
@@ -110,6 +115,7 @@ export default {
             prior to booking the appointment. Example: the patient wants to change the contact phone number or email for this particular appointment */
             this.bookedAppointments = []
             this.bookedAppointmentsIds = []
+            this.clinicIds = []
 
             try {
               const response = await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`)
@@ -119,6 +125,7 @@ export default {
                     //as we are getting the patient info, we assign the array of appointments ids that is inside the patient to 
                     //the bookedAppointmentsIds
                     this.bookedAppointmentsIds = this.patient.appointments;
+                    console.log("patient appointments",this.patient.appointments);
                                         
                     //extract appointments using the array of appointment ids 
 
@@ -134,42 +141,64 @@ export default {
             }
       },
       async extractAppointments() {
-
-        var appointmentIDs = this.bookedAppointmentsIds;
-        for (let index = 0; index < appointmentIDs.length; index++) {
-
-          const appointmentId = appointmentIDs[index].appointment_id ? appointmentIDs[index].appointment_id : appointmentIDs[index].appointment_id;
-          const response = await Api.get(`${this.appointments_get_specific_url}${appointmentId}`);
-
+      
+        const response = await Api.get(`${this.get_patients_appointments}${this.current_patient_placeholder}`);
+        console.log("TESTING");
+        if (response.status === 200) {
+          var tempBookedAppointments = response.data.appointments;
+        
+          tempBookedAppointments.forEach((tempBookedAppointment)=>{
+            var tempClinic = {dentist_clinic_id:tempBookedAppointment.dentist_clinic_id};
+            this.clinicIds.push(tempClinic);
+            
+          })
+          console.log("tempclinics: ",this.clinicIds);
+          const responseArr = await Api.post(`${this.get_clinic_info_from_appointment_array}`,this.clinicIds);
+          
+          
           if (response.status === 200) {
+            var clinics = responseArr.data.clinics;
+            console.log("clinics: ",clinics);
 
-            var tempBookedAppointemnt = response.data.appointments;
-            var date_and_time = this.extractTimeAndDate(tempBookedAppointemnt.date_and_time_from)
+            tempBookedAppointments.forEach((tempBookedAppointment) => {
+              var date_and_time = this.extractTimeAndDate(tempBookedAppointment.date_and_time_from);
+              tempBookedAppointment.date_and_time_from = date_and_time[0];
+              tempBookedAppointment.date_and_time_until = date_and_time[1];
             
-            tempBookedAppointemnt.date_and_time_from = date_and_time[0];
-            tempBookedAppointemnt.date_and_time_until = date_and_time[1];
-
-            this.bookedAppointments.push(tempBookedAppointemnt)
+              
+              var matchingClinic = clinics.find((clinic) => clinic._id === tempBookedAppointment.dentist_clinic_id)
+              
+              tempBookedAppointment.clinicName = matchingClinic.name;
+              console.log(matchingClinic.name);
+              tempBookedAppointment.clinicLocation = matchingClinic.address
+              this.bookedAppointments.push(tempBookedAppointment);
+              
+            });
             
-          } else if (response.status != 200) {
-            
-            this.error_message = error.response?.data.message;
-              setTimeout(() => {
-                  this.error_message = '';
-              }, 5000);
-            
-          }
+            // for (let i = 0; i < this.bookedAppointments.length; i++) {
+            //   this.bookedAppointments[i].name = clinics[i].name
+            //   this.bookedAppointments[i].location = clinics[i].location
+            // }
+          }; 
+        } else if (response.status != 200) {
+          
+          this.error_message = error.response?.data.message;
+            setTimeout(() => {
+                this.error_message = '';
+            }, 5000);
           
         }
+          
+        
 
     },
     async cancelAppointment(appointmentId) {
-      this.bookedAppointemnt.available = true;
-      this.bookedAppointemnt.patient_id = "00000000000000000000000a";
+      this.bookedAppointment.available = true;
+      this.bookedAppointment.patient_id = "00000000000000000000000a";
       console.log(appointmentId);
       
       try {
-        const response = await Api.put(`${this.update_appointment_url}${appointmentId}`, this.bookedAppointemnt); 
+        const response = await Api.put(`${this.update_appointment_url}${appointmentId}`, this.bookedAppointment); 
 
         if (response.status === 200) {
           await this.removeBookedAppointment(appointmentId)

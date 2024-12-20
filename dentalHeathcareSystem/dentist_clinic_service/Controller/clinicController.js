@@ -173,7 +173,8 @@ exports.getClinicInformation = async (payload) => {
         var message ='';
         var status = 0;
         const clinicArr = JSON.parse(payload);
-        const clinics = clinicArr.clinics
+        console.log("payload in controller: ",clinicArr);
+        const clinics = clinicArr
         
         var clinicReturnArray = []
         for(const clinicId of clinics){
@@ -186,7 +187,8 @@ exports.getClinicInformation = async (payload) => {
             }
             var clinic = {_id : tempClinic._id,
                         name: tempClinic.name,
-                        address: tempClinic.location}
+                        address: tempClinic.location.formattedAddress}
+                        console.log("address: ",tempClinic.location.formattedAddress );
 
             clinicReturnArray.push(clinic);
         };
