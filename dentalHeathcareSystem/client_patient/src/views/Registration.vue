@@ -28,10 +28,12 @@
                 <strong>Show Password</strong>
                 <input type="checkbox" v-on:click="toggle()">
                 <hr>
-                <button class="submit-button">Register</button>
+                <button class="submit-button" @click="registerUser()">Register</button>
                 <router-link to="/privacy_policy">Read about how we handle your information</router-link>
                 <router-link to="/login">Already registered? Login in to your account by following this link</router-link>
                 <p>Obligatory fields *</p>
+                <div class="confirmation_message">{{ confirmation_message }}</div>
+                <div class="error_message">{{ error_message }}</div>
             </div>
         </div>
   </main>
@@ -62,20 +64,24 @@ export default {
     }
   },
     mounted() {
-      this.signup_url = import.meta.env.VITE_SIGNUP_URL;
+      this.signup_url = import.meta.env.VITE_CREATE_PATIENT_URL;
       this.find_patient_url = import.meta.env.VITE_FIND_PATIENT;
   },
     methods: {
       async registerUser() {
           try {
             const response = await Api.post(`${this.signup_url}`, this.patient);
-
+            console.log(response.data.message);
+            
             if (response.status === 200) {
               this.confirmation_message = 'Account created successfully!';
               setTimeout(() => {
                   this.confirmation_message = ''
-              }, 5000);
-              this.$router.push('/login');
+              }, 10000);
+              
+              setTimeout(() => {
+                this.$router.push('/login');
+              }, 1000);
             }
           } catch (error) {
               console.log(error.message);
@@ -83,13 +89,13 @@ export default {
                 this.error_message = 'A user with this email already exists!';
                 setTimeout(() => {
                     this.error_message = ''
-                }, 5000);
+                }, 10000);
 
-              }else if (error.response?.status === 404) {
-                this.error_message = 'There is no user with this email';
+              }else if (error.response?.status === 400) {
+                this.error_message = error.response?.data.message;
                 setTimeout(() => {
                     this.error_message = ''
-                }, 5000);
+                }, 10000);
 
               } else {
                 this.error_message = 'Registration failed!';

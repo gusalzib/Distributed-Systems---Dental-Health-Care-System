@@ -7,20 +7,33 @@ exports.createPatient = async (payload) => {
         var message = "";
 
         const patient = JSON.parse(payload);
-        
+        const name = patient.name;
+        const phone_number = patient.phone_number;
+        const address = patient.address;
+        const ssn = patient.ssn;
         const email = patient.email;
         const exisitingPatient = await Patient.findOne({ email });
 
         // check if patient already exist. If not then check if email is valid
         if (exisitingPatient) {
-            status = 400
-            message = "Email already exists."
+            status = 401
+            message = "There is already a user account with this email"
             return status +"/"+ message;
                 
+        } else if (!name || !phone_number || !address || !ssn) {
+            status = 400
+            message = "Missing required fileds"
+            return status + "/" + message; 
+
         } else if (!emailValidator.isEmail(email)) {
             status = 400
             message = "Invalid email"
-            return status +"/"+ message;
+            return status + "/" + message;
+            
+        } else if (!(/^\d{10}$/.test(ssn))) {
+            status = 400
+            message = "SSN must be 10 digits"
+            return status + "/" + message;
         }
 
         var newPatient = new Patient(patient);
@@ -47,7 +60,10 @@ exports.createPatient = async (payload) => {
         status = 200;
         return status + "/" + message + "/" + stringPatient;
         
-    }catch(error){
+    } catch (error) {
+        console.log(error.message);
+        console.log(error);
+        
         if (error.name === 'ValidatorError') {
             status = 400
             message = "Invalid email"
