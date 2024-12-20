@@ -90,7 +90,6 @@ export default {
     extractTimeAndDate(date_and_time) {
       var date = '';
       var time = '';
-      console.log(date_and_time);
       
       var tempArr = date_and_time.split('T');
       date = tempArr[0];
@@ -125,7 +124,6 @@ export default {
                     //as we are getting the patient info, we assign the array of appointments ids that is inside the patient to 
                     //the bookedAppointmentsIds
                     this.bookedAppointmentsIds = this.patient.appointments;
-                    console.log("patient appointments",this.patient.appointments);
                                         
                     //extract appointments using the array of appointment ids 
 
@@ -137,13 +135,11 @@ export default {
                 setTimeout(() => {
                         this.error_message = ''
                     }, 5000);
-                console.log(error.message)
             }
       },
       async extractAppointments() {
       
         const response = await Api.get(`${this.get_patients_appointments}${this.current_patient_placeholder}`);
-        console.log("TESTING");
         if (response.status === 200) {
           var tempBookedAppointments = response.data.appointments;
         
@@ -152,33 +148,23 @@ export default {
             this.clinicIds.push(tempClinic);
             
           })
-          console.log("tempclinics: ",this.clinicIds);
           const responseArr = await Api.post(`${this.get_clinic_info_from_appointment_array}`,this.clinicIds);
           
           
           if (response.status === 200) {
             var clinics = responseArr.data.clinics;
-            console.log("clinics: ",clinics);
 
             tempBookedAppointments.forEach((tempBookedAppointment) => {
               var date_and_time = this.extractTimeAndDate(tempBookedAppointment.date_and_time_from);
               tempBookedAppointment.date_and_time_from = date_and_time[0];
               tempBookedAppointment.date_and_time_until = date_and_time[1];
             
-              
               var matchingClinic = clinics.find((clinic) => clinic._id === tempBookedAppointment.dentist_clinic_id)
-              
               tempBookedAppointment.clinicName = matchingClinic.name;
-              console.log(matchingClinic.name);
               tempBookedAppointment.clinicLocation = matchingClinic.address
               this.bookedAppointments.push(tempBookedAppointment);
               
             });
-            
-            // for (let i = 0; i < this.bookedAppointments.length; i++) {
-            //   this.bookedAppointments[i].name = clinics[i].name
-            //   this.bookedAppointments[i].location = clinics[i].location
-            // }
           }; 
         } else if (response.status != 200) {
           
@@ -195,7 +181,7 @@ export default {
     async cancelAppointment(appointmentId) {
       this.bookedAppointment.available = true;
       this.bookedAppointment.patient_id = "00000000000000000000000a";
-      console.log(appointmentId);
+      
       
       try {
         const response = await Api.put(`${this.update_appointment_url}${appointmentId}`, this.bookedAppointment); 
