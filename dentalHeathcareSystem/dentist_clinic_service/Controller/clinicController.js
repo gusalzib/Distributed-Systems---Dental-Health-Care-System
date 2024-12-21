@@ -40,7 +40,6 @@ exports.getClinics = async () => {
             message = "No clinics found!";
             return status +"/"+ message; 
         }
-        console.log(clinics.length);
         status = 200;
         message = "All clinics retrieved";
         var stringClinics = JSON.stringify(clinics);
@@ -85,7 +84,7 @@ exports.updateAClinic = async (topic,payload) => {
         var clinic = JSON.parse(payload);
 
         const existingClinic = await Clinic.findById(id);
-        
+        console.log("existing clinic: ",existingClinic);
         var name = clinic.name ? clinic.name : existingClinic.name;
         var email = clinic.email ? clinic.email : existingClinic.email;
         var phoneNumber = clinic.phoneNumber ? clinic.phoneNumber : existingClinic.phoneNumber;        
@@ -173,12 +172,12 @@ exports.getClinicInformation = async (payload) => {
         var message ='';
         var status = 0;
         const clinicArr = JSON.parse(payload);
-        console.log("payload in controller: ",clinicArr);
+    
         const clinics = clinicArr
         
         var clinicReturnArray = []
         for(const clinicId of clinics){
-            console.log("id : ",clinicId.dentist_clinic_id);
+
             var tempClinic = await Clinic.findById(clinicId.dentist_clinic_id);
             if (!tempClinic) {
                 status = 400; 
@@ -188,11 +187,10 @@ exports.getClinicInformation = async (payload) => {
             var clinic = {_id : tempClinic._id,
                         name: tempClinic.name,
                         address: tempClinic.location.formattedAddress}
-                        console.log("address: ",tempClinic.location.formattedAddress );
+                       
 
             clinicReturnArray.push(clinic);
         };
-        console.log("clinic array: ",clinicReturnArray);
         status = 200;
         message = "Clinics retrieved successfully!";
         var stringClinics = JSON.stringify(clinicReturnArray);

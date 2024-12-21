@@ -142,14 +142,14 @@ export default {
             }, 5000);
       })
     },
-    async updateAppointment(appointmentID){
-      this.appointment.available = false;
-      await Api.put(`${this.update_appointment_url}${appointmentID}`,this.appointment).then(response => {
-      }).catch(error => {
-        console.log(error.message);
-      })
+    // async updateAppointment(appointmentID){
+    //   this.appointment.available = false;
+    //   await Api.put(`${this.update_appointment_url}${appointmentID}`,this.appointment).then(response => {
+    //   }).catch(error => {
+    //     console.log(error.message);
+    //   })
 
-      },
+    //   },
       async checkAvailability(appointmentID) {
         Api.get(`${this.appointments_get_specific_url}${appointmentID}`).then(response => {
           if (response.status === 200) {
@@ -163,7 +163,7 @@ export default {
                     this.error_message = '';
                 }, 8000);
             } else {
-              this.updateAppointment(appointmentID)
+              // this.updateAppointment(appointmentID)
               router.push({path: `/single/appointment/${appointmentID}`})
             }
           }

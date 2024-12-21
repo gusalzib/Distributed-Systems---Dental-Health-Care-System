@@ -93,6 +93,7 @@ export default {
                        
                         clinic.appointments = responseArr.data.appointments;
                         clinic.numOfAvailableAppointments = clinic.appointments.length;
+                        console.log("length: ",clinic.appointments.length);
                         if (clinic.numOfAvailableAppointments === 0) {
                             clinic.clinicColor = 'red'
                         } else {
