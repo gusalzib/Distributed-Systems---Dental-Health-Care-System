@@ -1,11 +1,13 @@
+require('dotenv').config()
+const secret_key = process.env.JWT_SECRET_KEY;
+
 const Patient = require("../models/Patient.js");
 const emailValidator = require('validator');
+const jwt = require('jsonwebtoken');
 
 exports.authenticatePatient = async (topic, payload) => {
+    console.log('secret key ', secret_key);
     
-    /*since the authentication service does not have access to patient database,
-     it needs to request the patient service to actually check if patient exists so that the authentication service 
-     can continue it job*/
     try{
         var status = 0;
         var message = "";
@@ -25,8 +27,8 @@ exports.authenticatePatient = async (topic, payload) => {
             message = "No patient found";
             return status +"/"+ message;
         }
-        console.log(patient.password, ' and ', password);
         
+        /* trim the passwords to remove any trailing spaces */
         const passwordCheck = patient.password.trim() === password.trim(); 
 
         if (!passwordCheck) {
@@ -35,9 +37,22 @@ exports.authenticatePatient = async (topic, payload) => {
             return status +"/"+ message;
         }
 
+        const token = jwt.sign(
+            {
+            userId: patient._id,
+            role: 'patient',
+            email: patient.email,
+            },
+            secret_key,
+            {expiresIn: '1h'}
+        )
+        console.log('this is the token right here ',token);
+        
         status = 200;
         message = "Patient retrieved";
-        var stringPatient = JSON.stringify(patient);
+
+        // returning the patient object with the token 
+        var stringPatient = JSON.stringify({ patient, token });
 
         return status + "/" + message + "/" + stringPatient;
 

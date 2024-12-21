@@ -184,7 +184,7 @@ app.post("/api/*", async (req, res) => {
             mqttBroker.unsubscribe(serviceTopicResponse);
         }
         
-        
+
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
@@ -205,19 +205,38 @@ app.post("/api/*", async (req, res) => {
             res.status(status).json({message : responseArr[1]});
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);        
-    
+            console.log('just before i try to set the cookie');
+            
+        // after login, each request is supposed to have a token. Here I check if it does exist
+            if (adaptedResponse.token) {
+            console.log('I am setting the cookie');
+            
+            // setting the token in the cookie
+            res.cookie('token', adaptedResponse.token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+                maxAge: 3600000,
+            })
+            console.log(' Cookie is set: ', adaptedResponse.token);
+            
+        }
         res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
         }
 
     } catch (error) {
-        var catchArr = message.split("/")
+
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
         if(catchArr.length===1){
             res.status(400).json({message: "something went wrong"}); 
         }else{
-            var status = parseInt(catchArr[0]);
-        res.status(status).json({message: catchArr[1]});
+            const status = parseInt(catchArr[0]);
+            res.status(status).json({message: catchArr[1]});
         }
+
     }
 });
 app.get("/api/*", async (req, res) => {
