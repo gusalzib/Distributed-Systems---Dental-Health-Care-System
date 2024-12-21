@@ -65,7 +65,7 @@ function connectToBroker() {
             })
         }else if (topic.startsWith('patients/get/specific/')) {
             console.log("get specific patient");
-            patientCtrl.fetchSpecificPatient(topic).then(response => {
+            patientCtrl.fetchSpecificPatient(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);

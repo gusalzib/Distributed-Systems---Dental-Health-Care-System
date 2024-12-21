@@ -6,8 +6,10 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 const request = require("request");
 const app = express();
 const mqttBroker = require("./mqtt-broker.js");
-const jwtVerification = require('./jwtVerification.js')
+
 //sessions variables 
+const jwtVerification = require('./jwtVerification.js')
+const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 
@@ -56,18 +58,18 @@ app.use(
   })
 );
 
-app.use(session({
-    secret: 'secret_patient_key',
-    resave: false,
-    saveUninitialized: true,
-    store: new MongoStore({
-        mongoUrl: 'mongodb://127.0.0.1:27017/dentalHealthcareSystem', 
-        ttl: 14 * 24 * 60 * 60, // this stands for: time to live (14 days)
-        autoRemove: 'native',  // an automatical removal of expired sessions offered by connect-mongo
-        collectionName: 'sessions'
-    })
-}))
-
+// app.use(session({
+//     secret: 'secret_patient_key',
+//     resave: false,
+//     saveUninitialized: true,
+//     store: new MongoStore({
+//         mongoUrl: 'mongodb://127.0.0.1:27017/dentalHealthcareSystem', 
+//         ttl: 14 * 24 * 60 * 60, // this stands for: time to live (14 days)
+//         autoRemove: 'native',  // an automatical removal of expired sessions offered by connect-mongo
+//         collectionName: 'sessions'
+//     })
+// }))
+app.use(cookieParser());
 // Also, handle preflight requests for all routes
 app.options("*", cors());
 app.use(helmet()); // Add security headers
@@ -275,8 +277,12 @@ app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
+
+        // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
+        const userId = req.user.userId;
+        console.log('user id ', userId);
         
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        var mqttResponse = await mqttBroker.publishToBroker(topic, userId);
         if(!mqttResponse){
             res.status(400).json({message: "could not create object"});
             return
@@ -297,12 +303,14 @@ app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
         }
 
     } catch (error) {
-        var catchArr = message.split("/")
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
         if(catchArr.length===1){
             res.status(400).json({message: "something went wrong"}); 
         }else{
-            var status = parseInt(catchArr[0]);
-        res.status(status).json({message: catchArr[1]});
+            const status = parseInt(catchArr[0]);
+            res.status(status).json({message: catchArr[1]});
         }
     }
 });
