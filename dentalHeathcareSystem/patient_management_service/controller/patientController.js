@@ -192,13 +192,15 @@ exports.updateSpecificPatient = async (topic, payload) => {
         }
 }
 
-exports.deleteSpecificPatient = async (topic) => {
+exports.deleteSpecificPatient = async (topic, payload) => {
     try{
         var status = 0;
         var message = "";
 
-        var topicArr = topic.split("/");
-        const id = topicArr[2];
+
+        var parsedPyload = JSON.parse(payload);
+        // get the userId from the session variable that is sent with the payload
+        const id = parsedPyload.userId;
         
         const patient = await Patient.findByIdAndDelete(id);
         if (!patient) {
@@ -212,7 +214,7 @@ exports.deleteSpecificPatient = async (topic) => {
         return status + "/" + message + "/" + stringPatient;
 
     } catch (error) {
-        status = 404; 
+        status = 400; 
         message = "Something went wrong!"
         return status + "/" + message + "/" + error.message;
     }

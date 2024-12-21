@@ -351,7 +351,6 @@ app.put("/api/*", jwtVerification.verifyToken, async (req, res) => {
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
-        console.log('printing payload in api put endpoint ', payload);
 
         // I am parsing the payload to json in order to add the userId field to it. 
         payload = JSON.parse(payload);
@@ -361,11 +360,9 @@ app.put("/api/*", jwtVerification.verifyToken, async (req, res) => {
 
         // adding the userId field to the payload 
         payload.userId = sessionUserId;
-        console.log('printing payload in api put endpoint after ', payload);
 
         // stringifying the payload again because mqtt expects a string
         var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
-        console.log('printing response from mqtt, ', mqttResponse);
         
         if (!mqttResponse) {
             res.status(400).json({message: "could not update object"});
@@ -400,11 +397,11 @@ app.put("/api/*", jwtVerification.verifyToken, async (req, res) => {
         }
     }
 });
-app.delete("/api/*", async (req, res) => {
+app.delete("/api/*",  jwtVerification.verifyToken, async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
-        const payload = JSON.stringify(body);
+        var payload = JSON.stringify(body);
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
@@ -437,8 +434,16 @@ app.delete("/api/*", async (req, res) => {
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
-        
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        // I am parsing the payload to json in order to add the userId field to it. 
+        payload = JSON.parse(payload);
+
+        // get the session variable
+        const sessionUserId = req.user.userId;
+
+        // adding the userId field to the payload 
+        payload.userId = sessionUserId;
+
+        var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         if(!mqttResponse){
             res.status(400).json({message: "could not delete object"});
             return
@@ -459,6 +464,8 @@ app.delete("/api/*", async (req, res) => {
         }
 
     } catch (error) {
+        console.log(error);
+        
         var catchArr = message.split("/")
         if(catchArr.length===1){
             res.status(400).json({message: "something went wrong"}); 

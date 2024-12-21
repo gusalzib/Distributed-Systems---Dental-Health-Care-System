@@ -86,7 +86,7 @@ function connectToBroker() {
 
         } else if (topic.startsWith('patients/delete/')) {
             console.log("delete patient");
-            patientCtrl.deleteSpecificPatient(topic).then(response => {
+            patientCtrl.deleteSpecificPatient(topic, payload).then(response => {
                 publishToBroker(publishTopic, response)
             });
             unsubscribe(topic);
