@@ -6,7 +6,7 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 const request = require("request");
 const app = express();
 const mqttBroker = require("./mqtt-broker.js");
-
+const jwtVerification = require('./jwtVerification.js')
 //sessions variables 
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
@@ -239,7 +239,7 @@ app.post("/api/*", async (req, res) => {
 
     }
 });
-app.get("/api/*", async (req, res) => {
+app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
