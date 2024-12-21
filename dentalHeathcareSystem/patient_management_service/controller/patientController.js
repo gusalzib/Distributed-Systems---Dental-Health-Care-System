@@ -144,16 +144,18 @@ exports.updateSpecificPatient = async (topic, payload) => {
         var status = 0;
         var message = ""; 
 
-        var topicArr = topic.split("/");
-        const _id = topicArr[3];
+        var parsedPyload = JSON.parse(payload);
+
+        // get the userId from the session variable that is sent with the payload
+        const id = parsedPyload.userId;
         
-        const existingPatient = await Patient.findById(_id);
+        const existingPatient = await Patient.findById(id);
         if(!existingPatient){
             status = 400;
             message = "No patient found";
             return status +"/"+ message;
         }
-        var newPatient = JSON.parse(payload)
+        var newPatient = parsedPyload
 
 
         const patient = {
@@ -172,7 +174,7 @@ exports.updateSpecificPatient = async (topic, payload) => {
             return status + "/"+ message;
         };
 
-        const updatedPatient = await Patient.findByIdAndUpdate(_id, patient, {new: true});
+        const updatedPatient = await Patient.findByIdAndUpdate(id, patient, {new: true});
 
         status = 200; 
         message= "Patient updated";
@@ -181,6 +183,8 @@ exports.updateSpecificPatient = async (topic, payload) => {
 
 
     } catch (error) {
+        console.log(error.message);
+        
         status = 400; 
         message = "Something went wrong. Failed to update patient."   
         return status + "/" + message + "/" + error.message;

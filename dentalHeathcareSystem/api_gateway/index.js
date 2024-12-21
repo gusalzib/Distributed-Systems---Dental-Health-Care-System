@@ -280,7 +280,7 @@ app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
 
         // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
         const userId = req.user.userId;
-        console.log('user id ', userId);
+        
         
         var mqttResponse = await mqttBroker.publishToBroker(topic, userId);
         if(!mqttResponse){
@@ -314,11 +314,11 @@ app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
         }
     }
 });
-app.put("/api/*", async (req, res) => {
+app.put("/api/*", jwtVerification.verifyToken, async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
-        const payload = JSON.stringify(body);
+        var payload = JSON.stringify(body);
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
@@ -351,9 +351,23 @@ app.put("/api/*", async (req, res) => {
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
+        console.log('printing payload in api put endpoint ', payload);
+
+        // I am parsing the payload to json in order to add the userId field to it. 
+        payload = JSON.parse(payload);
+
+        // get the session variable
+        const sessionUserId = req.user.userId;
+
+        // adding the userId field to the payload 
+        payload.userId = sessionUserId;
+        console.log('printing payload in api put endpoint after ', payload);
+
+        // stringifying the payload again because mqtt expects a string
+        var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
+        console.log('printing response from mqtt, ', mqttResponse);
         
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-        if(!mqttResponse){
+        if (!mqttResponse) {
             res.status(400).json({message: "could not update object"});
             return
         }else if(mqttResponse){
@@ -373,12 +387,16 @@ app.put("/api/*", async (req, res) => {
         }
 
     } catch (error) {
-        var catchArr = message.split("/")
+        console.log(error);
+        
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
         if(catchArr.length===1){
             res.status(400).json({message: "something went wrong"}); 
         }else{
-            var status = parseInt(catchArr[0]);
-        res.status(status).json({message: catchArr[1]});
+            const status = parseInt(catchArr[0]);
+            res.status(status).json({message: catchArr[1]});
         }
     }
 });
