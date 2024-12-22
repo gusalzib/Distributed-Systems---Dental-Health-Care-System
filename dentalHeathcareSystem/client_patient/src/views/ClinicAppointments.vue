@@ -13,9 +13,7 @@
 <script>
 
 import { Api } from '@/Api'
-import { onMounted } from 'vue';
-
-
+import router from '@/router'
 
 export default {
     name: 'clinicAppointments',
@@ -61,12 +59,13 @@ export default {
         async getClinicsAppointment(){
             this.clinicID = this.$route.params.clinicID;
             await Api.get(`${this.get_clinics_available_appointments_url}${this.clinicID}`).then(response =>{
+
                 if(response.status === 200){
                     this.appointments = response.data.appointments
                     if(this.appointments.length === 0){
                         this.headerMessage = "This clinic has no available appointments."
                     }else{
-                    this.headerMessage = "Available appointments:"
+                        this.headerMessage = "Available appointments:"
                     }
                     for (let i = 0; i<= this.appointments.length-1; i++){
                         var dateAndTimeArr= this.extractTimeAndDate(this.appointments[i].date_and_time_from);

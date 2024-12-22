@@ -84,7 +84,8 @@ exports.updateAClinic = async (topic,payload) => {
         var clinic = JSON.parse(payload);
 
         const existingClinic = await Clinic.findById(id);
-        console.log("existing clinic: ",existingClinic);
+
+
         var name = clinic.name ? clinic.name : existingClinic.name;
         var email = clinic.email ? clinic.email : existingClinic.email;
         var phoneNumber = clinic.phoneNumber ? clinic.phoneNumber : existingClinic.phoneNumber;        

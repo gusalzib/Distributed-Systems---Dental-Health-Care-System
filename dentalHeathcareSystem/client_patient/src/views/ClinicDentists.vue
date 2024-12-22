@@ -19,9 +19,6 @@ export default {
         return {
             dentists: [],
             headerMessage: '',
-            confirmation_message: '',
-            error_message: '',
-            current_clinic_placeholder: '675e05333c2458fc67c6ac9a',
         }
     },
 
@@ -33,13 +30,11 @@ export default {
     methods: {
     async getDentistsFromSpecificClinic(){
         try{
-            console.log("TEST dentist");
             this.clinicID = this.$route.params.clinicID;
             const response = await Api.get(`${this.clinics_get_dentists_url}${this.clinicID}`)
                 if(response.status === 200){
                 this.dentists = response.data.dentists;
                 this.headerMessage = "Dentists working in this clinic are:";
-                console.log(this.dentists.length);
             }
         }catch(error) {
             this.error_message = error.response?.data.message;

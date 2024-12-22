@@ -25,7 +25,6 @@
 
                     <div v-else-if="activeSection === 'dentists'">
                         <ClinicDentists/>
-            
                     </div>
 
                     <div v-else class="clinic-contact-card">
@@ -56,8 +55,6 @@ export default {
     components: {
         ClinicAppointments,
         ClinicDentists
-
-
     },
     data() {
         return {
@@ -93,7 +90,6 @@ export default {
                 this.activeSection = section;
             } catch (error) {
                 this.error_message = error.message;
-                console.log(this.message);
             } 
         },
 

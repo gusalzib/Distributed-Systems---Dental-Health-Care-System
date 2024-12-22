@@ -124,14 +124,11 @@ export default {
 
               //fix the time and date formatting and store them inside appointment to be displayed
               var result = this.extractTimeAndDate(appointment.date_and_time_from)
-              console.log('this is result: ', result);
               
               appointment.date = result[0];
               appointment.time = result[1];
 
               this.appointment[index] = appointment;
-              // console.log('this is the new appointment object: ', this.appointment[index] );
-              
             }
           });
         }
@@ -142,14 +139,7 @@ export default {
             }, 5000);
       })
     },
-    // async updateAppointment(appointmentID){
-    //   this.appointment.available = false;
-    //   await Api.put(`${this.update_appointment_url}${appointmentID}`,this.appointment).then(response => {
-    //   }).catch(error => {
-    //     console.log(error.message);
-    //   })
-
-    //   },
+    
       async checkAvailability(appointmentID) {
         Api.get(`${this.appointments_get_specific_url}${appointmentID}`).then(response => {
           if (response.status === 200) {
@@ -163,7 +153,7 @@ export default {
                     this.error_message = '';
                 }, 8000);
             } else {
-              // this.updateAppointment(appointmentID)
+             
               router.push({path: `/single/appointment/${appointmentID}`})
             }
           }
@@ -180,7 +170,6 @@ export default {
     extractTimeAndDate(date_and_time) {
           var date = '';
           var time = '';
-          console.log(date_and_time);
           
           var tempArr = date_and_time.split('T');
           date = tempArr[0];
