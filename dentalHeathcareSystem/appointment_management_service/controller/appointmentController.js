@@ -55,9 +55,10 @@ exports.getAppointments = async (payload) => {
 
 exports.getOneAppointment = async (topic) => {
     try{
+        console.log('sokjdfhbaSGHJKDÖKjahq yfsdvgbhASUIYDGFVAsuhydfays');
         
         var status = 0;
-        var topicArr = topic.split("/");
+        var topicArr = topic.split("/");        
         const id = topicArr[3];
         const appointment = await Appointment.findById(id);
         if(!appointment){
@@ -69,6 +70,7 @@ exports.getOneAppointment = async (topic) => {
         status = 200;
         message = "Appointment retrieved";
         var stringAppointment = JSON.stringify(appointment);
+
         return status +"/"+ message +"/"+ stringAppointment
     }catch (error) {
         status = 400; 
@@ -126,11 +128,14 @@ exports.updateOneAppointment = async (topic, payload) => {
         }
 };
 
-exports.fetchPatientAppointments = async (topic) => {
+exports.fetchPatientAppointments = async (topic, payload) => {
     try {
         var status = 0; 
-        var topicArr = topic.split("/");
-        const _id = topicArr[4];
+        
+
+        const parsedPayload = JSON.parse(payload)        
+        const id = parsedPayload.userId;
+
         
         const appointments = await Appointment.find();
         if (appointments.length === 0) {
@@ -139,7 +144,7 @@ exports.fetchPatientAppointments = async (topic) => {
             return status + "/" + message;
         }
 
-        const patientAppointments = appointments.filter(appointment => appointment.patient_id && appointment.patient_id.equals(_id));
+        const patientAppointments = appointments.filter(appointment => appointment.patient_id && appointment.patient_id.equals(id));
         if (patientAppointments.length === 0) {
             status = 400; 
             message = "This patient has no appointments booked"; 
@@ -237,7 +242,56 @@ exports.fetchClinicAppointments = async (topic) => {
     }
 }
 
+exports.bookAppointment = async (topic, payload) => {
+    try {
+            
+        var status = 0;
+        var topicArr = topic.split("/");
+        const _id = topicArr[2];
+        var parsedPayload = JSON.parse(payload); 
+        console.log('parsed ' ,parsedPayload);
+        
+        const existing_appointment = await Appointment.findById(_id);
+        if(!existing_appointment){
+            status = 400;
+            message = "No appointment found";
+            return status +"/"+ message;
+        }
+        
 
+        const appointment = {
+            patient_id: parsedPayload.patient_id ? parsedPayload.patient_id : existing_appointment.patient_id,
+            dentist_id: parsedPayload.dentist_id ? parsedPayload.dentist_id: existing_appointment.dentist_id,
+            dentist_clinic_id: parsedPayload.dentist_clinic_id ? parsedPayload.dentist_clinic_id : existing_appointment.dentist_clinic_id,
+            type_of_appointment: parsedPayload.type_of_appointment ? parsedPayload.type_of_appointment : existing_appointment.type_of_appointment,
+            date_and_time_from: parsedPayload.date_and_time_from ? parsedPayload.date_and_time_from: existing_appointment.date_and_time_from,
+            date_and_time_until: parsedPayload.date_and_time_until ? parsedPayload.date_and_time_until: existing_appointment.date_and_time_until,
+            available: false
+        }
+
+        const newAppointmentValidation = validateAppointment(appointment);
+        if(!newAppointmentValidation.success) {
+            status = 400;
+            
+            message = newAppointmentValidation.message;
+            return status +"/"+ newAppointmentValidation.message;
+        };
+
+        const updatedAppointment = await Appointment.findByIdAndUpdate(_id, appointment, {new: true});
+
+        status = 200; 
+        message= "Appointment updated";
+        var stringUpdatedAppointment = JSON.stringify(updatedAppointment);
+        return status +"/"+ message +"/"+ stringUpdatedAppointment;
+
+
+    } catch (error) {
+            status = 400; 
+            message = "Something went wrong!" 
+            return status + "/" + message + "/" +error.message;
+                
+        }
+}
 
 
 
