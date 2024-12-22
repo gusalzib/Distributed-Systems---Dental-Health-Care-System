@@ -976,7 +976,8 @@ the card, which is also something that we might need to add later.*/
 }
 #clinic-card {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;

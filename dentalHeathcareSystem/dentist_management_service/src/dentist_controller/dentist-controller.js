@@ -172,7 +172,7 @@ exports.fetchClinicsDentists = async (topic) => {
         const clinicsDentists = dentists.filter(dentist => dentist.clinic_id && dentist.clinic_id.equals(_id));
        
         if (clinicsDentists.length === 0) {
-            status = 400; 
+            status = 404; 
             message = "This clinic has no dentists"; 
             return status + "/" + message;
 
