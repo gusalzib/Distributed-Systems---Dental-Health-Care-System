@@ -42,7 +42,7 @@ export default {
   name: 'my_appointments',
   data() {
     return {
-        current_patient_placeholder: '6759e3f57a30ebf177f326c7',
+        // current_patient_placeholder: '6759e3f57a30ebf177f326c7',
     //  current_patient_placeholder:'674516312f3c59c02e4df78d',
         confirmation_message: '',
         error_message: '',
@@ -112,20 +112,22 @@ export default {
             this.bookedAppointmentsIds = []
 
             try {
-              const response = await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`)
+              const response = await Api.get(`${this.patient_get_specific_url}`)
               if (response.status === 200) {
                     this.patient = response.data.patients;
-
+                    // console.log(this.patient);
+                    
                     //as we are getting the patient info, we assign the array of appointments ids that is inside the patient to 
                     //the bookedAppointmentsIds
                     this.bookedAppointmentsIds = this.patient.appointments;
-                                        
+                    // console.log('appointment ids ', this.bookedAppointmentsIds);
+                    
                     //extract appointments using the array of appointment ids 
 
                     await this.extractAppointments()
                     
                 }
-            } catch (error) {
+            } catch (error) {            
                 this.error_message = 'Something went wrong. Patient information not found!'
                 setTimeout(() => {
                         this.error_message = ''
@@ -135,34 +137,37 @@ export default {
       },
       async extractAppointments() {
 
-        var appointmentIDs = this.bookedAppointmentsIds;
-        for (let index = 0; index < appointmentIDs.length; index++) {
+        try {
+          var appointmentIDs = this.bookedAppointmentsIds;
+          for (let index = 0; index < appointmentIDs.length; index++) {
 
-          const appointmentId = appointmentIDs[index].appointment_id ? appointmentIDs[index].appointment_id : appointmentIDs[index].appointment_id;
-          const response = await Api.get(`${this.appointments_get_specific_url}${appointmentId}`);
+            const appointmentId = appointmentIDs[index].appointment_id ? appointmentIDs[index].appointment_id : appointmentIDs[index].appointment_id;
+            const response = await Api.get(`${this.appointments_get_specific_url}${appointmentId}`);
 
-          if (response.status === 200) {
+            if (response.status === 200) {
 
-            var tempBookedAppointemnt = response.data.appointments;
-            var date_and_time = this.extractTimeAndDate(tempBookedAppointemnt.date_and_time_from)
-            
-            tempBookedAppointemnt.date_and_time_from = date_and_time[0];
-            tempBookedAppointemnt.date_and_time_until = date_and_time[1];
+              var tempBookedAppointemnt = response.data.appointments;
+              var date_and_time = this.extractTimeAndDate(tempBookedAppointemnt.date_and_time_from)
 
-            this.bookedAppointments.push(tempBookedAppointemnt)
-            
-          } else if (response.status != 200) {
-            
-            this.error_message = error.response?.data.message;
-              setTimeout(() => {
-                  this.error_message = '';
-              }, 5000);
-            
+              tempBookedAppointemnt.date_and_time_from = date_and_time[0];
+              tempBookedAppointemnt.date_and_time_until = date_and_time[1];
+
+              this.bookedAppointments.push(tempBookedAppointemnt)
+
+            }
           }
-          
+        } catch (error) {
+          console.log(error)
+          this.error_message = error.response?.data.message;
+          setTimeout(() => {
+            this.error_message = '';
+          }, 5000);
         }
 
-    },
+          
+        },
+
+
     async cancelAppointment(appointmentId) {
       this.bookedAppointemnt.available = true;
       this.bookedAppointemnt.patient_id = "00000000000000000000000a";
@@ -194,7 +199,7 @@ export default {
       this.patient.appointments = this.bookedAppointmentsIds;
     
       try {
-        const response = await Api.put(`${this.update_patient_specific_url}${this.current_patient_placeholder}`, this.patient)
+        const response = await Api.put(`${this.update_patient_specific_url}`, this.patient)
           if (response.status === 200) {
               this.confirmation_message = 'Appointment cancelled'
               await this.getPatientInformation();
