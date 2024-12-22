@@ -58,9 +58,16 @@ function connectToBroker() {
             });
             unsubscribe(topic);
         
+        }else if (topic.startsWith( 'appointments/book/')) {
+            console.log("book an appointment");
+            appointmentCtrl.bookAppointment(topic, payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            unsubscribe(topic);
+        
         }else if (topic.startsWith('appointments/get/patient/appointments/')) {
             console.log("get a patients appointments");
-            appointmentCtrl.fetchPatientAppointments(topic).then(response => {
+            appointmentCtrl.fetchPatientAppointments(topic, payload).then(response => {
                 publishToBroker(publishTopic, response)
             });
             unsubscribe(topic);

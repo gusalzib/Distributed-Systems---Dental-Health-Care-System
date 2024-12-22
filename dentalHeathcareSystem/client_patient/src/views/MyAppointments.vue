@@ -85,7 +85,7 @@ export default {
     extractTimeAndDate(date_and_time) {
       var date = '';
       var time = '';
-      console.log(date_and_time);
+      // console.log(date_and_time);
       
       var tempArr = date_and_time.split('T');
       date = tempArr[0];
@@ -132,7 +132,7 @@ export default {
                 setTimeout(() => {
                         this.error_message = ''
                     }, 5000);
-                console.log(error.message)
+                // console.log(error.message)
             }
       },
       async extractAppointments() {
@@ -157,7 +157,7 @@ export default {
             }
           }
         } catch (error) {
-          console.log(error)
+          // console.log(error)
           this.error_message = error.response?.data.message;
           setTimeout(() => {
             this.error_message = '';
@@ -171,7 +171,7 @@ export default {
     async cancelAppointment(appointmentId) {
       this.bookedAppointemnt.available = true;
       this.bookedAppointemnt.patient_id = "00000000000000000000000a";
-      console.log(appointmentId);
+      // console.log(appointmentId);
       
       try {
         const response = await Api.put(`${this.update_appointment_url}${appointmentId}`, this.bookedAppointemnt); 

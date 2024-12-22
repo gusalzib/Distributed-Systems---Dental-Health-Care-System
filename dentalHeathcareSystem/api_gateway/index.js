@@ -207,11 +207,9 @@ app.post("/api/*", async (req, res) => {
             res.status(status).json({message : responseArr[1]});
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);        
-            console.log('just before i try to set the cookie');
             
         // after login, each request is supposed to have a token. Here I check if it does exist
             if (adaptedResponse.token) {
-            console.log('I am setting the cookie');
             
             // setting the token in the cookie
             res.cookie('token', adaptedResponse.token, {
@@ -220,7 +218,6 @@ app.post("/api/*", async (req, res) => {
                 sameSite: 'strict',
                 maxAge: 3600000,
             })
-            console.log(' Cookie is set: ', adaptedResponse.token);
             
         }
         res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
@@ -245,7 +242,7 @@ app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
-        const payload = JSON.stringify(body);
+        var payload = JSON.stringify(body);
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
@@ -277,12 +274,19 @@ app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
+        console.log('payload before ',payload);
+        // I am parsing the payload to json in order to add the userId field to it. 
+        payload = JSON.parse(payload);
 
         // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
-        const userId = req.user.userId;
+        const sessionUserId = req.user.userId;
+
+        // adding the userId field to the payload 
+        payload.userId = sessionUserId;
+        console.log('payload after ',payload);
+
         
-        
-        var mqttResponse = await mqttBroker.publishToBroker(topic, userId);
+        var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         if(!mqttResponse){
             res.status(400).json({message: "could not create object"});
             return
@@ -302,7 +306,7 @@ app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
         return;
         }
 
-    } catch (error) {
+    } catch (error) {        
         const errorMessage = error.toString();
         let catchArr = errorMessage.split("/")
        
@@ -383,9 +387,7 @@ app.put("/api/*", jwtVerification.verifyToken, async (req, res) => {
         return;
         }
 
-    } catch (error) {
-        console.log(error);
-        
+    } catch (error) {        
         const errorMessage = error.toString();
         let catchArr = errorMessage.split("/")
        
@@ -464,7 +466,6 @@ app.delete("/api/*",  jwtVerification.verifyToken, async (req, res) => {
         }
 
     } catch (error) {
-        console.log(error);
         
         var catchArr = message.split("/")
         if(catchArr.length===1){
