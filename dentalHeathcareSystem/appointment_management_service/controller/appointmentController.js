@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 
 exports.makeAppointment = async (payload) => {
     try {
+        var message ='';
         var status = 0;
         const newAppointment = JSON.parse(payload);
 
@@ -35,6 +36,7 @@ exports.makeAppointment = async (payload) => {
 };
 exports.getAppointments = async (payload) => {
     try{
+        var message ='';
         const appointments = await Appointment.find().sort({"date_and_time_from": 1});
         var status = "";
         if(appointments.length === 0){
@@ -55,8 +57,7 @@ exports.getAppointments = async (payload) => {
 
 exports.getOneAppointment = async (topic) => {
     try{
-        console.log('sokjdfhbaSGHJKDÖKjahq yfsdvgbhASUIYDGFVAsuhydfays');
-        
+        var message ='';
         var status = 0;
         var topicArr = topic.split("/");        
         const id = topicArr[3];
@@ -81,7 +82,7 @@ exports.getOneAppointment = async (topic) => {
 
 exports.updateOneAppointment = async (topic, payload) => {
     try {
-            
+        var message ='';    
         var status = 0;
         var topicArr = topic.split("/");
         const _id = topicArr[2];
@@ -130,6 +131,7 @@ exports.updateOneAppointment = async (topic, payload) => {
 
 exports.fetchPatientAppointments = async (topic, payload) => {
     try {
+        var message ='';
         var status = 0; 
         
 
@@ -166,6 +168,7 @@ exports.fetchPatientAppointments = async (topic, payload) => {
 
 exports.removeAppointment = async (topic) => {
     try{
+        var message ='';
         var status = 0;
         var topicArr = topic.split("/");
         const id = topicArr[2];
@@ -191,6 +194,7 @@ exports.removeAppointment = async (topic) => {
 
 exports.fetchAvailableAppointments = async (payload) => {    
     try{
+        var message ='';
         const appointments = await Appointment.find({available: true}).sort({"date_and_time_from": 1});
         var status = 0;
 
@@ -217,6 +221,7 @@ exports.fetchAvailableAppointments = async (payload) => {
 
 exports.fetchClinicAppointments = async (topic) => {
     try {
+        var message ='';
         var topicArr = topic.split("/");
         const id = topicArr[4];
 
@@ -240,8 +245,35 @@ exports.fetchClinicAppointments = async (topic) => {
         message = "Something went wrong!" 
         return status + "/" + message + "/" + error.message;
     }
-}
+};
+exports.fetchClinicsAvailableAppointments = async (topic) => {    
+    try{
+        var topicArr = topic.split("/");
+        const id = topicArr[5];
 
+        var allAppointments = []
+        allAppointments = await Appointment.find({ dentist_clinic_id: id }).sort({"date_and_time_from": 1});
+        
+        const appointments = allAppointments.filter(appointment => appointment.available);
+        
+        var status = 0;
+        if(appointments.length === 0){
+            message = "This clinic has no available appointments"
+        }else{
+            message = "All appointments retrieved";
+        }
+
+        status = 200;
+        var stringAppointments = JSON.stringify(appointments);
+        
+        return status + "/" + message + "/" + stringAppointments;
+
+    }catch (error) {
+        status = 400; 
+        message = "Something went wrong!" 
+        return status + "/" + message + "/" + error.message;
+    }
+}
 exports.bookAppointment = async (topic, payload) => {
     try {
             
@@ -469,7 +501,7 @@ exports.getClinicAppointments = async (req, res) => {
     }catch (error) {
         res.status(400).json({ message: "Something went wrong!", error_message: error.message});
     }
-}
+};
 
 function validateAppointment(appointment) {
     const {patient_id, dentist_id, dentist_clinic_id, type_of_appointment,

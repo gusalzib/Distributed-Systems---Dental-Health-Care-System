@@ -65,6 +65,13 @@ function connectToBroker() {
             });
             unsubscribe(topic);
         
+        }else if (topic.startsWith('appointments/get/clinics/available/appointments/')) {
+            console.log("get clinics available appointments");
+            appointmentCtrl.fetchClinicsAvailableAppointments(topic).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            unsubscribe(topic);
+
         }else if (topic.startsWith('appointments/get/patient/appointments/')) {
             console.log("get a patients appointments");
             appointmentCtrl.fetchPatientAppointments(topic, payload).then(response => {

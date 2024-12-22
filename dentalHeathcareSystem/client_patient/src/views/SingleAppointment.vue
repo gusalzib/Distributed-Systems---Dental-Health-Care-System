@@ -114,7 +114,7 @@ export default {
         appointments_get_specific_url: '',
         update_appointment_url: '',
         update_patient_specific_url: '',
-
+        appointmentID: '',
         
     }
   },
@@ -132,6 +132,28 @@ export default {
         
         
   },
+  beforeRouteEnter: async (to,from,next) => {           //Updates appointment.available to false upon entering the page
+    try {
+        const appointmentID = to.params.appointmentID;
+        const update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL
+        await Api.put(`${update_appointment_url}${appointmentID}`, {available: false});
+        next();
+        
+    } catch(error) {
+        console.error = 'Failed to update appointments availability';
+        
+    }
+  },
+  beforeRouteLeave(to, from, next) {                          //Updates appointment.available to true if page is left without booking
+    
+    if(to.path.startsWith(`/bookingConfirmation/`)){
+        next();
+    }else{
+        this.updateAppointment();
+        next();
+    }
+  },
+
     methods: {
         openPopup(){
             var popup = document.getElementById("popup");
@@ -210,7 +232,6 @@ export default {
                 setTimeout(() => {
                         this.error_message = ''
                     }, 5000);
-                console.log(error.message)
             })
 
             

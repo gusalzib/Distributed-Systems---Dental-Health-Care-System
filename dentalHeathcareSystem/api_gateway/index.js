@@ -223,9 +223,16 @@ app.post("/api/*", async (req, res) => {
         res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
         }
+        var catchArr = []
+        if (errorMessage) {
+            catchArr = errorMessage.split("/")
+        }
+
+
+
+
 
     } catch (error) {
-
         const errorMessage = error.toString();
         let catchArr = errorMessage.split("/")
        
@@ -233,7 +240,7 @@ app.post("/api/*", async (req, res) => {
             res.status(400).json({message: "something went wrong"}); 
         }else{
             const status = parseInt(catchArr[0]);
-            res.status(status).json({message: catchArr[1]});
+        res.status(status).json({message: catchArr[1]});
         }
 
     }
@@ -306,7 +313,7 @@ app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
         return;
         }
 
-    } catch (error) {        
+    } catch (error) {
         const errorMessage = error.toString();
         let catchArr = errorMessage.split("/")
        
@@ -314,7 +321,7 @@ app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
             res.status(400).json({message: "something went wrong"}); 
         }else{
             const status = parseInt(catchArr[0]);
-            res.status(status).json({message: catchArr[1]});
+        res.status(status).json({message: catchArr[1]});
         }
     }
 });
@@ -387,7 +394,7 @@ app.put("/api/*", jwtVerification.verifyToken, async (req, res) => {
         return;
         }
 
-    } catch (error) {        
+    } catch (error) {
         const errorMessage = error.toString();
         let catchArr = errorMessage.split("/")
        
@@ -395,7 +402,7 @@ app.put("/api/*", jwtVerification.verifyToken, async (req, res) => {
             res.status(400).json({message: "something went wrong"}); 
         }else{
             const status = parseInt(catchArr[0]);
-            res.status(status).json({message: catchArr[1]});
+        res.status(status).json({message: catchArr[1]});
         }
     }
 });
@@ -466,12 +473,13 @@ app.delete("/api/*",  jwtVerification.verifyToken, async (req, res) => {
         }
 
     } catch (error) {
-        
-        var catchArr = message.split("/")
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
         if(catchArr.length===1){
             res.status(400).json({message: "something went wrong"}); 
         }else{
-            var status = parseInt(catchArr[0]);
+            const status = parseInt(catchArr[0]);
         res.status(status).json({message: catchArr[1]});
         }
     }

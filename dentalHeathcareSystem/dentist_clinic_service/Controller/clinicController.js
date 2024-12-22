@@ -6,6 +6,7 @@ const MqttBroker = require("../mqtt-broker");
 
 exports.clinicCreate = async (payload) => {
     try {
+        var message ='';
         var status = 0;
         const newClinic = JSON.parse(payload);
     
@@ -30,6 +31,7 @@ exports.clinicCreate = async (payload) => {
 
 exports.getClinics = async () => {
     try {
+        var message ='';
         var status = 0;
         const clinics = await Clinic.find();
 
@@ -51,6 +53,7 @@ exports.getClinics = async () => {
 
 exports.getOneClinic = async (topic) => {
     try {
+        var message ='';
         var status = 0;
         var topicArr = topic.split("/");
         const id = topicArr[3];
@@ -73,6 +76,7 @@ exports.getOneClinic = async (topic) => {
 };
 exports.updateAClinic = async (topic,payload) => {
     try {
+        var message ='';
         var status = 0;
         var topicArr = topic.split("/");
         const id = topicArr[2];; 
@@ -80,7 +84,8 @@ exports.updateAClinic = async (topic,payload) => {
         var clinic = JSON.parse(payload);
 
         const existingClinic = await Clinic.findById(id);
-        
+
+
         var name = clinic.name ? clinic.name : existingClinic.name;
         var email = clinic.email ? clinic.email : existingClinic.email;
         var phoneNumber = clinic.phoneNumber ? clinic.phoneNumber : existingClinic.phoneNumber;        
@@ -112,7 +117,7 @@ exports.updateAClinic = async (topic,payload) => {
 
 exports.getDentistFromClinic = async (topic) => {
     try {
-       
+        var message ='';
         var status = 0;
         var topicArr = topic.split("/");
         const id = topicArr[3];
@@ -143,6 +148,7 @@ exports.getDentistFromClinic = async (topic) => {
 
 exports.deleteAClinic = async (topic) => {
     try{
+        var message ='';
         var status = 0;
         var topicArr = topic.split("/");
         const id = topicArr[2];
@@ -161,7 +167,42 @@ exports.deleteAClinic = async (topic) => {
         status = 400; 
         return status +"/"+ error.message;
     }
-}
+};
+exports.getClinicInformation = async (payload) => {
+    try {
+        var message ='';
+        var status = 0;
+        const clinicArr = JSON.parse(payload);
+    
+        const clinics = clinicArr
+        
+        var clinicReturnArray = []
+        for(const clinicId of clinics){
+
+            var tempClinic = await Clinic.findById(clinicId.dentist_clinic_id);
+            if (!tempClinic) {
+                status = 400; 
+                message = "No clinic found!";
+                return status +"/"+ message; 
+            }
+            var clinic = {_id : tempClinic._id,
+                        name: tempClinic.name,
+                        address: tempClinic.location.formattedAddress}
+                       
+
+            clinicReturnArray.push(clinic);
+        };
+        status = 200;
+        message = "Clinics retrieved successfully!";
+        var stringClinics = JSON.stringify(clinicReturnArray);
+        return status +"/"+ message +"/"+ stringClinics;
+
+    } catch (error) {
+        status = 400; 
+        return status +"/"+ error.message;
+    }
+};
+
 
 
 
