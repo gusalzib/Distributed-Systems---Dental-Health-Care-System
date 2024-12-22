@@ -115,8 +115,10 @@ exports.fetchSpecificPatient = async (topic, payload) => {
         var status = 0;
         var message = "";
 
-        // payload now contains the userid obtained from the session variables and sent by the gateway here
-        const id = payload;
+        var parsedPyload = JSON.parse(payload);
+
+        // get the userId from the session variable that is sent with the payload
+        const id = parsedPyload.userId;
         
         const patient = await Patient.findById(id);
         if(!patient){

@@ -44,7 +44,6 @@ export default {
           password: ''
       },
 
-      login_url: '',
       find_patient_url: '',
       confirmation_message: '',
       error_message: '',
@@ -52,14 +51,12 @@ export default {
     }
   },
     mounted() {
-      this.login_url = import.meta.env.VITE_LOGIN_URL;
       this.find_patient_url = import.meta.env.VITE_FIND_PATIENT;
   },
     methods: {
       async login() {
 
         try {
-          // const response = await Api.post(`${this.login_url}`, this.patient)
           console.log(this.find_patient_url);
           const response = await Api.post(`${this.find_patient_url}`, this.patient)
           
@@ -67,7 +64,7 @@ export default {
           
           if (response.status === 200) {
             setTimeout(() => {
-              // this.$router.push('/');
+              this.$router.push('/');
             }, 1000)
             
             this.confirmation_message = 'Login successfull!';
