@@ -275,13 +275,15 @@ exports.fetchClinicsAvailableAppointments = async (topic) => {
     }
 }
 exports.bookAppointment = async (topic, payload) => {
+    console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX i am called');
+    
     try {
             
         var status = 0;
         var topicArr = topic.split("/");
         const _id = topicArr[2];
         var parsedPayload = JSON.parse(payload); 
-        console.log('parsed ' ,parsedPayload);
+        console.log('parsed ' ,parsedPayload, 'SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS');
         
         const existing_appointment = await Appointment.findById(_id);
         if(!existing_appointment){
@@ -292,7 +294,7 @@ exports.bookAppointment = async (topic, payload) => {
         
 
         const appointment = {
-            patient_id: parsedPayload.patient_id ? parsedPayload.patient_id : existing_appointment.patient_id,
+            patient_id: parsedPayload.userId ? parsedPayload.userId : existing_appointment.patient_id,
             dentist_id: parsedPayload.dentist_id ? parsedPayload.dentist_id: existing_appointment.dentist_id,
             dentist_clinic_id: parsedPayload.dentist_clinic_id ? parsedPayload.dentist_clinic_id : existing_appointment.dentist_clinic_id,
             type_of_appointment: parsedPayload.type_of_appointment ? parsedPayload.type_of_appointment : existing_appointment.type_of_appointment,

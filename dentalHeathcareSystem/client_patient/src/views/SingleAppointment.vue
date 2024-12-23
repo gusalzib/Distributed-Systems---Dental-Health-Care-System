@@ -113,6 +113,7 @@ export default {
         appointments_get_specific_url: '',
         update_appointment_url: '',
         update_patient_specific_url: '',
+        book_appointment_url: '',
         appointmentID: '',
         
     }
@@ -122,6 +123,7 @@ export default {
         this.update_patient_specific_url = import.meta.env.VITE_UPDATE_PATIENT_SPECIFIC_URL;
         this.appointments_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_APPOINTMENTS_URL;
         this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
+        this.book_appointment_url = import.meta.env.VITE_BOOK_APPOINTMENT_URL;
         
         this.watchActivity();
         this.getAppointmentInfo();
@@ -183,10 +185,10 @@ export default {
             this.closePopup();
             await this.addAppointmentToPatient();
             const appointmentID = this.$route.params.appointmentID;
-            this.appointment.available = false; 
+            // this.appointment.available = false; 
             
-            this.appointment.patient_id = this.current_patient_placeholder;
-                await Api.put(`${this.update_appointment_url}${appointmentID}`, this.appointment).then(response => {
+            // this.appointment.patient_id = this.current_patient_placeholder;
+                await Api.put(`${this.book_appointment_url}${appointmentID}`, this.appointment).then(response => {
                 if (response.status === 200) {
                     router.push({path: `/bookingConfirmation/${appointmentID}`})
                 }
