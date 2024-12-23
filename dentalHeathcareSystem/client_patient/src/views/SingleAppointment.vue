@@ -92,7 +92,7 @@ export default {
             address: '',
             appointments: []
         },
-        current_patient_placeholder: '674e36dedce0fe5f88fd1df9',
+        current_patient_placeholder: '6759e3f57a30ebf177f326c7',
         // current_patient_placeholder:'674516312f3c59c02e4df78d',
         confirmation_message: '',
         error_message: '',

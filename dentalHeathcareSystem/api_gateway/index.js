@@ -7,6 +7,12 @@ const request = require("request");
 const app = express();
 const mqttBroker = require("./mqtt-broker.js");
 
+//sessions variables 
+const jwtVerification = require('./jwtVerification.js')
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+
 const PORT = 3000;
 
 // function activityCheck(server){                           //ping and echo - is the server running
@@ -18,7 +24,7 @@ const PORT = 3000;
 //       server.isActive = false;
 //       console.log(`Server ${server.host} is not running`);
 //     }
-//   })
+//   }) 
 // }
 
 // setInterval(() => {                                     // Interval for ping and echo (every 5 seconds)
@@ -52,6 +58,18 @@ app.use(
   })
 );
 
+// app.use(session({
+//     secret: 'secret_patient_key',
+//     resave: false,
+//     saveUninitialized: true,
+//     store: new MongoStore({
+//         mongoUrl: 'mongodb://127.0.0.1:27017/dentalHealthcareSystem', 
+//         ttl: 14 * 24 * 60 * 60, // this stands for: time to live (14 days)
+//         autoRemove: 'native',  // an automatical removal of expired sessions offered by connect-mongo
+//         collectionName: 'sessions'
+//     })
+// }))
+app.use(cookieParser());
 // Also, handle preflight requests for all routes
 app.options("*", cors());
 app.use(helmet()); // Add security headers
@@ -168,7 +186,7 @@ app.post("/api/*", async (req, res) => {
             mqttBroker.unsubscribe(serviceTopicResponse);
         }
         
-        
+
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
@@ -189,7 +207,19 @@ app.post("/api/*", async (req, res) => {
             res.status(status).json({message : responseArr[1]});
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);        
-    
+            
+        // after login, each request is supposed to have a token. Here I check if it does exist
+            if (adaptedResponse.token) {
+            
+            // setting the token in the cookie
+            res.cookie('token', adaptedResponse.token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+                maxAge: 3600000,
+            })
+            
+        }
         res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
         }
@@ -212,13 +242,14 @@ app.post("/api/*", async (req, res) => {
             const status = parseInt(catchArr[0]);
         res.status(status).json({message: catchArr[1]});
         }
+
     }
 });
-app.get("/api/*", async (req, res) => {
+app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
-        const payload = JSON.stringify(body);
+        var payload = JSON.stringify(body);
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
@@ -250,8 +281,19 @@ app.get("/api/*", async (req, res) => {
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
+        console.log('payload before ',payload);
+        // I am parsing the payload to json in order to add the userId field to it. 
+        payload = JSON.parse(payload);
+
+        // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
+        const sessionUserId = req.user.userId;
+
+        // adding the userId field to the payload 
+        payload.userId = sessionUserId;
+        console.log('payload after ',payload);
+
         
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         if(!mqttResponse){
             res.status(400).json({message: "could not create object"});
             return
@@ -283,11 +325,11 @@ app.get("/api/*", async (req, res) => {
         }
     }
 });
-app.put("/api/*", async (req, res) => {
+app.put("/api/*", jwtVerification.verifyToken, async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
-        const payload = JSON.stringify(body);
+        var payload = JSON.stringify(body);
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
@@ -320,9 +362,20 @@ app.put("/api/*", async (req, res) => {
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
+
+        // I am parsing the payload to json in order to add the userId field to it. 
+        payload = JSON.parse(payload);
+
+        // get the session variable
+        const sessionUserId = req.user.userId;
+
+        // adding the userId field to the payload 
+        payload.userId = sessionUserId;
+
+        // stringifying the payload again because mqtt expects a string
+        var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-        if(!mqttResponse){
+        if (!mqttResponse) {
             res.status(400).json({message: "could not update object"});
             return
         }else if(mqttResponse){
@@ -353,11 +406,11 @@ app.put("/api/*", async (req, res) => {
         }
     }
 });
-app.delete("/api/*", async (req, res) => {
+app.delete("/api/*",  jwtVerification.verifyToken, async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
-        const payload = JSON.stringify(body);
+        var payload = JSON.stringify(body);
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
@@ -390,8 +443,16 @@ app.delete("/api/*", async (req, res) => {
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
-        
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        // I am parsing the payload to json in order to add the userId field to it. 
+        payload = JSON.parse(payload);
+
+        // get the session variable
+        const sessionUserId = req.user.userId;
+
+        // adding the userId field to the payload 
+        payload.userId = sessionUserId;
+
+        var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         if(!mqttResponse){
             res.status(400).json({message: "could not delete object"});
             return

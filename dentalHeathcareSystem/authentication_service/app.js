@@ -5,13 +5,16 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose')
 var cors = require('cors');
-
-
+const mqtt = require('mqtt');
+const MqttBroker = require("./mqtt-broker"); //starts the broker
 
 var app = express();
-var port = 3009; 
+var port = 3016; 
+// view engine setup
+//app.set('views', path.join(__dirname, 'views'));
+//app.set('view engine', 'jade');
 
-
+// replace localhost with 127.0.0.1
 var mongoURI =  "mongodb://127.0.0.1:27017/dentalHealthcareSystem";
 // Connect to MongoDB
 mongoose
@@ -29,21 +32,17 @@ mongoose
 // app.set("views", path.join(__dirname, "client_patient/src/"));
 // app.set('view engine', 'jade');
 
-/*  the CORS settings were slightly refactored for both the patient_management_service and api gateway. 
-This is because of an issue with preflight headers/requests that were blocked for no apparent reason. 
-It could be because of the api gateway being an intermediary between the browser and service server. */
 const origins = [
   "http://localhost:3000",
 ];
 app.use(
   cors({
-    origin: origins, // Allow all origins
+    origin: origins , // Allow all origins
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
-    preflightContinue: true
+    preflightContinue: true,
   })
 );
-
 
 // Also, handle preflight requests for all routes
 app.options("*", cors());
@@ -55,33 +54,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-// // catch 404 and forward to error handler
-// app.use(function(req, res, next) {
-//   next(createError(404));
-// });
 
-// // error handler
-// app.use(function(err, req, res, next) {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
-
-const { registerPatient, retrieveAllPatients, retrieveSpecificPatient, updatePatient, deletePatientByID,addAppoinmentToPatient } = require("./controller/patientController");
-
-app.post("/api/patients", registerPatient)
-app.get("/api/patients", retrieveAllPatients)
-app.get("/api/patients/:patient_id", retrieveSpecificPatient)
-app.put("/api/patients/:patient_id", updatePatient)
-app.delete("/api/patients/:patient_id", deletePatientByID)
-
-app.get("/active", (req,res) =>{
-  res.sendStatus(200)
-})
 
 app.listen(port, function (err) {
   if (err) throw err;
@@ -89,3 +62,5 @@ app.listen(port, function (err) {
   console.log(`Backend: http://localhost:${port}/api/`);
   console.log(`Frontend (production): http://localhost:${port}/`);
 });
+
+

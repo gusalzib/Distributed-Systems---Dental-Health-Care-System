@@ -42,7 +42,7 @@ export default {
   name: 'my_appointments',
   data() {
     return {
-        current_patient_placeholder: '674e36dedce0fe5f88fd1df9',
+        // current_patient_placeholder: '6759e3f57a30ebf177f326c7',
     //  current_patient_placeholder:'674516312f3c59c02e4df78d',
         confirmation_message: '',
         error_message: '',
@@ -90,6 +90,7 @@ export default {
     extractTimeAndDate(date_and_time) {
       var date = '';
       var time = '';
+      // console.log(date_and_time);
       
       var tempArr = date_and_time.split('T');
       date = tempArr[0];
@@ -117,71 +118,66 @@ export default {
             this.clinicIds = []
 
             try {
-              const response = await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`)
+              const response = await Api.get(`${this.patient_get_specific_url}`)
               if (response.status === 200) {
                     this.patient = response.data.patients;
-
+                    // console.log(this.patient);
+                    
                     //as we are getting the patient info, we assign the array of appointments ids that is inside the patient to 
                     //the bookedAppointmentsIds
                     this.bookedAppointmentsIds = this.patient.appointments;
-                                        
+                    // console.log('appointment ids ', this.bookedAppointmentsIds);
+                    
                     //extract appointments using the array of appointment ids 
 
                     await this.extractAppointments()
                     
                 }
-            } catch (error) {
+            } catch (error) {            
                 this.error_message = 'Something went wrong. Patient information not found!'
                 setTimeout(() => {
                         this.error_message = ''
                     }, 5000);
+                // console.log(error.message)
             }
       },
       async extractAppointments() {
-      
-        const response = await Api.get(`${this.get_patients_appointments}${this.current_patient_placeholder}`);
-        if (response.status === 200) {
-          var tempBookedAppointments = response.data.appointments;
-        
-          tempBookedAppointments.forEach((tempBookedAppointment)=>{
-            var tempClinic = {dentist_clinic_id:tempBookedAppointment.dentist_clinic_id};
-            this.clinicIds.push(tempClinic);
-            
-          })
-          const responseArr = await Api.post(`${this.get_clinic_info_from_appointment_array}`,this.clinicIds);
-          
-          
-          if (response.status === 200) {
-            var clinics = responseArr.data.clinics;
 
-            tempBookedAppointments.forEach((tempBookedAppointment) => {
-              var date_and_time = this.extractTimeAndDate(tempBookedAppointment.date_and_time_from);
-              tempBookedAppointment.date_and_time_from = date_and_time[0];
-              tempBookedAppointment.date_and_time_until = date_and_time[1];
-            
-              var matchingClinic = clinics.find((clinic) => clinic._id === tempBookedAppointment.dentist_clinic_id)
-              tempBookedAppointment.clinicName = matchingClinic.name;
-              tempBookedAppointment.clinicLocation = matchingClinic.address
-              this.bookedAppointments.push(tempBookedAppointment);
-              
-            });
-          }; 
-        } else if (response.status != 200) {
-          
+        try {
+          var appointmentIDs = this.bookedAppointmentsIds;
+          for (let index = 0; index < appointmentIDs.length; index++) {
+
+            const appointmentId = appointmentIDs[index].appointment_id ? appointmentIDs[index].appointment_id : appointmentIDs[index].appointment_id;
+            const response = await Api.get(`${this.appointments_get_specific_url}${appointmentId}`);
+
+            if (response.status === 200) {
+
+              var tempBookedAppointemnt = response.data.appointments;
+              var date_and_time = this.extractTimeAndDate(tempBookedAppointemnt.date_and_time_from)
+
+              tempBookedAppointemnt.date_and_time_from = date_and_time[0];
+              tempBookedAppointemnt.date_and_time_until = date_and_time[1];
+
+              this.bookedAppointments.push(tempBookedAppointemnt)
+
+            }
+          }
+        } catch (error) {
+          // console.log(error)
           this.error_message = error.response?.data.message;
-            setTimeout(() => {
-                this.error_message = '';
-            }, 5000);
-          
+          setTimeout(() => {
+            this.error_message = '';
+          }, 5000);
         }
-          
-        
 
-    },
+          
+        },
+
+
     async cancelAppointment(appointmentId) {
-      this.bookedAppointment.available = true;
-      this.bookedAppointment.patient_id = "00000000000000000000000a";
-      
+      this.bookedAppointemnt.available = true;
+      this.bookedAppointemnt.patient_id = "00000000000000000000000a";
+      // console.log(appointmentId);
       
       try {
         const response = await Api.put(`${this.update_appointment_url}${appointmentId}`, this.bookedAppointment); 
@@ -209,7 +205,7 @@ export default {
       this.patient.appointments = this.bookedAppointmentsIds;
     
       try {
-        const response = await Api.put(`${this.update_patient_specific_url}${this.current_patient_placeholder}`, this.patient)
+        const response = await Api.put(`${this.update_patient_specific_url}`, this.patient)
           if (response.status === 200) {
               this.confirmation_message = 'Appointment cancelled'
               await this.getPatientInformation();

@@ -7,20 +7,33 @@ exports.createPatient = async (payload) => {
         var message = "";
 
         const patient = JSON.parse(payload);
-        
+        const name = patient.name;
+        const phone_number = patient.phone_number;
+        const address = patient.address;
+        const ssn = patient.ssn;
         const email = patient.email;
         const exisitingPatient = await Patient.findOne({ email });
 
         // check if patient already exist. If not then check if email is valid
         if (exisitingPatient) {
-            status = 400
-            message = "Email already exists."
+            status = 401
+            message = "There is already a user account with this email"
             return status +"/"+ message;
                 
+        } else if (!name || !phone_number || !address || !ssn) {
+            status = 400
+            message = "Missing required fileds"
+            return status + "/" + message; 
+
         } else if (!emailValidator.isEmail(email)) {
             status = 400
             message = "Invalid email"
-            return status +"/"+ message;
+            return status + "/" + message;
+            
+        } else if (!(/^\d{10}$/.test(ssn))) {
+            status = 400
+            message = "SSN must be 10 digits"
+            return status + "/" + message;
         }
 
         var newPatient = new Patient(patient);
@@ -47,7 +60,10 @@ exports.createPatient = async (payload) => {
         status = 200;
         return status + "/" + message + "/" + stringPatient;
         
-    }catch(error){
+    } catch (error) {
+        console.log(error.message);
+        console.log(error);
+        
         if (error.name === 'ValidatorError') {
             status = 400
             message = "Invalid email"
@@ -93,13 +109,16 @@ exports.fetchAllPatients = async (payload) => {
     }
 }
 
-exports.fetchSpecificPatient = async (topic) => {
+exports.fetchSpecificPatient = async (topic, payload) => {
+    
     try{
         var status = 0;
         var message = "";
 
-        var topicArr = topic.split("/");
-        const id = topicArr[3];
+        var parsedPyload = JSON.parse(payload);
+
+        // get the userId from the session variable that is sent with the payload
+        const id = parsedPyload.userId;
         
         const patient = await Patient.findById(id);
         if(!patient){
@@ -127,16 +146,18 @@ exports.updateSpecificPatient = async (topic, payload) => {
         var status = 0;
         var message = ""; 
 
-        var topicArr = topic.split("/");
-        const _id = topicArr[3];
+        var parsedPyload = JSON.parse(payload);
+
+        // get the userId from the session variable that is sent with the payload
+        const id = parsedPyload.userId;
         
-        const existingPatient = await Patient.findById(_id);
+        const existingPatient = await Patient.findById(id);
         if(!existingPatient){
             status = 400;
             message = "No patient found";
             return status +"/"+ message;
         }
-        var newPatient = JSON.parse(payload)
+        var newPatient = parsedPyload
 
 
         const patient = {
@@ -155,7 +176,7 @@ exports.updateSpecificPatient = async (topic, payload) => {
             return status + "/"+ message;
         };
 
-        const updatedPatient = await Patient.findByIdAndUpdate(_id, patient, {new: true});
+        const updatedPatient = await Patient.findByIdAndUpdate(id, patient, {new: true});
 
         status = 200; 
         message= "Patient updated";
@@ -164,6 +185,8 @@ exports.updateSpecificPatient = async (topic, payload) => {
 
 
     } catch (error) {
+        console.log(error.message);
+        
         status = 400; 
         message = "Something went wrong. Failed to update patient."   
         return status + "/" + message + "/" + error.message;
@@ -171,13 +194,15 @@ exports.updateSpecificPatient = async (topic, payload) => {
         }
 }
 
-exports.deleteSpecificPatient = async (topic) => {
+exports.deleteSpecificPatient = async (topic, payload) => {
     try{
         var status = 0;
         var message = "";
 
-        var topicArr = topic.split("/");
-        const id = topicArr[2];
+
+        var parsedPyload = JSON.parse(payload);
+        // get the userId from the session variable that is sent with the payload
+        const id = parsedPyload.userId;
         
         const patient = await Patient.findByIdAndDelete(id);
         if (!patient) {
@@ -191,7 +216,7 @@ exports.deleteSpecificPatient = async (topic) => {
         return status + "/" + message + "/" + stringPatient;
 
     } catch (error) {
-        status = 404; 
+        status = 400; 
         message = "Something went wrong!"
         return status + "/" + message + "/" + error.message;
     }
