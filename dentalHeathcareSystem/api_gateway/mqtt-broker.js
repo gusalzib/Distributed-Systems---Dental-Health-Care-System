@@ -39,9 +39,9 @@ function connectToBroker() {
     });
 
     mqttClient.on("message", (topic, payload, packet) => {
-        console.log("Message received: " + payload.toString());
-        console.log("On topic: " + topic);
-        console.log(packet);
+        // console.log("Message received: " + payload.toString());
+        // console.log("On topic: " + topic);
+        // console.log(packet);
         var stringPayload = payload.toString();
         
         

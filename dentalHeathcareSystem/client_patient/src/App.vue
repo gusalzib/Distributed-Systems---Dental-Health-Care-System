@@ -15,7 +15,7 @@ import { RouterLink, RouterView } from 'vue-router'
         <nav id="nav" class="nav">
           <RouterLink class="desktop-header-link" to="/">Home</RouterLink>
           <!-- <RouterLink class="desktop-header-link" to="/my_appointments">My Appointments</RouterLink> -->
-          <RouterLink class="desktop-header-link" to="/profile">My profile</RouterLink>
+          <RouterLink class="desktop-header-link" to="/profile" v-if="this.loggedIn">My profile</RouterLink>
           <RouterLink class="desktop-header-link" to="/new/appointment">New Appointment</RouterLink>
           <!-- <RouterLink class="desktop-header-link" to="/medical_journal">Medical Journal</RouterLink> -->
           <RouterLink class="desktop-header-link" to="/registration">Register</RouterLink>
@@ -40,10 +40,15 @@ import { Api } from './Api'
 
 export default {
   data: () => ({
-
+    login_url: '/login/check',
+    loggedIn: '',
+    isAdmin: '',
+    isPaitent: '',
+    isDentist: '',
   }),
 
   mounted() {
+    this.loginCheck();
 
   },
   methods: {
@@ -63,6 +68,21 @@ export default {
       var notification = document.getElementsByClassName('notification-icon');
       console.log(notification)
       notification.src = 'bell.png'
+    },
+    async loginCheck() {
+      await Api.get(`${this.login_url}`).then(response => {
+        if (response.status === 200) {
+          this.loggedIn = response.data.loggedIn;
+          this.isAdmin = response.data.isAdmin;
+          this.isPatient = response.data.isPaitent;
+          this.isDentist = response.data.isDentist;
+          console.log(response);
+          
+        }
+      }).catch(error => {
+        console.log( error.response?.data.message);
+        
+      })
     }
   }
 }

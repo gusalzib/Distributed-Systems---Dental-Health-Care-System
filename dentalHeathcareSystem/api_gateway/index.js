@@ -8,7 +8,8 @@ const app = express();
 const mqttBroker = require("./mqtt-broker.js");
 
 //sessions variables 
-const jwtVerification = require('./jwtVerification.js')
+const jwtVerification = require('./jwtVerification.js');
+const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
@@ -154,7 +155,56 @@ app.use(express.json());
 //       index:0
 //     },
 //    ];
+app.get('/api/login/check', async (req, res) => {
+    const token = req.cookies.token;
+    // console.log('printing the token in verify method: ', token);
+    
+    if (!token) {
+        // if token is not set, i am returning 401 unauthorized code
+        return res.status(401).json({message: 'Access denied. Authentication token is missing'})
+    }
 
+    var decodedToken = '';
+    try {
+        const secret_key = process.env.JWT_SECRET_KEY;
+
+        // check if the token contains our secret key. Without this, we are vulnerable 
+        // attacks by fake tokens. here we make sure the incoming request has the key that we set
+        decodedToken = jwt.verify(token, secret_key); 
+        
+        const userRole = decodedToken.role;
+        if (userRole === 'patient') {
+            return res.status(200).json({
+                message: 'Logged in!',
+                loggedIn: true,
+                isPatient: true,
+                isDentist: false,
+                isAdmin: false,
+            });
+        } else if (userRole === 'dentist') {
+            return res.status(200).json({
+                message: 'Logged in!',
+                loggedIn: true,
+                isPatient: false,
+                isDentist: true,
+                isAdmin: false,
+            });
+        } else if (userRole === 'admin') {
+            return res.status(200).json({
+                message: 'Logged in!',
+                loggedIn: true,
+                isPatient: false,
+                isDentist: false,
+                isAdmin: true,
+            });
+        }
+
+    } catch (error) {        
+        console.log(error.message);
+        
+        return res.status(403).json({message: 'Token either expired or invalid', user: decodedToken})
+    }
+});
 app.post("/api/*", async (req, res) => {
     try {
         
@@ -281,7 +331,6 @@ app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
-        console.log('payload before ',payload);
         // I am parsing the payload to json in order to add the userId field to it. 
         payload = JSON.parse(payload);
 
@@ -290,7 +339,6 @@ app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
 
         // adding the userId field to the payload 
         payload.userId = sessionUserId;
-        console.log('payload after ',payload);
 
         
         var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
