@@ -153,7 +153,7 @@ export default {
           }
 
         } catch (error) { 
-          // console.log(error.message);
+          console.log(error.message);
              if ( error.response?.status === 401) {
               this.error_message = 'Incorrect password!';
               setTimeout(() => {
@@ -161,7 +161,7 @@ export default {
               }, 5000);
 
             }else if (error.response?.status === 404) {
-              this.error_message = 'There is no user with this email';
+              this.error_message = 'There is no dentist account with this email';
               setTimeout(() => {
                   this.error_message = ''
               }, 5000);

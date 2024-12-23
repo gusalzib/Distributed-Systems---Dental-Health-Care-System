@@ -1,5 +1,6 @@
 const mqtt = require('async-mqtt');
 const dentistCtrl = require('./src/dentist_controller/dentist-controller');
+const dentistAuthenticator = require('./src/dentist_controller/authenticator');
 let mqttClient;
 
 const host = "127.0.0.1";
@@ -50,6 +51,11 @@ function connectToBroker() {
 
         }else if (topic.startsWith('dentists/create/')) {
             dentistCtrl.createDentist(payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            unsubscribe(topic);
+        }else if (topic.startsWith('dentists/find/dentist/')) {
+            dentistAuthenticator.authenticateDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
