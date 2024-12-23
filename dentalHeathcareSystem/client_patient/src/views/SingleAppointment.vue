@@ -92,8 +92,7 @@ export default {
             address: '',
             appointments: []
         },
-        current_patient_placeholder: '6759e3f57a30ebf177f326c7',
-        // current_patient_placeholder:'674516312f3c59c02e4df78d',
+
         confirmation_message: '',
         error_message: '',
         appointment: {
@@ -222,7 +221,7 @@ export default {
             booking the appointment. The information is displayed in editable input fields. The patient has the option to change the details 
             prior to booking the appointment. Example: the patient wants to change the contact phone number or email for this particular appointment */
 
-            await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`).then(response => {
+            await Api.get(`${this.patient_get_specific_url}`).then(response => {
                 if (response.status === 200) {
                     this.patient = response.data.patients;    
                     
