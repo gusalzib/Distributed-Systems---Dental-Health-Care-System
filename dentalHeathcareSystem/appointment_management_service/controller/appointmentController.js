@@ -275,7 +275,6 @@ exports.fetchClinicsAvailableAppointments = async (topic) => {
     }
 }
 exports.bookAppointment = async (topic, payload) => {
-    console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX i am called');
     
     try {
             
@@ -283,7 +282,6 @@ exports.bookAppointment = async (topic, payload) => {
         var topicArr = topic.split("/");
         const _id = topicArr[2];
         var parsedPayload = JSON.parse(payload); 
-        console.log('parsed ' ,parsedPayload, 'SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS');
         
         const existing_appointment = await Appointment.findById(_id);
         if(!existing_appointment){
