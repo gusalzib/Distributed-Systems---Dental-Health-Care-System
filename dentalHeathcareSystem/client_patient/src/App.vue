@@ -19,7 +19,8 @@ import { RouterLink, RouterView } from 'vue-router'
           <RouterLink class="desktop-header-link" to="/new/appointment">New Appointment</RouterLink>
           <!-- <RouterLink class="desktop-header-link" to="/medical_journal">Medical Journal</RouterLink> -->
           <RouterLink class="desktop-header-link" to="/registration">Register</RouterLink>
-          <RouterLink class="desktop-header-link" to="/login">Login</RouterLink>
+          <RouterLink class="desktop-header-link" to="/login" v-if="!this.loggedIn">Login</RouterLink>
+          <button class="desktop-header-link" @click="logout()"  v-if="this.loggedIn">Logut</button>
         </nav>
 
 
@@ -41,6 +42,7 @@ import { Api } from './Api'
 export default {
   data: () => ({
     login_url: '/login/check',
+    logout_url: '/logout',
     loggedIn: '',
     isAdmin: '',
     isPaitent: '',
@@ -71,6 +73,21 @@ export default {
     },
     async loginCheck() {
       await Api.get(`${this.login_url}`).then(response => {
+        if (response.status === 200) {
+          this.loggedIn = response.data.loggedIn;
+          this.isAdmin = response.data.isAdmin;
+          this.isPatient = response.data.isPaitent;
+          this.isDentist = response.data.isDentist;
+          console.log(response);
+          
+        }
+      }).catch(error => {
+        console.log( error.response?.data.message);
+        
+      })
+    },
+    async logout() {
+      await Api.get(`${this.logout_url}`).then(response => {
         if (response.status === 200) {
           this.loggedIn = response.data.loggedIn;
           this.isAdmin = response.data.isAdmin;

@@ -155,6 +155,27 @@ app.use(express.json());
 //       index:0
 //     },
 //    ];
+app.get('/api/logout', async (req, res) => {
+    try {
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict'
+        })
+
+        return res.status(200).json({
+            message: 'Logout successful!',
+            loggedIn: false,
+            isPatient: false,
+            isDentist: false,
+            isAdmin: false,
+        });
+    } catch (error) {
+        console.log(error.message);
+        
+        return res.status(400).json({ message: 'Something went wrong. Logout failed!' });
+    }
+});
 app.get('/api/login/check', async (req, res) => {
     const token = req.cookies.token;
     // console.log('printing the token in verify method: ', token);
