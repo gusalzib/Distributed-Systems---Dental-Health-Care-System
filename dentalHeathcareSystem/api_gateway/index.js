@@ -155,6 +155,9 @@ app.use(express.json());
 //       index:0
 //     },
 //    ];
+
+/*######################################################################## LOGOUT ENPOINT #################################################################################### */
+/* connected to the logout button in App.vue */
 app.get('/api/logout', async (req, res) => {
     try {
         res.clearCookie('token', {
@@ -176,6 +179,9 @@ app.get('/api/logout', async (req, res) => {
         return res.status(400).json({ message: 'Something went wrong. Logout failed!' });
     }
 });
+
+/*######################################################################## LOGIN CHECK ENPOINT #################################################################################### */
+/* Login check is performed whenever we need to make sure the user is authorized to do a certain action or if the user is trying to access certain routes.*/
 app.get('/api/login/check', async (req, res) => {
     const token = req.cookies.token;
     // console.log('printing the token in verify method: ', token);
@@ -226,6 +232,9 @@ app.get('/api/login/check', async (req, res) => {
         return res.status(403).json({message: 'Token either expired or invalid', user: decodedToken})
     }
 });
+
+/*######################################################################## PATIENT SIGNUP ENPOINT #################################################################################### */
+
 app.post('/api/patients/signup', async (req, res) => {
     try {
         //get the body and make it a string, get url, remove "api" and give it a unique id
@@ -304,6 +313,8 @@ app.post('/api/patients/signup', async (req, res) => {
 
     }
 });
+/*######################################################################## PATIENT LOGIN ENPOINT #################################################################################### */
+
 app.post('/api/patients/login', async(req, res) => {
     try {        
         //get the body and make it a string, get url, remove "api" and give it a unique id
@@ -382,6 +393,7 @@ app.post('/api/patients/login', async(req, res) => {
 
     }
 })
+/*######################################################################## DENTIST LOGIN ENPOINT #################################################################################### */
 app.post('/api/dentists/login', async (req, res) => {    
     try {        
         //get the body and make it a string, get url, remove "api" and give it a unique id
@@ -460,12 +472,15 @@ app.post('/api/dentists/login', async (req, res) => {
 
     }
 })
-app.post("/api/*", async (req, res) => {
+
+/*######################################################################## GENERIC POST ENPOINT #################################################################################### */
+/* catches the rest of post requests after the user is authenticated and given a token */
+app.post("/api/*", jwtVerification.verifyToken, async (req, res) => {
     try {
         
         //get the body and make it a string, get url, remove "api" and give it a unique id
         var body = req.body;
-        const payload = JSON.stringify(body);
+        var payload = JSON.stringify(body);
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
@@ -495,8 +510,19 @@ app.post("/api/*", async (req, res) => {
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
+
+        // I am parsing the payload to json in order to add the userId field to it. 
+        payload = JSON.parse(payload);
+
+        // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
+        const sessionUserId = req.user.userId;
+        const sessionUserRole = req.user.role;
         
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        // adding the userId field to the payload 
+        payload.userId = sessionUserId;
+        payload.role = sessionUserRole;
+
+        var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         if(!mqttResponse){
             res.status(400).json({message: "could not create object"});
             return
@@ -514,17 +540,17 @@ app.post("/api/*", async (req, res) => {
             var adaptedResponse = JSON.parse(responseArr[2]);        
                 
             // after login, each request is supposed to have a token. Here I check if it does exist
-                if (adaptedResponse.token) {
+            //     if (adaptedResponse.token) {
                 
-                // setting the token in the cookie
-                res.cookie('token', adaptedResponse.token, {
-                    httpOnly: true,
-                    secure: true,
-                    sameSite: 'strict',
-                    maxAge: 3600000,
-                })
+            //     // setting the token in the cookie
+            //     res.cookie('token', adaptedResponse.token, {
+            //         httpOnly: true,
+            //         secure: true,
+            //         sameSite: 'strict',
+            //         maxAge: 3600000,
+            //     })
                 
-            }
+            // }
             return res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
             
         }
@@ -550,6 +576,10 @@ app.post("/api/*", async (req, res) => {
 
     }
 });
+
+/*######################################################################## GENERIC GET ENPOINT #################################################################################### */
+/* catches all get requests and requires a token otherwise the request will be blocked  */
+
 app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
@@ -591,9 +621,11 @@ app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
 
         // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
         const sessionUserId = req.user.userId;
-
+        const sessionUserRole = req.user.role;
+        
         // adding the userId field to the payload 
         payload.userId = sessionUserId;
+        payload.role = sessionUserRole;
 
         
         var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
@@ -628,6 +660,10 @@ app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
         }
     }
 });
+
+/*######################################################################## GENERIC PUT ENPOINT #################################################################################### */
+/* catches all put requests and requires a token otherwise the request will be blocked  */
+
 app.put("/api/*", jwtVerification.verifyToken, async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
@@ -671,10 +707,11 @@ app.put("/api/*", jwtVerification.verifyToken, async (req, res) => {
 
         // get the session variable
         const sessionUserId = req.user.userId;
+        const sessionUserRole = req.user.role;
 
         // adding the userId field to the payload 
         payload.userId = sessionUserId;
-
+        payload.role = sessionUserRole;
         // stringifying the payload again because mqtt expects a string
         var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         
@@ -709,6 +746,8 @@ app.put("/api/*", jwtVerification.verifyToken, async (req, res) => {
         }
     }
 });
+/*######################################################################## GENERIC DELETE ENPOINT #################################################################################### */
+/* catches all delete requests and requires a token otherwise the request will be blocked  */
 app.delete("/api/*",  jwtVerification.verifyToken, async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
@@ -751,9 +790,10 @@ app.delete("/api/*",  jwtVerification.verifyToken, async (req, res) => {
 
         // get the session variable
         const sessionUserId = req.user.userId;
-
-        // adding the userId field to the payload 
+        const sessionUserRole = req.user.role;
+        // adding the userId and role field to the payload 
         payload.userId = sessionUserId;
+        payload.role = sessionUserRole;
 
         var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         if(!mqttResponse){
