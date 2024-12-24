@@ -54,7 +54,7 @@ function connectToBroker() {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
-        }else if (topic.startsWith('dentists/find/dentist/')) {
+        }else if (topic.startsWith('dentists/login/')) {
             dentistAuthenticator.authenticateDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
