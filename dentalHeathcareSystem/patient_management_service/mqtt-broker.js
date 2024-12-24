@@ -51,15 +51,15 @@ function connectToBroker() {
             var newPayload = '200/subscribed to topic/'+topic;
             publishToBroker(publishTopic,newPayload);
 
-        }else if (topic.startsWith('patients/create/')) {
+        }else if (topic.startsWith('patients/signup/')) {
             console.log("create a patient");
             patientCtrl.createPatient(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
         
-        }else if (topic.startsWith('patients/find/patient/')) {
-            console.log("find patient");
+        }else if (topic.startsWith('patients/login/')) {
+            console.log("login patient");
             authenticator.authenticatePatient(topic ,payload).then(response => {
                 publishToBroker(publishTopic, response)
             })

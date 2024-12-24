@@ -83,8 +83,8 @@ export default {
     }
   },
     mounted() {
-      this.find_patient_url = import.meta.env.VITE_FIND_PATIENT;
-      this.find_dentist_url = import.meta.env.VITE_FIND_DENTIST;
+      this.find_patient_url = import.meta.env.VITE_PATIENT_LOGIN_URL;
+      this.find_dentist_url = import.meta.env.VITE_DENTIST_LOGIN_URL;
   },
   methods: {
     setActive(section) {

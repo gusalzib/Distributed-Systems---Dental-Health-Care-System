@@ -226,6 +226,162 @@ app.get('/api/login/check', async (req, res) => {
         return res.status(403).json({message: 'Token either expired or invalid', user: decodedToken})
     }
 });
+app.post('/api/patients/signup', async (req, res) => {
+    try {
+        //get the body and make it a string, get url, remove "api" and give it a unique id
+        var body = req.body;
+        const payload = JSON.stringify(body);
+        const reqURL = req.url;
+        var adaptedURL = adaptRequestURL(reqURL);
+        
+        //create all topics
+        var topic = adaptedURL + "/" + giveUniqueID();
+        var responseTopic = 'response/' + topic
+
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0];
+        var serviceTopic = nameOfEntity + "/topics";
+        
+        var serviceTopicResponse = "response/" + serviceTopic;
+        var responseTopic = 'response/' + topic
+
+        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
+        await mqttBroker.subscribeToBroker(serviceTopicResponse);
+        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic, topic);
+      
+        if (!serviceResponse) {
+            res.status(400).json({ message: "could not find service" })
+            return
+        } else if (serviceResponse) {
+            mqttBroker.unsubscribe(serviceTopicResponse);
+        }
+        
+        //Publish request
+        await mqttBroker.subscribeToBroker(responseTopic);
+        
+        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        if (!mqttResponse) {
+            res.status(400).json({ message: "could not create object" });
+            return
+        } else if (mqttResponse) {
+            mqttBroker.unsubscribe(responseTopic);
+        }
+
+        //exstract information from topic and response, parse the payload and return http response
+        var responseArr = mqttResponse.split("/");
+        var status = parseInt(responseArr[0]);
+        
+        if (responseArr.length <= 2) {
+            return res.status(status).json({ message: responseArr[1] });
+        } else {
+            var adaptedResponse = JSON.parse(responseArr[2]);
+                
+            // after login, each request is supposed to have a token. Here I check if it does exist
+            if (adaptedResponse.token) {
+                
+                // setting the token in the cookie
+                res.cookie('token', adaptedResponse.token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict',
+                    maxAge: 3600000,
+                })
+                
+            }
+            return res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+            
+        }
+    } catch (error) {
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
+        if (catchArr.length === 1) {
+            return res.status(400).json({ message: "something went wrong" });
+        } else {
+            const status = parseInt(catchArr[0]);
+            return res.status(status).json({ message: catchArr[1] });
+        }
+
+    }
+});
+app.post('/api/patients/login', async(req, res) => {
+    try {        
+        //get the body and make it a string, get url, remove "api" and give it a unique id
+        var body = req.body;
+        const payload = JSON.stringify(body);
+        const reqURL = req.url;
+        var adaptedURL = adaptRequestURL(reqURL);
+        
+        //create all topics
+        var topic = adaptedURL + "/" + giveUniqueID();
+        var responseTopic = 'response/'+topic
+
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0];
+        var serviceTopic = nameOfEntity+"/topics";
+        
+        var serviceTopicResponse = "response/"+serviceTopic;
+        var responseTopic = 'response/'+topic
+
+        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
+        await mqttBroker.subscribeToBroker(serviceTopicResponse);
+        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
+      
+        if(!serviceResponse){
+            res.status(400).json({message: "could not find service"})
+            return
+        }else if (serviceResponse){
+            mqttBroker.unsubscribe(serviceTopicResponse);
+        }
+        
+        //Publish request
+        await mqttBroker.subscribeToBroker(responseTopic);
+        
+        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        if(!mqttResponse){
+            res.status(400).json({message: "could not create object"});
+            return
+        }else if(mqttResponse){
+            mqttBroker.unsubscribe(responseTopic);
+        }
+
+        //exstract information from topic and response, parse the payload and return http response
+        var responseArr = mqttResponse.split("/");
+        var status = parseInt(responseArr[0]);
+        
+        if(responseArr.length <=2){
+            return res.status(status).json({message : responseArr[1]});
+        }else{
+            var adaptedResponse = JSON.parse(responseArr[2]);        
+                
+            // after login, each request is supposed to have a token. Here I check if it does exist
+                if (adaptedResponse.token) {
+                
+                // setting the token in the cookie
+                res.cookie('token', adaptedResponse.token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict',
+                    maxAge: 3600000,
+                })
+                
+            }
+            return res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+            
+        }
+    } catch (error) {
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
+        if(catchArr.length===1){
+            return res.status(400).json({message: "something went wrong"}); 
+        }else{
+            const status = parseInt(catchArr[0]);
+            return res.status(status).json({message: catchArr[1]});
+        }
+
+    }
+})
 app.post("/api/*", async (req, res) => {
     try {
         
