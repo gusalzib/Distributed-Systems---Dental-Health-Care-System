@@ -6,7 +6,7 @@ const emailValidator = require('validator');
 const jwt = require('jsonwebtoken');
 
 exports.authenticatePatient = async (topic, payload) => {
-    console.log('secret key ', secret_key);
+    // console.log('secret key ', secret_key);
     
     try{
         var status = 0;
@@ -18,9 +18,11 @@ exports.authenticatePatient = async (topic, payload) => {
         const email = incomingPayload.email;
         const password = incomingPayload.password;
 
+        const adminEmail = 'admin@gmail.com';
+        const adminPassword = 'admin';
 
         const patient = await Patient.findOne({ email });
-        console.log('patient printed: ', patient);
+        // console.log('patient printed: ', patient);
         
         if(!patient){
             status = 404
@@ -37,16 +39,32 @@ exports.authenticatePatient = async (topic, payload) => {
             return status +"/"+ message;
         }
 
-        const token = jwt.sign(
-            {
-            userId: patient._id,
-            role: 'patient',
-            email: patient.email,
-            },
-            secret_key,
-            {expiresIn: '1h'}
-        )
-        console.log('this is the token right here ',token);
+        var token = '';
+        // check if the user is the admin
+        if (email === adminEmail && password.trim() === adminPassword.trim()) {
+            token = jwt.sign(
+                {
+                    userId: patient._id,
+                    role: 'admin',
+                    email: patient.email,
+                },
+                secret_key,
+                { expiresIn: '1h' }
+            );
+        } else {
+            token = jwt.sign(
+                {
+                    userId: patient._id,
+                    role: 'patient',
+                    email: patient.email,
+                },
+                secret_key,
+                { expiresIn: '1h' }
+            );
+        }
+
+
+        // console.log('this is the token right here ',token);
         
         status = 200;
         message = "Patient retrieved";

@@ -19,7 +19,6 @@ exports.authenticateDentist = async (topic, payload) => {
 
 
         const dentist = await Dentist.findOne({ email });
-        console.log('dentist printed: ', dentist);
         
         if(!dentist){
             status = 404
@@ -29,7 +28,6 @@ exports.authenticateDentist = async (topic, payload) => {
         
         /* trim the passwords to remove any trailing spaces */
         const passwordCheck = dentist.password.trim() === password.trim(); 
-        console.log(password);
         
         if (!passwordCheck) {
             status = 401
@@ -46,7 +44,6 @@ exports.authenticateDentist = async (topic, payload) => {
             secret_key,
             {expiresIn: '1h'}
         )
-        console.log('this is the token right here ',token);
         
         status = 200;
         message = "Dentist retrieved";
