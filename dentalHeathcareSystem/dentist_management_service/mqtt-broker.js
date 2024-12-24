@@ -67,7 +67,7 @@ function connectToBroker() {
             unsubscribe(topic);
 
         }else if (topic.startsWith('dentists/get/specific/')) {
-            dentistCtrl.getSpecificDentist(topic).then(response => {
+            dentistCtrl.getSpecificDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
@@ -79,7 +79,7 @@ function connectToBroker() {
             unsubscribe(topic);
 
         } else if (topic.startsWith('dentists/delete/')) {
-            dentistCtrl.deleteSpecificDentist(topic).then(response => {
+            dentistCtrl.deleteSpecificDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);

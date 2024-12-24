@@ -181,7 +181,7 @@ exports.deleteAClinic = async (topic, payload) => {
         var parsedPayload = JSON.parse(payload);
         const userRole = parsedPayload.role;
 
-        /* only admin can create a clinic */
+        /* only admin can delte a clinic */
         if (userRole === 'admin') { 
             var message ='';
             var status = 0;
