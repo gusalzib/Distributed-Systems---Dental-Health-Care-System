@@ -139,50 +139,90 @@ app.use(express.json());
 
 app.post("/api/*", async (req, res) => {
     try {
-        console.log("in post");
-        //get the body and make it a string
+        
+        //get the body and make it a string, get url, remove "api" and give it a unique id
         var body = req.body;
         const payload = JSON.stringify(body);
-        
-        //get url, remove "api" and give it a unique id
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
-        var topic = adaptedURL + "/" + giveUniqueID();
         
+        //create all topics
+        var topic = adaptedURL + "/" + giveUniqueID();
+        var responseTopic = 'response/'+topic
 
-        console.log("topic is: ",topic, "payload is: ",payload);
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0];
+        var serviceTopic = nameOfEntity+"/topics";
+        
+        var serviceTopicResponse = "response/"+serviceTopic;
+        var responseTopic = 'response/'+topic
 
+        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
+        await mqttBroker.subscribeToBroker(serviceTopicResponse);
+        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
+      
+        if(!serviceResponse){
+            res.status(400).json({message: "could not find service"})
+            return
+        }else if (serviceResponse){
+            mqttBroker.unsubscribe(serviceTopicResponse);
+        }
+        
+        
 
         //Publish request
+        await mqttBroker.subscribeToBroker(responseTopic);
+        
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
-            res.status(400).json({message: "could not create appointment"})
+            res.status(400).json({message: "could not create object"});
             return
+        }else if(mqttResponse){
+            mqttBroker.unsubscribe(responseTopic);
+        }
+        
+        //exstract information from topic and response, parse the payload and return http response
+        var responseArr = mqttResponse.split("/");
+        var status = parseInt(responseArr[0]);
+        
+        if(responseArr.length <=2){
+            res.status(status).json({message : responseArr[1]});
+        }else{
+        var adaptedResponse = JSON.parse(responseArr[2]);        
+    
+        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        return;
+        }
+        var catchArr = []
+        if (errorMessage) {
+            catchArr = errorMessage.split("/")
         }
 
-        //exstract information from topic and response, parse the payload and return http response
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0]
-        var responseArr = mqttResponse.split("/");
-        
-        var adaptedResponse = JSON.parse(responseArr[2]);
-        res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
-        return;
+
+
+
 
     } catch (error) {
-        res.status(400).json({message: "something went wrong"});
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
+        if(catchArr.length===1){
+            res.status(400).json({message: "something went wrong"}); 
+        }else{
+            const status = parseInt(catchArr[0]);
+        res.status(status).json({message: catchArr[1]});
+        }
     }
 });
 app.get("/api/*", async (req, res) => {
     try {
-        //get the body and make it a string
+        //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
         const payload = JSON.stringify(body);
-
-        //get the url and call method to remove "api"
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
+        //create all topics
         // does url contain an _id? if not give it an unique id
         var id = checkForId(adaptedURL);
         if(!id){
@@ -190,39 +230,68 @@ app.get("/api/*", async (req, res) => {
         }else{
             topic = adaptedURL;
         }
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0];
+        var serviceTopic = nameOfEntity+"/topics";
+        var serviceTopicResponse = "response/"+serviceTopic;
+        var responseTopic = 'response/'+topic
 
-        //publish request
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-
-        if(!mqttResponse){
-            res.status(400).json({message: "information not found"})
+        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
+        await mqttBroker.subscribeToBroker(serviceTopicResponse);
+        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
+        if(!serviceResponse){
+            res.status(400).json({message: "could not find service"})
             return
+        }else if (serviceResponse){
+            mqttBroker.unsubscribe(serviceTopicResponse);
+        }
+
+        
+
+        //Publish request
+        await mqttBroker.subscribeToBroker(responseTopic);
+        
+        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        if(!mqttResponse){
+            res.status(400).json({message: "could not create object"});
+            return
+        }else if(mqttResponse){
+            mqttBroker.unsubscribe(responseTopic);
         }
          //exstract information from topic and response, parse the payload and return http response
         var topicArr = topic.split("/");
         var nameOfEntity = topicArr[0]
-        var responseArr = mqttResponse.split("/");
-        var entityString = responseArr[2]
-        var adaptedResponse = JSON.parse(entityString);
-        
-        res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        var responseArr = mqttResponse.split("/"); 
+        var status = parseInt(responseArr[0]);
+        if(responseArr.length <=2){
+            res.status(status).json({message : responseArr[1]});
+        }else{
+        var adaptedResponse = JSON.parse(responseArr[2]);     
+        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
+        }
 
     } catch (error) {
-        res.status(400).json({message: "something went wrong"});
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
+        if(catchArr.length===1){
+            res.status(400).json({message: "something went wrong"}); 
+        }else{
+            const status = parseInt(catchArr[0]);
+        res.status(status).json({message: catchArr[1]});
+        }
     }
 });
 app.put("/api/*", async (req, res) => {
     try {
-        //get the body and make it a string
-        console.log("TEST");
+        //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
         const payload = JSON.stringify(body);
-
-        //get the url and call method to remove "api"
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
+        //create all topics
         // does url contain an _id? if not give it an unique id
         var id = checkForId(adaptedURL);
         if(!id){
@@ -230,38 +299,69 @@ app.put("/api/*", async (req, res) => {
         }else{
             topic = adaptedURL;
         }
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0];
+        var serviceTopic = nameOfEntity+"/topics";
+        var serviceTopicResponse = "response/"+serviceTopic;
+        var responseTopic = 'response/'+topic
 
-        //publish request
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-
-        if(!mqttResponse){
-            res.status(400).json({message: "could not find appointment"})
+        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
+        await mqttBroker.subscribeToBroker(serviceTopicResponse);
+        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
+        
+        if(!serviceResponse){
+            res.status(400).json({message: "could not find service"})
             return
+        }else if (serviceResponse){
+            mqttBroker.unsubscribe(serviceTopicResponse);
+        }
+
+
+
+        //Publish request
+        await mqttBroker.subscribeToBroker(responseTopic);
+        
+        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        if(!mqttResponse){
+            res.status(400).json({message: "could not update object"});
+            return
+        }else if(mqttResponse){
+            mqttBroker.unsubscribe(responseTopic);
         }
          //exstract information from topic and response, parse the payload and return http response
         var topicArr = topic.split("/");
         var nameOfEntity = topicArr[0]
-        var responseArr = mqttResponse.split("/");
-        var entityString = responseArr[2]
-        var adaptedResponse = JSON.parse(entityString);
-        
-        res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        var responseArr = mqttResponse.split("/"); 
+        var status = parseInt(responseArr[0]);
+        if(responseArr.length <=2){
+            res.status(status).json({message : responseArr[1]});
+        }else{
+        var adaptedResponse = JSON.parse(responseArr[2]);     
+        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
+        }
 
     } catch (error) {
-        res.status(400).json({message: "something went wrong"});
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
+        if(catchArr.length===1){
+            res.status(400).json({message: "something went wrong"}); 
+        }else{
+            const status = parseInt(catchArr[0]);
+        res.status(status).json({message: catchArr[1]});
+        }
     }
 });
 app.delete("/api/*", async (req, res) => {
     try {
-        //get the body and make it a string
+        //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
         const payload = JSON.stringify(body);
-
-        //get the url and call method to remove "api"
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
+        //create all topics
         // does url contain an _id? if not give it an unique id
         var id = checkForId(adaptedURL);
         if(!id){
@@ -269,28 +369,58 @@ app.delete("/api/*", async (req, res) => {
         }else{
             topic = adaptedURL;
         }
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0];
+        var serviceTopic = nameOfEntity+"/topics";
+        var serviceTopicResponse = "response/"+serviceTopic;
+        var responseTopic = 'response/'+topic
 
-        //publish request
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-        console.log("back in index");
-        if(!mqttResponse){
-            res.status(400).json({message: "could not delete appointment"})
+        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
+        await mqttBroker.subscribeToBroker(serviceTopicResponse);
+        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
+        
+        if(!serviceResponse){
+            res.status(400).json({message: "could not find service"})
             return
+        }else if (serviceResponse){
+            mqttBroker.unsubscribe(serviceTopicResponse);
+        }
+
+
+
+        //Publish request
+        await mqttBroker.subscribeToBroker(responseTopic);
+        
+        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        if(!mqttResponse){
+            res.status(400).json({message: "could not delete object"});
+            return
+        }else if(mqttResponse){
+            mqttBroker.unsubscribe(responseTopic);
         }
          //exstract information from topic and response, parse the payload and return http response
         var topicArr = topic.split("/");
-        console.log("after split");
         var nameOfEntity = topicArr[0]
-        var responseArr = mqttResponse.split("/");
-        var entityString = responseArr[2]
-        var adaptedResponse = JSON.parse(entityString);
-        console.log("adapted response: ",adaptedResponse);
-        
-        res.status(200).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        var responseArr = mqttResponse.split("/"); 
+        var status = parseInt(responseArr[0]);
+        if(responseArr.length <=2){
+            res.status(status).json({message : responseArr[1]});
+        }else{
+        var adaptedResponse = JSON.parse(responseArr[2]);     
+        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
         return;
+        }
 
     } catch (error) {
-        res.status(400).json({message: "something went wrong"});
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
+        if(catchArr.length===1){
+            res.status(400).json({message: "something went wrong"}); 
+        }else{
+            const status = parseInt(catchArr[0]);
+        res.status(status).json({message: catchArr[1]});
+        }
     }
 });
 
@@ -307,15 +437,11 @@ function checkForId(adaptedURL){
     var urlArr = adaptedURL.split("/")
     var index = urlArr.length -1
     var lastElement = urlArr[index];
-    console.log("last element length: ",lastElement.length);
-    console.log("last element: ",lastElement);
     if(lastElement.length < 24){
-        
-        console.log( "element is not an id");
+        //element is not an id
         return;
     }else{
         var id = lastElement;
-        console.log("this is id check. id: ",id);
         return id;
     }
 }

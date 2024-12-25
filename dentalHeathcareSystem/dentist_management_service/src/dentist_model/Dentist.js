@@ -5,9 +5,9 @@ var Schema = mongoose.Schema;
 var dentistSchema = new Schema({
 
     clinic_id:{
-        type: String, required: true
+        type: mongoose.Schema.Types.ObjectId, ref: "Clinic"
+        
     },
-
     name: {
         type: String, required: true
     },

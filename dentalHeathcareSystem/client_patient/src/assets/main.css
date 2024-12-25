@@ -156,12 +156,13 @@ label{
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Home PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 .map-container{
   width: 70%;
-  height: 500px;
+  height: 790px;
   border: 1px grey solid;
   border-radius: 10px;
   margin: 20% auto;
   margin-bottom: 30px;
   padding: 10px;
+  padding-top: 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -170,13 +171,27 @@ label{
 }
 
 
-#google-map{
+#mapbox{
   width: 90%;
-  height: 500px;
+  min-height: 500px;
+  max-height: 600px;
   margin: auto;
 }
-
-
+.mapboxgl-popup {
+  z-index: 1000;
+  border: 1px red solid;
+  background-color: whitesmoke;
+  color: black;
+    max-width: 400px;
+    font:
+        12px/20px 'Helvetica Neue',
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+.mapboxgl-popup span{
+  font-weight: bold;
+}
 .home-page-container{
   /* border: 1px red solid; */
   width: 90%;
@@ -221,6 +236,12 @@ label{
 
 .instruction-item{
   display: inline;
+}
+
+@media only screen and (max-width: 1500px){
+  .map-container{
+    width: 95%;
+  }
 }
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX New Appointment PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 
@@ -275,14 +296,22 @@ label{
   border-radius: 10px;
   padding: 10px;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
   margin: 15px 0;
 }
-
+.appointments-card button{
+  margin: 5px auto;
+  width: 30%;
+}
 .appointments-card:hover{
   transition: .5s ease;
   box-shadow: var(--heavy-shadow);
+}
+
+.appointment-details{
+  text-align: left;
+  padding: 0px 10px;
 }
 
 @media only screen and (max-width: 1580px){
@@ -979,7 +1008,8 @@ the card, which is also something that we might need to add later.*/
 }
 #clinic-card {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;

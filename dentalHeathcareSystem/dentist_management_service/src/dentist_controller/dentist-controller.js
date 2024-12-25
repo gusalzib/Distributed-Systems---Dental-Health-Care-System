@@ -10,7 +10,6 @@ exports.createDentist = async (payload) => {
         const newDentistValidation = validateDentist(newDentist);
 
         if (!newDentistValidation.success) {
-            console.log(newDentistValidation.message);
             status = 400
             return status + "/" + newDentistValidation.message;
         }
@@ -155,6 +154,41 @@ exports.deleteSpecificDentist = async (topic) => {
         return status + "/" + error.message;
     }
 };
+exports.fetchClinicsDentists = async (topic) => {
+    try {
+        var message ='';
+        var status = 0; 
+        var topicArr = topic.split("/");
+        const _id = topicArr[4];
+        
+        const dentists = await Dentist.find();
+        
+        if (dentists.length === 0) {
+            status = 404; 
+            message = "No dentist found"; 
+            return status + "/" + message;
+        }
+        
+        const clinicsDentists = dentists.filter(dentist => dentist.clinic_id && dentist.clinic_id.equals(_id));
+       
+        if (clinicsDentists.length === 0) {
+            status = 404; 
+            message = "This clinic has no dentists"; 
+            return status + "/" + message;
+
+        } else {
+            status = 200; 
+            message = "Dentists retrieved"; 
+            var stringDentists = JSON.stringify(dentists)
+            return status + "/" + message + "/" + stringDentists;
+        }
+
+    } catch (error) {
+            status = 400; 
+            message = "Something went wrong!" 
+            return status + "/" + message + "/" + error.message;
+    }
+}
 
 
 /*=========== HTTP endpoints ==============*/

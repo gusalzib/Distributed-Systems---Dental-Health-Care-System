@@ -26,7 +26,14 @@
             {{ appointment._id }}
             <!-- Later on, the select button will have the responsibility of triggering the countdown timer for the booking process -->
             <div class="appointments-card">
-              <h2><strong>{{clinic_name}} </strong>|{{appointment.date_and_time_from}} | {{appointment.date_and_time_until }} | {{clinic_address}}</h2>
+              <div class="appointment-details">
+                <h3><strong>{{appointment.clinic_name}}</strong></h3>
+                <p>Date: {{appointment.date}}</p>
+                <p>Time: {{appointment.time }}</p>
+                <p>Type of appointment: {{appointment.type_of_appointment }}</p>
+                <p>Address: {{appointment.clinic_address}}</p>
+              </div>
+              
               <button class="clinic-button" @click="rerouting(`/clinic/${appointment.dentist_clinic_id}`)">Contact Clinic</button>
               <button class="select-button" @click="checkAvailability(appointment._id)">Select</button>
               
@@ -54,8 +61,13 @@ export default {
         type_of_appointment:"",
         date_and_time_from:"",
         date_and_time_until:"",
-        available:"",
+        available: "",
+        clinic_address: '',
+        clinic_name: '',
+        date: '',
+        time: '',
       },
+
       appointments: [],
       clinics: [],
       clinicID: "",
@@ -71,19 +83,18 @@ export default {
     }
   },
   mounted() {
-    this.appointments_get_specific_url = import.meta.env.VITE_APPOINTMENTS_GET_SPECIFIC_URL;
+    this.appointments_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_APPOINTMENTS_URL;
     this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
-    this.get_available_appointments_url = import.meta.env.VITE_GET_AVAILABLE_APPOINTMENTS;
-
-    this.getAllAppointments(),
+    this.get_available_appointments_url = import.meta.env.VITE_GET_AVAILABLE_APPOINTMENTS_URL;
+    this.clinics_get_all_ulr = import.meta.env.VITE_GET_ALL_CLINICS_URL;
     this.getAllClinics();
+    this.getAvailableAppointments();
   },
     methods: {
       async getAllClinics(){
-      await Api.get("/clinics/get").then(response =>{
+      await Api.get(`${this.clinics_get_all_ulr}`).then(response =>{
         if(response.status === 200){
           this.clinics = response.data.clinics
-          console.log(this.clinics)
         }
       }).catch(error =>{
         this.error_message = error.response?.data.message;
@@ -92,24 +103,43 @@ export default {
             }, 5000);
         })
     },
-    async getAllAppointments(){
+    async getAvailableAppointments(){
       await Api.get(`${this.get_available_appointments_url}`).then(response =>{
         if(response.status === 200){
-          this.appointments = response.data.appointments
+          this.appointments = response.data.appointments;
+
+
+          this.clinics.forEach(clinic => {
+            var clinicName = clinic.name;
+            var clinicAddress = clinic.location.formattedAddress;
+
+            //add clinic name and clinic address to appointment object if the ids match 
+            for (let index = 0; index < this.appointments.length; index++) {
+              const appointment = this.appointments[index];
+              if (appointment.dentist_clinic_id === clinic._id) {
+                appointment.clinic_name = clinicName;
+                appointment.clinic_address = clinicAddress;
+
+              }
+
+              //fix the time and date formatting and store them inside appointment to be displayed
+              var result = this.extractTimeAndDate(appointment.date_and_time_from)
+              
+              appointment.date = result[0];
+              appointment.time = result[1];
+
+              this.appointment[index] = appointment;
+            }
+          });
         }
       }).catch(error =>{
-        console.log(error.message);
+        this.error_message = 'Sorry. There are no available appointments currently. Please check again later.';
+            setTimeout(() => {
+                this.error_message = '';
+            }, 5000);
       })
     },
-    async updateAppointment(appointmentID){
-      this.appointment.available = false;
-      await Api.put(`${this.update_appointment_url}${appointmentID}`,this.appointment).then(response => {
-        console.log("response: ",response.data);
-      }).catch(error => {
-        console.log(error.message);
-      })
-
-      },
+    
       async checkAvailability(appointmentID) {
         Api.get(`${this.appointments_get_specific_url}${appointmentID}`).then(response => {
           if (response.status === 200) {
@@ -123,7 +153,7 @@ export default {
                     this.error_message = '';
                 }, 8000);
             } else {
-              this.updateAppointment(appointmentID)
+             
               router.push({path: `/single/appointment/${appointmentID}`})
             }
           }
@@ -135,9 +165,21 @@ export default {
         })
     },
     rerouting(targetPath){
-      console.log("target",targetPath);
             router.push({path: `${targetPath}`})
-    },
+      },
+    extractTimeAndDate(date_and_time) {
+          var date = '';
+          var time = '';
+          
+          var tempArr = date_and_time.split('T');
+          date = tempArr[0];
+
+          var tempTime = tempArr[1].split(':')
+          time = tempTime[0] + ':' + tempTime[1];
+
+          var date_and_time_arr = [date, time]
+          return date_and_time_arr;
+        },
   }, 
   
   

@@ -24,9 +24,7 @@ exports.createPatient = async (payload) => {
         }
 
         var newPatient = new Patient(patient);
-
         await newPatient.save();
-        console.log("Patient =", newPatient);
 
         var patient_id = newPatient._id;
         var retrievedPatient = await Patient.find(patient_id);
@@ -46,7 +44,6 @@ exports.createPatient = async (payload) => {
         var stringPatient = JSON.stringify(retrievedPatient); 
 
         message = "Patient registered successfully"
-        console.log(message);
         status = 200;
         return status + "/" + message + "/" + stringPatient;
         
@@ -103,7 +100,6 @@ exports.fetchSpecificPatient = async (topic) => {
 
         var topicArr = topic.split("/");
         const id = topicArr[3];
-        console.log("id: ", id);
         
         const patient = await Patient.findById(id);
         if(!patient){
@@ -133,7 +129,6 @@ exports.updateSpecificPatient = async (topic, payload) => {
 
         var topicArr = topic.split("/");
         const _id = topicArr[3];
-        console.log("patient update id: ", _id);
         
         const existingPatient = await Patient.findById(_id);
         if(!existingPatient){
@@ -142,7 +137,7 @@ exports.updateSpecificPatient = async (topic, payload) => {
             return status +"/"+ message;
         }
         var newPatient = JSON.parse(payload)
-        console.log("new patient =",newPatient);
+
 
         const patient = {
             name: newPatient.name ? newPatient.name : existingPatient.name,
@@ -170,11 +165,9 @@ exports.updateSpecificPatient = async (topic, payload) => {
 
 
     } catch (error) {
-            status = 400; 
-        message = "Something went wrong. Failed to update patient." 
-        console.log(error.message);
-        
-            return status + "/" + message;
+        status = 400; 
+        message = "Something went wrong. Failed to update patient."   
+        return status + "/" + message + "/" + error.message;
                 
         }
 }
@@ -252,7 +245,6 @@ exports.registerPatient = async (req, res) => {
 
     var patientId = newPatient._id;
     if (!patientId) {
-        console.log("NO PATIENT FOUND");
         res.status(400).json({ message: "failed to register patient" });
         return; 
     }
@@ -267,8 +259,6 @@ exports.registerPatient = async (req, res) => {
         res.status(400).json({ message: "Ssn is not uniqe"});
         return;
     }
-    // console.log(error.message);
-    console.log("catch");
     res.status(400).json({message: "Failed to register patient",message: error.message});
   }
 };
@@ -294,7 +284,6 @@ exports.retrieveSpecificPatient = async (req, res) => {
     try {
         const id = req.params.patient_id;
         const patient = await Patient.findById(id);
-        console.log(patient)
         if (!patient) {
             res.status(400).json({ message: "No patients found!" });
             return;

@@ -1,4 +1,4 @@
-const mqtt = require('mqtt');
+const mqtt = require('async-mqtt');
 const dentistCtrl = require('./src/dentist_controller/dentist-controller');
 let mqttClient;
 
@@ -38,33 +38,51 @@ function connectToBroker() {
     });
 
     mqttClient.on("message", (topic, payload, packet) => {
-        // console.log("Message received: " + payload.toString());
-        // console.log("On topic: " + topic);
+        var payloadReceived = payload.toString()
+        console.log("Message received: ",payloadReceived);
+        console.log("On topic: " + topic); 
         let publishTopic = "response/" + topic;
 
-        if (topic.startsWith('dentists/create/')) {
+        if(topic.startsWith('dentists/topics')){
+            subscribeToBroker(payloadReceived);
+            var newPayload = '200/subscribed to topic/'+topic;
+            publishToBroker(publishTopic,newPayload);
+
+        }else if (topic.startsWith('dentists/create/')) {
             dentistCtrl.createDentist(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
+            unsubscribe(topic);
 
-        } else if (topic.startsWith('dentists/get/specific/')) {
+        }else if(topic.startsWith('dentists/get/clinics/dentists/')){
+            dentistCtrl.fetchClinicsDentists(topic).then(response => {
+                publishToBroker(publishTopic,response);
+            });
+            unsubscribe(topic);
+
+        }else if (topic.startsWith('dentists/get/specific/')) {
             dentistCtrl.getSpecificDentist(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
+            unsubscribe(topic);
 
         } else if (topic.startsWith('dentists/update/')) {
             dentistCtrl.updateSpecificDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
+            unsubscribe(topic);
 
         } else if (topic.startsWith('dentists/delete/')) {
             dentistCtrl.deleteSpecificDentist(topic).then(response => {
                 publishToBroker(publishTopic, response);
-            })
+            });
+            unsubscribe(topic);
+
         } else if (topic.startsWith('dentists/get/')) {
             dentistCtrl.getAllDentists(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
+            unsubscribe(topic);
         }
     });
 }
@@ -74,12 +92,18 @@ function publishToBroker(topic, payload) {
 };
 
 function subscribeToBroker(topic) {
-    mqttClient.subscribe(topic, {qos: 0})
+    mqttClient.subscribe(topic, {qos: 0});
+    console.log("subscribed to topic: ",topic);
 }
+async function unsubscribe(topic){
+    mqttClient.unsubscribe(topic).then((successful) => {
+        console.log("You've successfully unsubscribed from topic: ",topic);
+    })
+    .catch((e) => {
+        console.log("Unsubscribing failed");
+    }) 
+};
 
 connectToBroker();
-subscribeToBroker('dentists/create/+');
-subscribeToBroker('dentists/get/+');
-subscribeToBroker('dentists/get/specific/+');
-subscribeToBroker('dentists/update/+');
-subscribeToBroker('dentists/delete/+');
+subscribeToBroker('dentists/topics');
+
