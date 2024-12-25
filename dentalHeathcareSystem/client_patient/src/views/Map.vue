@@ -19,7 +19,7 @@ export default {
     return {
         map: '',
         get_all_clinics_url: '',
-        get_all_clinic_appointments: '',
+        get_clinics_available_appointments_url: '',
         get_specific_appointment_url: '',
         mapbox_access_token: '',
         error_message: '',
@@ -28,6 +28,7 @@ export default {
         icon_color: '',
         
         clinics: [{
+            _id:'',
             name: '',
             availabilityFlag: false,
             numOfAvailableAppointments: 0,
@@ -41,7 +42,6 @@ export default {
                 coordinates: [],
                 formattedAddress: '',
             },
-            
         }]
 
     }
@@ -50,7 +50,7 @@ export default {
         
         this.mapbox_access_token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
         this.get_specific_appointment_url = import.meta.env.VITE_GET_SPECIFIC_APPOINTMENTS_URL;
-        this.get_all_clinic_appointments = import.meta.env.VITE_GET_CLINICS_APPOINTMENTS_URL;
+        this.get_clinics_available_appointments_url = import.meta.env.VITE_GET_CLINICS_AVAILABLE_APPOINTMENTS_URL;
         this.get_all_clinics_url = import.meta.env.VITE_GET_ALL_CLINICS_URL;
         this.initializeMap();
         this.getClinics();
@@ -68,170 +68,131 @@ export default {
             center: [11.9746, 57.7089],
             zoom: 8,
             collectResourceTiming: false,
-            
         });
-          this.map.on('load', () => {
-              this.map.resize();
-          });
+
+        this.map.on('load', () => {
+            this.map.resize();
+        });
     },
+
     onResize(){
-      this.map.resize();
+      if(this.map) this.map.resize();                             
       },
-
-      async checkAppointmentAvailability(appointmentsArr) {
-        var tempArr = []
-        appointmentsArr.forEach(appointment => {
-            if (this.getAppointment(appointment.appointment_id)) {
-                tempArr.push(appointment)
-            } 
-        });
-          var result = ''
-        if (tempArr.length === 0) {
-            result = {
-                available: false,
-                numOfAppointments: tempArr.length,
-                
-            }
-            return result;
-        } else {
-            
-            result = {
-                available: true,
-                numOfAppointments: tempArr.length,
-            }
-            return  result;
-        }
-      },
-      async getAppointment(appointmentID){
-        try {
-            var response = await Api.get(`${this.get_specific_appointment_url}${appointmentID}`)
-
-            if (response.status === 200) {
-                var available = response.data.appointments.available
-                
-                if (available === true) {
-                    return available;
-                } else {
-                    return false;
-                }
-            } 
-        } catch (error) {
-                this.error_message = 'Something went wrong. Appointments information not found!'
-                setTimeout(() => {
-                        this.error_message = ''
-                }, 10000);
-        }
-      },
+      
       async getClinics() {
           
           try {
-              var response = await Api.get(`${this.get_all_clinics_url}`);
+              const response = await Api.get(`${this.get_all_clinics_url}`);
 
               if (response.status === 200) {
-                
                   this.clinics = response.data.clinics;
-
-                  await Promise.all(
-                      this.clinics.map(async (clinic) => {
-                        var result = await this.checkAppointmentAvailability(clinic.appointments)
-                          clinic.availabilityFlag = result.available;
-                          clinic.numOfAvailableAppointments = result.numOfAppointments;
-                        if (clinic.availabilityFlag) {
-                            clinic.clinicColor = 'green'
-                        } else {
+                  
+                  for(const clinic of this.clinics){
+                    try{
+                        var responseArr = await Api.get(`${this.get_clinics_available_appointments_url}${clinic._id}`);
+                       
+                        clinic.appointments = responseArr.data.appointments;
+                        clinic.numOfAvailableAppointments = clinic.appointments.length;
+                        console.log("length: ",clinic.appointments.length);
+                        if (clinic.numOfAvailableAppointments === 0) {
                             clinic.clinicColor = 'red'
+                        } else {
+                            clinic.clinicColor = 'green'
                         }
-                    })
-                  )
-              }
+                    }catch(error) {
+                        this.error_message = error.message;
+                        clinic.clinicColor = 'blue'
+                    }
+                }
               
-              let clinics = this.clinics.map((clinic) => {        
-                
-                return {
-                    type: 'Feature',
-                    geometry: {
+                const validClinics = this.clinics
+                    .map(clinic => ({
+                        type: 'Feature',
+                        geometry: {
                         type: 'Point',
                         coordinates: [
                             clinic.location.coordinates[0],
                             clinic.location.coordinates[1],
+                            ]
+                        },
+                        properties: {
+                            clinic_name: clinic.name,
+                            color: clinic.clinicColor,
+                            formattedAddress: clinic.location.formattedAddress,
+                            numOfAppointments: clinic.numOfAvailableAppointments,
+                            clinicID: clinic._id,
+                            icon: 'hospital',
+                        }
+                    }));
 
-                        ]
-                    },
-                    properties: {
-                        clinic_name: clinic.name,
-                        color: clinic.clinicColor,
-                        formattedAddress: clinic.location.formattedAddress,
-                        numOfAppointments: clinic.numOfAvailableAppointments,
-                        clinicID: clinic._id,
-                        icon: 'hospital',
-                    }
-                }
-            });
-            this.loadMap(clinics)
+                this.loadMap(validClinics);
+            }
           } catch (error) {
-                this.error_message = 'Something went wrong. Clinics information not found!'
-                setTimeout(() => {
-                        this.error_message = ''
-                }, 10000);
+            this.error_message = 'Something went wrong. Clinics information not found!'
+            setTimeout(() => {
+                this.error_message = ''
+            }, 10000);
           }
-          
-          
       },
-      loadMap(clinics) {
-            this.map.on('load', () => {
 
-              this.map.addSource('clinics',{
-                  type: 'geojson',
-                  data: {
+      loadMap(clinics) {
+            if(this.map.getSource('clinics')){
+                this.map.getSource('clinics').setData({
+                    type: 'FeatureCollection',
+                    features: clinics
+                });
+            }else{
+                this.map.addSource('clinics',{
+                    type: 'geojson',
+                    data: {
                       type: 'FeatureCollection',
                       features: clinics,
+                    },
+                });
 
-                  }
-              });
-
-              this.map.addLayer({
-                  id: 'clinic-circles',
-                  type: 'circle',
-                  source: 'clinics',
-                  paint: {
+                this.map.addLayer({
+                    id: 'clinic-circles',
+                    type: 'circle',
+                    source: 'clinics',
+                    paint: {
                       'circle-radius': 8,
                       'circle-color': ['get', 'color'],
                       'circle-stroke-width': 2,
                       'circle-stroke-color': 'black',
+                    },
+                });
 
-                  }
-              });
+                this.map.addLayer({
+                    id: 'clinic-labels',
+                    type: 'symbol',
+                    source: 'clinics',
+                    layout: {
+                        'text-field': ['get', 'clinic_name'],
+                        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+                        'text-offset': [0, 1.5],
+                        'text-anchor': 'top',
+                    }, 
+                    paint: {
+                        'text-color': 'black',
+                        'text-halo-width': 1,
+                        'text-halo-color': 'white',
+                    },
+                });
+            }
+        
 
-              this.map.addLayer({
-                  id: 'clinic-labels',
-                  type: 'symbol',
-                  source: 'clinics',
-                  layout: {
-                    'text-field': ['get', 'clinic_name'],
-                    'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-                    'text-offset': [0, 1.5],
-                    'text-anchor': 'top',
-                  }, 
-                  paint: {
-                      'text-color': 'black',
-                      'text-halo-width': 1,
-                      'text-halo-color': 'white',
-                    
-                  }
-              })
+            const popup = new mapboxgl.Popup({
+                closeButton: false,
+                closeOnClick: false,    
+            });
 
-              const popup = new mapboxgl.Popup({
-                  closeButton: false,
-                  closeOnClick: false,
-                
-              })
+            this.map.on('mouseenter', 'clinic-circles', (element) => {
+                this.map.getCanvas().style.cursor = 'pointer';
 
-                this.map.on('mouseenter', 'clinic-circles', (element) => {
-                    this.map.getCanvas().style.cursor = 'Pointer';
-
-                    const coordinates = element.features[0].geometry.coordinates.slice();
-                    const formattedAddress = element.features[0].properties.formattedAddress;
-                    const availableAppointments = element.features[0].properties.numOfAppointments;
+            
+                const coordinates = element.features[0].geometry.coordinates.slice();
+                const formattedAddress = element.features[0].properties.formattedAddress;
+                const availableAppointments = element.features[0].properties.numOfAppointments;
 
                     if (['mercator', 'equirectangular'].includes(this.map.getProjection().name)) {
                         while (Math.abs(element.lngLat.lng - coordinates[0]) > 180) {
@@ -264,12 +225,14 @@ export default {
                         }, 10000);
                     }
 
-                })
+                });
+                
 
-        })
-    }
-  }
-}
+            },
+        },
+    
+    } 
+
 </script>
 
 <style src="../assets/main.css"></style>

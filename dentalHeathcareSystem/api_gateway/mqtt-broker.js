@@ -59,7 +59,7 @@ async function publishToBroker(topic, payload) {
 
     return new Promise((resolve,reject) => {    
         const timeout = setTimeout(() =>{
-            message = `400/request timed out for ${topic} `;
+            const message = `408/request timed out for ${topic} `;
 
             reject(message)
         },10000)
