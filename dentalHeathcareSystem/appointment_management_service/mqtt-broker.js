@@ -109,7 +109,7 @@ function connectToBroker() {
 
         } else if (topic.startsWith('appointments/delete/')) {
             console.log("delete appointment");
-            appointmentCtrl.removeAppointment(topic).then(response => {
+            appointmentCtrl.removeAppointment(topic, payload).then(response => {
                 publishToBroker(publishTopic, response)
             });
             unsubscribe(topic);
