@@ -39,47 +39,44 @@ function connectToBroker() {
 
     mqttClient.on("message", (topic, payload, packet) => {
         console.log("Message received: " + payload.toString());
-        console.log("On topic: " + topic); 
+        console.log("On topic: " + topic);
         console.log(packet);
         var publishTopic = "response/" + topic;
-       
+
 
         if (topic.startsWith( 'clinics/create/')) {
             console.log("clinic create");
-            clinicCtrl.clinicCreate(payload).then(response =>{ 
-                publishToBroker(publishTopic,response);  
+            clinicCtrl.clinicCreate(payload).then(response =>{
+                publishToBroker(publishTopic,response);
 
             });
-        }else if('clinics/delete/'){
-            console.log("clinic delete");
-            clinicCtrl.deleteAClinic(payload).then(response => {
+        }else if(topic.startsWith('clinics/delete/')){
+            console.log("delete clinic");
+            clinicCtrl.deleteAClinic(topic).then(response => {
                 publishToBroker(publishTopic, response);
             })
         }else if (topic.startsWith('clinics/get/specific/')){
             console.log("get specific clinic");
-            clinicCtrl.getOneClinic(payload).then(response => {
+            clinicCtrl.getOneClinic(topic).then(response => {
                 publishToBroker(publishTopic, response);
             })
         }else if(topic.startsWith('clinics/get/dentists/')){
             console.log("get the clinics dentists");
-            clinicCtrl.getDentistFromClinic(payload).then(response => {
+            clinicCtrl.getDentistFromClinic(topic).then(response => {
                 publishToBroker(publishTopic, response);
             })
         }else if (topic.startsWith('clinics/get/')){
             console.log("get all clinics");
-            clinicCtrl.getClinics(payload).then( response => {
+            clinicCtrl.getClinics().then( response => {
                 publishToBroker(publishTopic, response);
             })
         }else if (topic.startsWith('clinics/update/')){
             console.log("update clinics");
-            var topicArr = topic.split("/");
-            var id = topicArr[2];
-            
-            clinicCtrl.updateAClinic(id,payload).then(response => {
+            clinicCtrl.updateAClinic(topic,payload).then(response => {
                 publishToBroker(publishTopic,response);
             })
         }
-        
+
 
     });
 }

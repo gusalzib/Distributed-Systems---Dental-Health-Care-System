@@ -7,7 +7,8 @@
                     <h3>Control Panel</h3>
                     <a id="sidebar-links" @click.native="setActive('my_profile')">My profile</a>
                     <a id="sidebar-links" @click.native="setActive('edit_profile')">Edit profile</a>
-                    <a id="sidebar-links" @click.native="setActive('subscriptions')" @click="">Subscriptions</a>
+                    <a id="sidebar-links" @click.native="setActive('add_subscription')" @click="">Add Subscriptions</a>
+                    <a id="sidebar-links" @click.native="setActive('subscriptions')" @click="">My Subscriptions</a>
                     <a id="sidebar-links" @click.native="setActive('booked_appointments')"> Booked Appointments</a>
                     <a id="sidebar-links" @click.native="setActive('medical_journal')" >My Medical Journal</a>
                 </div>
@@ -16,7 +17,7 @@
             <div id="single-patient-card">
                 <div id="edit-profile" v-if="activeSection === 'edit_profile'">
                     <h3>Edit Profile</h3>
-                    
+
                         <label>Name: </label>
                         <input v-model="patient.name" type="text" id="name"/>
                         </br>
@@ -39,6 +40,32 @@
 
                         <button id="update-button" class="submit-button" v-on:click="updatePatientInfo()" type="button">Update</button>
                 </div>
+
+
+              <div v-else-if="activeSection === 'add_subscription'">
+                <h3>Add A Subscription</h3>
+                <div id="add-subscriptions">
+                  <label>Subscription from: </label>
+                  <input v-model="subscription.period_subscription.sub_from" type="text" id="name"/>
+                  <label>Subscription until: </label>
+                  <input v-model="subscription.period_subscription.sub_ultil" type="email" id="email"/>
+                  <label>Appointment type: </label>
+                  <input v-model="subscription.appointment_type" type="text" id="ssn"/>
+                  <label>Notification Preference:</label>
+                  <div class="radio-group">
+                  <input v-model="subscription.notification_preference" type="radio" id="yes" value="true"/>
+                  <label for="yes">Yes</label>
+                  <input v-model="subscription.notification_preference" type="radio" id="no" value="false"/>
+                  <label for="no">No</label>
+                  </div>
+                  <label>Notification Email: </label>
+                  <input v-model="subscription.email_notification" type="email" id="email"/>
+                  <label>Notification Phone Number: </label>
+                  <input v-model="subscription.phone_notification" type="tel" id="phone_number"/>
+
+                  <button id="update-button" class="submit-button" v-on:click="createSubscription()" type="button">Subscribe</button>
+                </div>
+              </div>
 
                 <div v-else-if="activeSection === 'subscriptions'">
                     <h3>My Subscriptions</h3>
@@ -108,6 +135,16 @@ export default {
             address: '',
             appointments: []
           },
+        subscription: {
+          period_subscription: {
+            sub_from: "",
+            sub_ultil: ""
+          },
+          appointment_type: "",
+          notification_preference: false,
+          email_notification: "",
+          phone_notification: ""
+        },
       error_message: '',
           confirmation_message: '',
           activeSection: '',
@@ -189,7 +226,25 @@ export default {
                     this.error_message = '';
                 }, 5000);
             })
-        }
+        },
+
+      // async getSubscriptions() {
+      //   await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`).then(response => {
+      //     if (response.status === 200) {
+      //       this.patient = response.data.patients;
+      //
+      //
+      //     }
+      //   }).catch(error => {
+      //     this.error_message = 'Something went wrong. Patient information not found!'
+      //     setTimeout(() => {
+      //       this.error_message = ''
+      //     }, 5000);
+      //     console.log(error.message)
+      //   })
+      //
+      //
+      // },
   }
 }
 </script>

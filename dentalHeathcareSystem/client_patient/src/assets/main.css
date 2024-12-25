@@ -761,6 +761,38 @@ the card, which is also something that we might need to add later.*/
     width: 50%;
 }
 
+/* ============== subscriptions create===================== */
+
+#add-subscriptions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+#add-subscriptions label {
+  align-content: start;
+}
+
+#add-subscriptions input[type="text"], input[type="email"]{
+  width: 100%;
+}
+
+#add-subscriptions h3{
+  margin: 3px auto;
+}
+
+#add-subscriptions button{
+  margin: 5px auto;
+  width: 50%;
+}
+
+#add-subscriptions .radio-group {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+/*============================================================*/
+
 .subs-container{
   
   padding: 5px 10px;
