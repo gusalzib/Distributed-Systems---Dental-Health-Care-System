@@ -571,11 +571,32 @@ the card, which is also something that we might need to add later.*/
   }
 }
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Login PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
-.login-container{
-  width: 60%;
-  margin: 15% auto;
+.login-navbar{
+  display: flex;
+  justify-content: center;
+  margin: 20px;
+  margin-top: 50px;
+  padding: 10px 0;
 }
-.patient-login-form{
+
+#navbar-links{
+  width: 50%;
+  margin: 0 15px;
+  cursor: pointer;
+  font-weight: normal;
+  text-align: center;
+  padding: 10px;
+  background: linear-gradient(90deg, rgba(233,236,245,1) 0%, rgba(204,215,228,1) 33%, rgba(204,215,228,1) 71%, rgba(233,236,245,1) 100%);  /* color: whitesmoke; */
+}
+#navbar-links:hover{
+  background: var(--columbia-blue-darker);
+}
+.login-container{
+  border: 1px transparent solid;
+  width: 60%;
+  margin: 10% auto;
+}
+.login-form{
   border: 1px slategrey solid;
   border-radius: 20px;
   padding: 15px;
@@ -584,7 +605,7 @@ the card, which is also something that we might need to add later.*/
   justify-items: left;
 }
 
-.patient-login-form input{
+.login-form input{
   padding: 10px;
   margin: 4px auto;
   width: 100%;
@@ -592,8 +613,37 @@ the card, which is also something that we might need to add later.*/
   border: 1px white solid;
 }
 
-.patient-login-form input:hover{
+.login-form input:hover{
   border: 1px black solid;
+}
+
+@media only screen and (max-width: 1350px){
+  .login-container{
+    width: 90%;
+    margin-top: 10%;
+  }
+  #navbar-links{
+    width: 90%;
+    margin: 5px auto;
+  }
+  .login-navbar{
+    flex-direction: column;
+  }
+}
+@media only screen and (max-width: 1000px){
+  .login-container{
+    width: 90%;
+    margin-top: 20%;
+  }
+
+}
+
+@media only screen and (max-width: 440px){
+  .login-container{
+    width: 90%;
+    margin-top: 30%;
+  }
+
 }
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Medical Journal PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 .journal-container{

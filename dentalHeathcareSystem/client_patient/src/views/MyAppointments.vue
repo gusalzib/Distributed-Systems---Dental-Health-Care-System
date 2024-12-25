@@ -42,7 +42,7 @@ export default {
   name: 'my_appointments',
   data() {
     return {
-        current_patient_placeholder: '674e36dedce0fe5f88fd1df9',
+        // current_patient_placeholder: '674e36dedce0fe5f88fd1df9',
     //  current_patient_placeholder:'674516312f3c59c02e4df78d',
         confirmation_message: '',
         error_message: '',
@@ -117,7 +117,7 @@ export default {
             this.clinicIds = []
 
             try {
-              const response = await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`)
+              const response = await Api.get(`${this.patient_get_specific_url}`)
               if (response.status === 200) {
                     this.patient = response.data.patients;
 
@@ -139,7 +139,7 @@ export default {
       },
       async extractAppointments() {
       
-        const response = await Api.get(`${this.get_patients_appointments}${this.current_patient_placeholder}`);
+        const response = await Api.get(`${this.get_patients_appointments}`);
         if (response.status === 200) {
           var tempBookedAppointments = response.data.appointments;
         
@@ -209,7 +209,7 @@ export default {
       this.patient.appointments = this.bookedAppointmentsIds;
     
       try {
-        const response = await Api.put(`${this.update_patient_specific_url}${this.current_patient_placeholder}`, this.patient)
+        const response = await Api.put(`${this.update_patient_specific_url}`, this.patient)
           if (response.status === 200) {
               this.confirmation_message = 'Appointment cancelled'
               await this.getPatientInformation();

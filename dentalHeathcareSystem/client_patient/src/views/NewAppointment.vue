@@ -129,10 +129,11 @@ export default {
               appointment.time = result[1];
 
               this.appointment[index] = appointment;
+              
             }
           });
         }
-      }).catch(error =>{
+      }).catch(error => {        
         this.error_message = 'Sorry. There are no available appointments currently. Please check again later.';
             setTimeout(() => {
                 this.error_message = '';

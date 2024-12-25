@@ -7,6 +7,13 @@ const request = require("request");
 const app = express();
 const mqttBroker = require("./mqtt-broker.js");
 
+//sessions variables 
+const jwtVerification = require('./jwtVerification.js');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+
 const PORT = 3000;
 
 // function activityCheck(server){                           //ping and echo - is the server running
@@ -18,7 +25,7 @@ const PORT = 3000;
 //       server.isActive = false;
 //       console.log(`Server ${server.host} is not running`);
 //     }
-//   })
+//   }) 
 // }
 
 // setInterval(() => {                                     // Interval for ping and echo (every 5 seconds)
@@ -52,6 +59,18 @@ app.use(
   })
 );
 
+// app.use(session({
+//     secret: 'secret_patient_key',
+//     resave: false,
+//     saveUninitialized: true,
+//     store: new MongoStore({
+//         mongoUrl: 'mongodb://127.0.0.1:27017/dentalHealthcareSystem', 
+//         ttl: 14 * 24 * 60 * 60, // this stands for: time to live (14 days)
+//         autoRemove: 'native',  // an automatical removal of expired sessions offered by connect-mongo
+//         collectionName: 'sessions'
+//     })
+// }))
+app.use(cookieParser());
 // Also, handle preflight requests for all routes
 app.options("*", cors());
 app.use(helmet()); // Add security headers
@@ -137,9 +156,167 @@ app.use(express.json());
 //     },
 //    ];
 
-app.post("/api/*", async (req, res) => {
+/*######################################################################## LOGOUT ENPOINT #################################################################################### */
+/* connected to the logout button in App.vue */
+app.get('/api/logout', async (req, res) => {
     try {
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict'
+        })
+
+        return res.status(200).json({
+            message: 'Logout successful!',
+            loggedIn: false,
+            isPatient: false,
+            isDentist: false,
+            isAdmin: false,
+        });
+    } catch (error) {
+        console.log(error.message);
         
+        return res.status(400).json({ message: 'Something went wrong. Logout failed!' });
+    }
+});
+
+/*######################################################################## LOGIN CHECK ENPOINT #################################################################################### */
+/* Login check is performed whenever we need to make sure the user is authorized to do a certain action or if the user is trying to access certain routes.*/
+app.get('/api/login/check', async (req, res) => {
+    const token = req.cookies.token;
+    // console.log('printing the token in verify method: ', token);
+    
+    if (!token) {
+        // if token is not set, i am returning 401 unauthorized code
+        return res.status(401).json({message: 'Access denied. Authentication token is missing'})
+    }
+
+    var decodedToken = '';
+    try {
+        const secret_key = process.env.JWT_SECRET_KEY;
+
+        // check if the token contains our secret key. Without this, we are vulnerable 
+        // attacks by fake tokens. here we make sure the incoming request has the key that we set
+        decodedToken = jwt.verify(token, secret_key); 
+        
+        const userRole = decodedToken.role;
+        if (userRole === 'patient') {
+            return res.status(200).json({
+                message: 'Logged in!',
+                loggedIn: true,
+                isPatient: true,
+                isDentist: false,
+                isAdmin: false,
+            });
+        } else if (userRole === 'dentist') {
+            return res.status(200).json({
+                message: 'Logged in!',
+                loggedIn: true,
+                isPatient: false,
+                isDentist: true,
+                isAdmin: false,
+            });
+        } else if (userRole === 'admin') {
+            return res.status(200).json({
+                message: 'Logged in!',
+                loggedIn: true,
+                isPatient: false,
+                isDentist: false,
+                isAdmin: true,
+            });
+        }
+
+    } catch (error) {        
+        console.log(error.message);
+        
+        return res.status(403).json({message: 'Token either expired or invalid', user: decodedToken})
+    }
+});
+
+/*######################################################################## PATIENT SIGNUP ENPOINT #################################################################################### */
+
+app.post('/api/patients/signup', async (req, res) => {
+    try {
+        //get the body and make it a string, get url, remove "api" and give it a unique id
+        var body = req.body;
+        const payload = JSON.stringify(body);
+        const reqURL = req.url;
+        var adaptedURL = adaptRequestURL(reqURL);
+        
+        //create all topics
+        var topic = adaptedURL + "/" + giveUniqueID();
+        var responseTopic = 'response/' + topic
+
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0];
+        var serviceTopic = nameOfEntity + "/topics";
+        
+        var serviceTopicResponse = "response/" + serviceTopic;
+        var responseTopic = 'response/' + topic
+
+        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
+        await mqttBroker.subscribeToBroker(serviceTopicResponse);
+        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic, topic);
+      
+        if (!serviceResponse) {
+            res.status(400).json({ message: "could not find service" })
+            return
+        } else if (serviceResponse) {
+            mqttBroker.unsubscribe(serviceTopicResponse);
+        }
+        
+        //Publish request
+        await mqttBroker.subscribeToBroker(responseTopic);
+        
+        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        if (!mqttResponse) {
+            res.status(400).json({ message: "could not create object" });
+            return
+        } else if (mqttResponse) {
+            mqttBroker.unsubscribe(responseTopic);
+        }
+
+        //exstract information from topic and response, parse the payload and return http response
+        var responseArr = mqttResponse.split("/");
+        var status = parseInt(responseArr[0]);
+        
+        if (responseArr.length <= 2) {
+            return res.status(status).json({ message: responseArr[1] });
+        } else {
+            var adaptedResponse = JSON.parse(responseArr[2]);
+                
+            // after login, each request is supposed to have a token. Here I check if it does exist
+            if (adaptedResponse.token) {
+                
+                // setting the token in the cookie
+                res.cookie('token', adaptedResponse.token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict',
+                    maxAge: 3600000,
+                })
+                
+            }
+            return res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+            
+        }
+    } catch (error) {
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
+        if (catchArr.length === 1) {
+            return res.status(400).json({ message: "something went wrong" });
+        } else {
+            const status = parseInt(catchArr[0]);
+            return res.status(status).json({ message: catchArr[1] });
+        }
+
+    }
+});
+/*######################################################################## PATIENT LOGIN ENPOINT #################################################################################### */
+
+app.post('/api/patients/login', async(req, res) => {
+    try {        
         //get the body and make it a string, get url, remove "api" and give it a unique id
         var body = req.body;
         const payload = JSON.stringify(body);
@@ -168,12 +345,184 @@ app.post("/api/*", async (req, res) => {
             mqttBroker.unsubscribe(serviceTopicResponse);
         }
         
-        
-
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
         
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        if(!mqttResponse){
+            res.status(400).json({message: "could not create object"});
+            return
+        }else if(mqttResponse){
+            mqttBroker.unsubscribe(responseTopic);
+        }
+
+        //exstract information from topic and response, parse the payload and return http response
+        var responseArr = mqttResponse.split("/");
+        var status = parseInt(responseArr[0]);
+        
+        if(responseArr.length <=2){
+            return res.status(status).json({message : responseArr[1]});
+        }else{
+            var adaptedResponse = JSON.parse(responseArr[2]);        
+                
+            // after login, each request is supposed to have a token. Here I check if it does exist
+                if (adaptedResponse.token) {
+                
+                // setting the token in the cookie
+                res.cookie('token', adaptedResponse.token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict',
+                    maxAge: 3600000,
+                })
+                
+            }
+            return res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+            
+        }
+    } catch (error) {
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
+        if(catchArr.length===1){
+            return res.status(400).json({message: "something went wrong"}); 
+        }else{
+            const status = parseInt(catchArr[0]);
+            return res.status(status).json({message: catchArr[1]});
+        }
+
+    }
+})
+/*######################################################################## DENTIST LOGIN ENPOINT #################################################################################### */
+app.post('/api/dentists/login', async (req, res) => {    
+    try {        
+        //get the body and make it a string, get url, remove "api" and give it a unique id
+        var body = req.body;
+        const payload = JSON.stringify(body);
+        const reqURL = req.url;
+        var adaptedURL = adaptRequestURL(reqURL);
+        
+        //create all topics
+        var topic = adaptedURL + "/" + giveUniqueID();
+        var responseTopic = 'response/'+topic
+
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0];
+        var serviceTopic = nameOfEntity+"/topics";
+        
+        var serviceTopicResponse = "response/"+serviceTopic;
+        var responseTopic = 'response/'+topic
+
+        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
+        await mqttBroker.subscribeToBroker(serviceTopicResponse);
+        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
+      
+        if(!serviceResponse){
+            res.status(400).json({message: "could not find service"})
+            return
+        }else if (serviceResponse){
+            mqttBroker.unsubscribe(serviceTopicResponse);
+        }
+        
+        //Publish request
+        await mqttBroker.subscribeToBroker(responseTopic);
+        
+        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        if(!mqttResponse){
+            res.status(400).json({message: "could not create object"});
+            return
+        }else if(mqttResponse){
+            mqttBroker.unsubscribe(responseTopic);
+        }
+
+        //exstract information from topic and response, parse the payload and return http response
+        var responseArr = mqttResponse.split("/");
+        var status = parseInt(responseArr[0]);
+        
+        if(responseArr.length <=2){
+            return res.status(status).json({message : responseArr[1]});
+        }else{
+            var adaptedResponse = JSON.parse(responseArr[2]);        
+                
+            // after login, each request is supposed to have a token. Here I check if it does exist
+                if (adaptedResponse.token) {
+                
+                // setting the token in the cookie
+                res.cookie('token', adaptedResponse.token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'strict',
+                    maxAge: 3600000,
+                })
+                
+            }
+            return res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+            
+        }
+    } catch (error) {
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
+        if(catchArr.length===1){
+            return res.status(400).json({message: "something went wrong"}); 
+        }else{
+            const status = parseInt(catchArr[0]);
+            return res.status(status).json({message: catchArr[1]});
+        }
+
+    }
+})
+
+/*######################################################################## GENERIC POST ENPOINT #################################################################################### */
+/* catches the rest of post requests after the user is authenticated and given a token */
+app.post("/api/*", jwtVerification.verifyToken, async (req, res) => {
+    try {
+        
+        //get the body and make it a string, get url, remove "api" and give it a unique id
+        var body = req.body;
+        var payload = JSON.stringify(body);
+        const reqURL = req.url;
+        var adaptedURL = adaptRequestURL(reqURL);
+        
+        //create all topics
+        var topic = adaptedURL + "/" + giveUniqueID();
+        var responseTopic = 'response/'+topic
+
+        var topicArr = topic.split("/");
+        var nameOfEntity = topicArr[0];
+        var serviceTopic = nameOfEntity+"/topics";
+        
+        var serviceTopicResponse = "response/"+serviceTopic;
+        var responseTopic = 'response/'+topic
+
+        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
+        await mqttBroker.subscribeToBroker(serviceTopicResponse);
+        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
+      
+        if(!serviceResponse){
+            res.status(400).json({message: "could not find service"})
+            return
+        }else if (serviceResponse){
+            mqttBroker.unsubscribe(serviceTopicResponse);
+        }
+        
+
+
+        //Publish request
+        await mqttBroker.subscribeToBroker(responseTopic);
+
+        // I am parsing the payload to json in order to add the userId field to it. 
+        payload = JSON.parse(payload);
+
+        // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
+        const sessionUserId = req.user.userId;
+        const sessionUserRole = req.user.role;
+        
+        // adding the userId field to the payload 
+        payload.userId = sessionUserId;
+        payload.role = sessionUserRole;
+
+        var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         if(!mqttResponse){
             res.status(400).json({message: "could not create object"});
             return
@@ -186,12 +535,24 @@ app.post("/api/*", async (req, res) => {
         var status = parseInt(responseArr[0]);
         
         if(responseArr.length <=2){
-            res.status(status).json({message : responseArr[1]});
+            return res.status(status).json({message : responseArr[1]});
         }else{
-        var adaptedResponse = JSON.parse(responseArr[2]);        
-    
-        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
-        return;
+            var adaptedResponse = JSON.parse(responseArr[2]);        
+                
+            // after login, each request is supposed to have a token. Here I check if it does exist
+            //     if (adaptedResponse.token) {
+                
+            //     // setting the token in the cookie
+            //     res.cookie('token', adaptedResponse.token, {
+            //         httpOnly: true,
+            //         secure: true,
+            //         sameSite: 'strict',
+            //         maxAge: 3600000,
+            //     })
+                
+            // }
+            return res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+            
         }
         var catchArr = []
         if (errorMessage) {
@@ -207,18 +568,23 @@ app.post("/api/*", async (req, res) => {
         let catchArr = errorMessage.split("/")
        
         if(catchArr.length===1){
-            res.status(400).json({message: "something went wrong"}); 
+            return res.status(400).json({message: "something went wrong"}); 
         }else{
             const status = parseInt(catchArr[0]);
-        res.status(status).json({message: catchArr[1]});
+            return res.status(status).json({message: catchArr[1]});
         }
+
     }
 });
-app.get("/api/*", async (req, res) => {
+
+/*######################################################################## GENERIC GET ENPOINT #################################################################################### */
+/* catches all get requests and requires a token otherwise the request will be blocked  */
+
+app.get("/api/*", jwtVerification.verifyToken, async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
-        const payload = JSON.stringify(body);
+        var payload = JSON.stringify(body);
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
@@ -250,8 +616,19 @@ app.get("/api/*", async (req, res) => {
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
+        // I am parsing the payload to json in order to add the userId field to it. 
+        payload = JSON.parse(payload);
+
+        // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
+        const sessionUserId = req.user.userId;
+        const sessionUserRole = req.user.role;
         
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        // adding the userId field to the payload 
+        payload.userId = sessionUserId;
+        payload.role = sessionUserRole;
+
+        
+        var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         if(!mqttResponse){
             res.status(400).json({message: "could not create object"});
             return
@@ -283,11 +660,15 @@ app.get("/api/*", async (req, res) => {
         }
     }
 });
-app.put("/api/*", async (req, res) => {
+
+/*######################################################################## GENERIC PUT ENPOINT #################################################################################### */
+/* catches all put requests and requires a token otherwise the request will be blocked  */
+
+app.put("/api/*", jwtVerification.verifyToken, async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
-        const payload = JSON.stringify(body);
+        var payload = JSON.stringify(body);
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
@@ -320,9 +701,21 @@ app.put("/api/*", async (req, res) => {
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
+
+        // I am parsing the payload to json in order to add the userId field to it. 
+        payload = JSON.parse(payload);
+
+        // get the session variable
+        const sessionUserId = req.user.userId;
+        const sessionUserRole = req.user.role;
+
+        // adding the userId field to the payload 
+        payload.userId = sessionUserId;
+        payload.role = sessionUserRole;
+        // stringifying the payload again because mqtt expects a string
+        var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-        if(!mqttResponse){
+        if (!mqttResponse) {
             res.status(400).json({message: "could not update object"});
             return
         }else if(mqttResponse){
@@ -353,11 +746,13 @@ app.put("/api/*", async (req, res) => {
         }
     }
 });
-app.delete("/api/*", async (req, res) => {
+/*######################################################################## GENERIC DELETE ENPOINT #################################################################################### */
+/* catches all delete requests and requires a token otherwise the request will be blocked  */
+app.delete("/api/*",  jwtVerification.verifyToken, async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
-        const payload = JSON.stringify(body);
+        var payload = JSON.stringify(body);
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
@@ -390,8 +785,17 @@ app.delete("/api/*", async (req, res) => {
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
-        
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
+        // I am parsing the payload to json in order to add the userId field to it. 
+        payload = JSON.parse(payload);
+
+        // get the session variable
+        const sessionUserId = req.user.userId;
+        const sessionUserRole = req.user.role;
+        // adding the userId and role field to the payload 
+        payload.userId = sessionUserId;
+        payload.role = sessionUserRole;
+
+        var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         if(!mqttResponse){
             res.status(400).json({message: "could not delete object"});
             return
