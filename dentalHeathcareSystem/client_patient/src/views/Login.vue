@@ -96,7 +96,7 @@ export default {
           const response = await Api.post(`${this.find_patient_url}`, this.patient)          
           if (response.status === 200) {
             setTimeout(() => {
-              this.$router.push('/');
+              window.location.replace('/')
             }, 1000)
             
             this.confirmation_message = 'Login successfull!';

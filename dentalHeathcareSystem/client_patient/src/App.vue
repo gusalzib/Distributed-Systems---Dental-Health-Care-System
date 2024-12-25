@@ -3,7 +3,7 @@ import { RouterLink, RouterView } from 'vue-router'
 </script> -->
 
 <template>
-
+<div id="app">
   <div class="navbar">
     <div class="menu-icon-container">
       <img id="menu-icon" class="menu-icon rotated-icon" src="@/assets/drop-down.png" @click="toggle()" alt="menu">
@@ -13,13 +13,13 @@ import { RouterLink, RouterView } from 'vue-router'
 
 
         <nav id="nav" class="nav">
-          <RouterLink class="desktop-header-link" to="/">Home</RouterLink>
-          <!-- <RouterLink class="desktop-header-link" to="/my_appointments">My Appointments</RouterLink> -->
-          <RouterLink class="desktop-header-link" to="/profile" v-if="this.loggedIn">My profile</RouterLink>
-          <RouterLink class="desktop-header-link" to="/new/appointment">New Appointment</RouterLink>
-          <!-- <RouterLink class="desktop-header-link" to="/medical_journal">Medical Journal</RouterLink> -->
-          <RouterLink class="desktop-header-link" to="/registration">Register</RouterLink>
-          <RouterLink class="desktop-header-link" to="/login" v-if="!this.loggedIn">Login</RouterLink>
+          <router-link class="desktop-header-link" to="/">Home</router-link>
+          <!-- <router-link class="desktop-header-link" to="/my_appointments">My Appointments</router-link> -->
+          <router-link class="desktop-header-link" to="/profile" v-if="this.loggedIn">My profile</router-link>
+          <router-link class="desktop-header-link" to="/new/appointment">New Appointment</router-link>
+          <!-- <router-link class="desktop-header-link" to="/medical_journal">Medical Journal</router-link> -->
+          <router-link class="desktop-header-link" to="/registration">Register</router-link>
+          <router-link class="desktop-header-link" to="/login" v-if="!this.loggedIn">Login</router-link>
           <button class="desktop-header-link" @click="logout()"  v-if="this.loggedIn">Logut</button>
         </nav>
 
@@ -33,6 +33,8 @@ import { RouterLink, RouterView } from 'vue-router'
         <!-- <a href="https://www.flaticon.com/free-icons/notification" title="notification icons">Notification icons created by Pixel perfect - Flaticon</a> -->
         <!--<a href="https://www.flaticon.com/free-icons/notification" title="notification icons">Notification icons created by Pixel perfect - Flaticon</a>  -->
   </div>
+</div>
+
   <RouterView />
 </template>
 <script>
@@ -43,10 +45,10 @@ export default {
   data: () => ({
     login_url: '/login/check',
     logout_url: '/logout',
-    loggedIn: '',
-    isAdmin: '',
-    isPaitent: '',
-    isDentist: '',
+    loggedIn: false,
+    isAdmin: false,
+    isPatient: false,
+    isDentist: false,
   }),
 
   mounted() {
@@ -71,20 +73,23 @@ export default {
       console.log(notification)
       notification.src = 'bell.png'
     },
-    async loginCheck() {
-      await Api.get(`${this.login_url}`).then(response => {
-        if (response.status === 200) {
-          this.loggedIn = response.data.loggedIn;
-          this.isAdmin = response.data.isAdmin;
-          this.isPatient = response.data.isPaitent;
-          this.isDentist = response.data.isDentist;
-          console.log(response);
-          
-        }
-      }).catch(error => {
-        console.log( error.response?.data.message);
+    loginCheck() {
+
+      try {
+        Api.get(`${this.login_url}`).then(response => {
+          if (response.status === 200) {
+            this.loggedIn = response.data.loggedIn;
+            this.isAdmin = response.data.isAdmin;
+            this.isPatient = response.data.isPatient;
+            this.isDentist = response.data.isDentist;
+            console.log(response);
+            
+          }
+        })
+      } catch (error) {
+        console.log(error);
         
-      })
+      }
     },
     async logout() {
       await Api.get(`${this.logout_url}`).then(response => {
