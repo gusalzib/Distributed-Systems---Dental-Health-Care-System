@@ -150,38 +150,47 @@ exports.updateSpecificPatient = async (topic, payload) => {
 
         // get the userId from the session variable that is sent with the payload
         const id = parsedPyload.userId;
-        
-        const existingPatient = await Patient.findById(id);
-        if(!existingPatient){
+        const userRole = parsedPyload.role;
+
+        if ((userRole === 'admin') || (userRole === 'patient')) {
+
+            const existingPatient = await Patient.findById(id);
+            if(!existingPatient){
+                status = 400;
+                message = "No patient found";
+                return status +"/"+ message;
+            }
+            var newPatient = parsedPyload
+
+
+            const patient = {
+                name: newPatient.name ? newPatient.name : existingPatient.name,
+                address: newPatient.address ? newPatient.address : existingPatient.address,
+                email: newPatient.email ? newPatient.email : existingPatient.email,
+                phone_number: newPatient.phone_number ? newPatient.phone_number : existingPatient.phone_number,
+                ssn: newPatient.ssn ? newPatient.ssn : existingPatient.ssn,
+                medical_journal: newPatient.medical_journal ? newPatient.medical_journal : existingPatient.medical_journal,
+                appointments: newPatient.appointments ? newPatient.appointments : existingPatient.appointments
+            }
+
+            if (!patient) {
+                status = 400;
+                message = "Failed to update patient";
+                return status + "/"+ message;
+            };
+
+            const updatedPatient = await Patient.findByIdAndUpdate(id, patient, {new: true});
+
+            status = 200; 
+            message= "Patient updated";
+            var stringUpdatedPatient = JSON.stringify(updatedPatient);
+            return status +"/"+ message +"/"+ stringUpdatedPatient;
+        } else {
+            message = "Unauthorized request. Please login perform this action"
             status = 400;
-            message = "No patient found";
             return status +"/"+ message;
         }
-        var newPatient = parsedPyload
 
-
-        const patient = {
-            name: newPatient.name ? newPatient.name : existingPatient.name,
-            address: newPatient.address ? newPatient.address : existingPatient.address,
-            email: newPatient.email ? newPatient.email : existingPatient.email,
-            phone_number: newPatient.phone_number ? newPatient.phone_number : existingPatient.phone_number,
-            ssn: newPatient.ssn ? newPatient.ssn : existingPatient.ssn,
-            medical_journal: newPatient.medical_journal ? newPatient.medical_journal : existingPatient.medical_journal,
-            appointments: newPatient.appointments ? newPatient.appointments : existingPatient.appointments
-        }
-
-        if (!patient) {
-            status = 400;
-            message = "Failed to update patient";
-            return status + "/"+ message;
-        };
-
-        const updatedPatient = await Patient.findByIdAndUpdate(id, patient, {new: true});
-
-        status = 200; 
-        message= "Patient updated";
-        var stringUpdatedPatient = JSON.stringify(updatedPatient);
-        return status +"/"+ message +"/"+ stringUpdatedPatient;
 
 
     } catch (error) {
@@ -203,17 +212,26 @@ exports.deleteSpecificPatient = async (topic, payload) => {
         var parsedPyload = JSON.parse(payload);
         // get the userId from the session variable that is sent with the payload
         const id = parsedPyload.userId;
-        
-        const patient = await Patient.findByIdAndDelete(id);
-        if (!patient) {
-            status = 404; 
-            message = "No patient found" 
-            return status + "/" + message;
+        const userRole = parsedPyload.role;
+
+        if ((userRole === 'admin') || (userRole === 'patient')) { 
+
+            const patient = await Patient.findByIdAndDelete(id);
+            if (!patient) {
+                status = 404; 
+                message = "No patient found" 
+                return status + "/" + message;
+            }
+            var stringPatient = JSON.stringify(patient)
+            status = 200; 
+            message = "Patient deleted"; 
+            return status + "/" + message + "/" + stringPatient;
+        } else {
+            message = "Unauthorized request. Please login perform this action"
+            status = 400;
+            return status +"/"+ message;
         }
-        var stringPatient = JSON.stringify(patient)
-        status = 200; 
-        message = "Patient deleted"; 
-        return status + "/" + message + "/" + stringPatient;
+
 
     } catch (error) {
         status = 400; 
