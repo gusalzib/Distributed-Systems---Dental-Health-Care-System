@@ -75,21 +75,23 @@ export default {
     },
     loginCheck() {
 
-      try {
         Api.get(`${this.login_url}`).then(response => {
           if (response.status === 200) {
             this.loggedIn = response.data.loggedIn;
             this.isAdmin = response.data.isAdmin;
             this.isPatient = response.data.isPatient;
             this.isDentist = response.data.isDentist;
-            console.log(response);
             
+          } else {
+            this.loggedIn = false;
+            this.isAdmin = false;
+            this.isPatient = false;
+            this.isDentist = false;
           }
+        }).catch(error => {
+          console.log(error.message);
+          
         })
-      } catch (error) {
-        console.log(error);
-        
-      }
     },
     async logout() {
       await Api.get(`${this.logout_url}`).then(response => {
