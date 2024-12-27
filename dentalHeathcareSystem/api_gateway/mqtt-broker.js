@@ -1,9 +1,9 @@
 const mqtt = require('async-mqtt');
-var mqttClient;
 
+var mqttClient;
 const host = "127.0.0.1";
 const protocol = "mqtt";
-const port = "1883";
+const port = "1884";
 var responseArr = [];
 
 
@@ -13,7 +13,7 @@ function connectToBroker() {
     const options = {
         keepalive: 60,
         retryInterval: 0,
-        clientId: clientId,
+        clientId: 'gateway',
         protocolId: "MQTT",
         protocolVersion: 4,
         clean: true,

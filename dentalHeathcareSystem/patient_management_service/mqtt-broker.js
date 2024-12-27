@@ -4,15 +4,15 @@ const patientCtrl = require("./controller/patientController")
 
 const host = "127.0.0.1";
 const protocol = "mqtt";
-const port = "1883";
+const port = "1884";
 
 function connectToBroker() {
     const clientId = "client" + Math.random() + Date.now();
     const hostURL = `${protocol}://${host}:${port}`;
     const options = {
-        keepalive: 60,
+        keepalive: 5,
         retryInterval: 0,
-        clientId: clientId,
+        clientId: 'patient-1',
         protocolId: "MQTT",
         protocolVersion: 4,
         clean: true,
