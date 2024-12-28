@@ -10,41 +10,7 @@ const { baseModelName } = require("../appointment_management_service/models/Appo
 
 const PORT = 3000;
 
-// function activityCheck(server){                           //ping and echo - is the server running
-//   request(server.host + '/active', (err,res) =>{
-//     if(!err && res.statusCode == 200){
-//       server.isActive = true;
-//       console.log(`Server ${server.host} is running`);
-//     } else {
-//       server.isActive = false;
-//       console.log(`Server ${server.host} is not running`);
-//     }
-//   })
-// }
 
-// setInterval(() => {                                     // Interval for ping and echo (every 5 seconds)
-//   services.forEach((server) => {
-//     server.ports.forEach((service_instance) => {
-//       activityCheck(service_instance);
-//     })
-//
-//   })
-// }, 5000)
-
-
-// const origins = [
-//   "http://localhost:5173",
-//   "http://localhost:3001",
-//   "http://localhost:3002",
-//   "http://localhost:3003",
-//   "http://localhost:3004",
-//   "http://localhost:3009",
-//   "http://localhost:3011",
-//   "http://localhost:3012",
-//   "http://localhost:3005"
-// ];
-// Middleware setup
-// app.use(cors()); // Enable CORS
 app.use(
   cors({
     origin: true, // Allow all origins
@@ -60,50 +26,43 @@ app.use(morgan("dev")); // Log HTTP requests
 // app.disable("x-powered-by"); // Hide Express server information
 app.use(express.json());
 
-// app.use((req, res) => {               //load balancer middleware
-//   let activeServers = []
-//   services.forEach((server) => {      // only active servers are recieving requests
-//     server.ports.forEach((port) => {
-//       if(port.isActive == true) {
-//         activeServers.push(server)      // save the active servers in an array
-//       }
-//     })
-//   })
-//
-//   var currServer=""
-//   var url = extractRoute(req.url)                // calling method to make sure it only contains the two first words (/api/resourseName)
-//   activeServers.forEach((activeServer) => {      // search for the service with the same route that should receive the request
-//     if(url === activeServer.route){
-//       currServer = activeServer
-//     }
-//   })
-//
-//   const port = roundRobinPort(currServer.ports, currServer.index)             // if there are many instances of the same service - balance between them
-//   currServer.index = port.index
-//   currServer.host = `http://localhost:${port.portValue}`              // give the portnumber for the port that should receive the request
-//   req.pipe(request(currServer.host + req.url)).pipe(res)              // forwarding the request to the correct service (the straw)
-// })
 
-// function extractRoute(url){
-//   var tempArr = url.split("/")
-//   var route = "/"+tempArr[1]+ "/"+tempArr[2]
-//   return route
-// }
+//----------------------------------- LOAD BALANCER -----------------------------------------
+
+function balanceService (serviceName){
+    const specificService = services.find((service) => service.service === serviceName);
+    if(!specificService){
+        console.log('service not found');
+        return
+    }
+    const response = roundRobin(specificService.topics,specificService.index);
+    specificService.index = response.index;
+    const balancedService = response.topic;
+    return balancedService;
+}
 
 
-//-----------http mqtt adapter---------------//
-// var activeServices = [];
-// var checkServices = [];
-// exports.saveActiveService = async (topic, payload) => {
-    
-//     var service = {topic: topic, entity:payload}
-//     var alreadyExists = activeServices.find(service => service.payload === payload)
+function roundRobin(topics,index){
+  var topic = '';
 
-//     if (!alreadyExists){
-//     activeServices.push(service)
-//     }
-// }
+  if(topics.length === 1){                 //if there is only one service
+    topic = topics[index].topic
+    topicAndIndex = {topic, index}
 
+    return topicAndIndex
+  } else {                              //If there is duplicate services
+    index = (index + 1) % topics.length   //roundRobin algorithm
+
+    if (topics[index].isActive == false){
+      roundRobin(topics, index);             //if the current service instance is down, move on to the next
+    } else {
+      topic = topics[index].topic;
+      topicAndIndex = { topic, index }; //returning the portnumber and the new index value
+    }
+
+    return topicAndIndex
+  }
+}
 
 
 exports.updateIsActive = async (serviceName, topicName) => {
@@ -118,6 +77,7 @@ exports.updateIsActive = async (serviceName, topicName) => {
         return
     }
     specificTopic.isActive = true;
+    startTimer(specificTopic);
     
     var topicArr = [];
     services.forEach(service => {
@@ -127,9 +87,15 @@ exports.updateIsActive = async (serviceName, topicName) => {
             }
         });
     });
-    //console.log('Active topics are: ',topicArr);
-        
-   
+    console.log('Active topics are: ',topicArr);
+}
+function startTimer (topic){
+    if(topic.timeout){
+        clearTimeout(topic.timeout);
+    }
+    topic.timeout = setTimeout(() =>{
+        topic.isActive = false;
+    },6000)
 }
 
 const services = [                                      //Service array
@@ -169,6 +135,8 @@ const services = [                                      //Service array
       },
    ];
 
+//--------------------------------- ADAPTER -----------------------------------------------   
+
 app.post("/api/*", async (req, res) => {
     try {
         
@@ -182,17 +150,11 @@ app.post("/api/*", async (req, res) => {
         var topic = adaptedURL + "/" + giveUniqueID();
         var topicArr = topic.split("/");
         var nameOfService = topicArr[0];
-        const balancedService = balanceService(nameOfService);   
-        console.log("BALANCED SERVICE: ",balancedService);
-        topic = topic.replace(nameOfService,balancedService);
-        console.log("NEW TOPIC: ",topic);
-        var responseTopic = 'response/'+topic
-
-        
-        
 
         //send nameOfService to check service array and make a roundRobin
-        
+        const balancedService = balanceService(nameOfService);   
+        topic = topic.replace(nameOfService,balancedService);
+        var responseTopic = 'response/'+topic
         var serviceTopic = balancedService+"/topics";
         
         var serviceTopicResponse = "response/"+serviceTopic;
@@ -209,8 +171,6 @@ app.post("/api/*", async (req, res) => {
             mqttBroker.unsubscribe(serviceTopicResponse);
         }
         
-        
-
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
         
@@ -239,10 +199,6 @@ app.post("/api/*", async (req, res) => {
             catchArr = errorMessage.split("/")
         }
 
-
-
-
-
     } catch (error) {
         const errorMessage = error.toString();
         let catchArr = errorMessage.split("/")
@@ -255,6 +211,7 @@ app.post("/api/*", async (req, res) => {
         }
     }
 });
+
 app.get("/api/*", async (req, res) => {
     try {
         //get the body and make it a string, get the url and call method to remove "api"
@@ -273,11 +230,10 @@ app.get("/api/*", async (req, res) => {
         }
         var topicArr = topic.split("/");
         var nameOfService = topicArr[0];
-        const balancedService = balanceService(nameOfService);   
-        console.log("BALANCED SERVICE: ",balancedService);
-        topic = topic.replace(nameOfService,balancedService);
-        console.log("NEW TOPIC: ",topic);
 
+        //send nameOfService to check service array and make a roundRobin
+        const balancedService = balanceService(nameOfService);   
+        topic = topic.replace(nameOfService,balancedService);
         var serviceTopic = balancedService+"/topics";
         var serviceTopicResponse = "response/"+serviceTopic;
         var responseTopic = 'response/'+topic
@@ -346,11 +302,10 @@ app.put("/api/*", async (req, res) => {
         }
          var topicArr = topic.split("/");
         var nameOfService = topicArr[0];
-        const balancedService = balanceService(nameOfService);   
-        console.log("BALANCED SERVICE: ",balancedService);
-        topic = topic.replace(nameOfService,balancedService);
-        console.log("NEW TOPIC: ",topic);
 
+        //send nameOfService to check service array and make a roundRobin
+        const balancedService = balanceService(nameOfService);   
+        topic = topic.replace(nameOfService,balancedService);
         var serviceTopic = balancedService+"/topics";
         var serviceTopicResponse = "response/"+serviceTopic;
         var responseTopic = 'response/'+topic
@@ -420,11 +375,10 @@ app.delete("/api/*", async (req, res) => {
         }
          var topicArr = topic.split("/");
         var nameOfService = topicArr[0];
-        const balancedService = balanceService(nameOfService);   
-        console.log("BALANCED SERVICE: ",balancedService);
-        topic = topic.replace(nameOfService,balancedService);
-        console.log("NEW TOPIC: ",topic);
 
+        //send nameOfService to check service array and make a roundRobin
+        const balancedService = balanceService(nameOfService);   
+        topic = topic.replace(nameOfService,balancedService);
         var serviceTopic = balancedService+"/topics";
         var serviceTopicResponse = "response/"+serviceTopic;
         var responseTopic = 'response/'+topic
@@ -439,8 +393,6 @@ app.delete("/api/*", async (req, res) => {
         }else if (serviceResponse){
             mqttBroker.unsubscribe(serviceTopicResponse);
         }
-
-
 
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
@@ -497,88 +449,6 @@ function checkForId(adaptedURL){
         return id;
     }
 }
-
-
-
-
-   // services.forEach(service => {                    // populate the target and the host with the correct values using roundRobin if there is duplicate services
-   //    var portAndIndex = roundRobinPort(service.ports, service.index)
-   //    var port = portAndIndex.portValue
-   //    service.index = portAndIndex.index
-   //
-   //    service.target = `http://localhost:${port}${service.route}`
-   //    service.host = `http://localhost:${port}`
-   // })
-
-   // function roundRobinPort(ports,index){
-   //    var portValue = 0
-   //
-   //    if(ports.length === 1){                 //if there is only one service
-   //      portValue = ports[index].port
-   //      portAndIndex = {portValue, index}
-   //
-   //      return portAndIndex
-   //    } else {                              //If there is duplicate services
-   //      index = (index + 1) % ports.length   //roundRobin algorithm
-   //
-   //      if (ports[index].isActive == false){
-   //        roundRobinPort(ports, index);             //if the current service instance is down, move on to the next
-   //      } else {
-   //        portValue = ports[index].port;
-   //        portAndIndex = { portValue, index }; //returning the portnumber and the new index value
-   //      }
-   //
-   //      return portAndIndex
-   //    }
-   // }
-    function balanceService (serviceName){
-        const specificService = services.find((service) => service.service === serviceName);
-        if(!specificService){
-            console.log('service not found');
-            return
-        }
-        const response = roundRobin(specificService.topics,specificService.index);
-        specificService.index = response.index;
-        const balancedService = response.topic;
-        return balancedService;
-    }
-
-
-    function roundRobin(topics,index){
-      var topic = '';
-   
-      if(topics.length === 1){                 //if there is only one service
-        topic = topics[index].topic
-        topicAndIndex = {topic, index}
-   
-        return topicAndIndex
-      } else {                              //If there is duplicate services
-        index = (index + 1) % topics.length   //roundRobin algorithm
-   
-        if (topics[index].isActive == false){
-          roundRobin(topics, index);             //if the current service instance is down, move on to the next
-        } else {
-          topic = topics[index].topic;
-          topicAndIndex = { topic, index }; //returning the portnumber and the new index value
-        }
-   
-        return topicAndIndex
-      }
-   }
-
-
-
-// services.forEach(({ route, target }) => {           //Gateway receiving Api calls and rerouts it to its corresponding service
-//     // Proxy options
-//     const proxyOptions = {
-//       target,
-//       changeOrigin: true,
-//       pathRewrite: {
-//         [`^${route}`]: "",
-//       },
-//     };
-//     app.use(route, createProxyMiddleware(proxyOptions));
-// });
 
 
 // Start Express server
