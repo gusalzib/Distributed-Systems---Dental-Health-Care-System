@@ -136,6 +136,71 @@ app.use(express.json());
 //       index:0
 //     },
 //    ];
+exports.updateIsActive = async (serviceName, topicName) => {
+    const specificService = services.find((service) => service.service === serviceName);
+    if(!specificService){
+        console.log('service not found');
+        return
+    }
+    const specificTopic = specificService.topics.find((topic)=> topic.topic === topicName);
+    if(!specificTopic){
+        console.log('no topic found');
+        return
+    }
+    specificTopic.isActive = true;
+    // const activeTopics = services.flatMap((service) => 
+    // service.topics.filter((topic) => topic.isActive).map((topic) => topic.topic))
+    // console.log('Active topics: ',activeTopics);
+    
+    var topicArr = [];
+    services.forEach(service => {
+        service.topics.forEach(topic =>{
+            if(topic.isActive){
+                topicArr.push(topic.topic)
+            }
+        });
+    });
+    console.log('Active topics are: ',topicArr);
+        
+   
+}
+
+const services = [                                      //Service array
+    {
+      service: "patients",
+      topics: [
+        {topic: "patients-1", isActive: false},
+        {topic: "patients-2", isActive: false},
+        {topic: "patients-3", isActive: false}
+      ] ,
+      index:0,
+
+    },
+    {
+        service: "appointments",
+        topics: [
+          {topic: "appointments-1", isActive: false},
+          {topic: "appointments-2", isActive: false},
+          {topic: "appointments-3", isActive: false}
+
+        ],
+        index:0,
+      },
+      {
+        service: "clinics",
+        topics: [
+          {topic: 'clinics-1', isActive: false}
+        ],
+        index:0,
+      },
+      {
+        service: "dentists",
+        topics: [
+          {topic: 'dentists-1', isActive: false},
+        ],
+        index:0,
+      },
+   ];
 
 app.post("/api/*", async (req, res) => {
     try {

@@ -12,7 +12,7 @@ function connectToBroker() {
     const options = {
         keepalive: 5,
         retryInterval: 0,
-        clientId: 'patient-1',
+        clientId: 'patients-1',
         protocolId: "MQTT",
         protocolVersion: 4,
         clean: true,

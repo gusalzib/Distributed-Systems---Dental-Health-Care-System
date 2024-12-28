@@ -1,4 +1,5 @@
 const mqtt = require('async-mqtt');
+const index = require('./index');
 
 var mqttClient;
 const host = "127.0.0.1";
@@ -39,13 +40,17 @@ function connectToBroker() {
     });
 
     mqttClient.on("message", (topic, payload, packet) => {
-        console.log("Message received: " + payload.toString());
+        const messageReceived = payload.toString();
         console.log("On topic: " + topic);
         console.log(packet);
         var stringPayload = payload.toString();
         
         
-        if (topic.startsWith("response/")){
+        if (topic === "active"){
+            const messageArr = messageReceived.split('-');
+            index.updateIsActive(messageArr[0],messageReceived);
+            // index.updateIsActive()
+        }else if (topic.startsWith("response/")){
             var newResponse = {topic : topic, payload: stringPayload}
             responseArr.push(newResponse);
         }
@@ -94,6 +99,7 @@ async function unsubscribe(topic){
 };
 
 connectToBroker();
+subscribeToBroker('active');
 
 
 
