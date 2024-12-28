@@ -65,7 +65,7 @@ function roundRobin(topics,index){
 }
 
 
-exports.updateIsActive = async (serviceName, topicName) => {
+exports.updateIsActive = async (serviceName, topicName, activity) => {
     const specificService = services.find((service) => service.service === serviceName);
     if(!specificService){
         console.log('service not found');
@@ -76,7 +76,7 @@ exports.updateIsActive = async (serviceName, topicName) => {
         console.log('no topic found');
         return
     }
-    specificTopic.isActive = true;
+    specificTopic.isActive = activity;
     startTimer(specificTopic);
     
     var topicArr = [];

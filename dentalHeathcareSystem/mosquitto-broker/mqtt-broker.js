@@ -12,18 +12,41 @@ function startMosquittoBroker(){
     
     mosquittoProcess.stdout.on('data',(data) => {
         const message = data.toString();
-        // console.log('[Message] -> ', message);
+        const payloadArr = message.split('\n');
+        const messageArr = payloadArr[0].split(' ')
+        var isActive = false;
+        var serviceTopic = '';
+        //console.log('[Message] -> ', message);
        
         if(message.includes('PINGREQ')){
             
             // console.log('[PING] -> ',message);
-            const payloadArr = message.split('\n');
-            const messageArr = payloadArr[0].split(' ')
             const activeService = messageArr[4];
             console.log('[Active Service] ->',activeService);
-            
-            publishToBroker('active',activeService);
+            isActive = true;
+            serviceTopic = activeService
+            const serviceAndActivity = { serviceTopic, isActive };
+            const stringServiceAndActivity = JSON.stringify(serviceAndActivity);
+            publishToBroker('active',stringServiceAndActivity);
+        }else if(message.includes('closed its connection')){
+            const closedService = messageArr[2];
+            isActive = false;
+            serviceTopic = closedService;
+
+            const serviceAndActivity = { serviceTopic, isActive };
+            const stringServiceAndActivity = JSON.stringify(serviceAndActivity);
+            console.log('[closed connection] ->',closedService);
+            publishToBroker('active',stringServiceAndActivity);
+        }else if(message.includes('New client connected')){
+            const connectedService = messageArr[7];
+            isActive = true;
+            serviceTopic = connectedService;
+            const serviceAndActivity = { serviceTopic, isActive };
+            const stringServiceAndActivity = JSON.stringify(serviceAndActivity);
+            console.log('[connected service] ->',serviceAndActivity);
+            publishToBroker('active', stringServiceAndActivity)
         }
+
     });
     mosquittoProcess.stderr.on('data', (data) =>{
         const message = data.toString();
