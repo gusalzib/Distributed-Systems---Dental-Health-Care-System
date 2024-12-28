@@ -6,6 +6,7 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 const request = require("request");
 const app = express();
 const mqttBroker = require("./mqtt-broker.js");
+const { baseModelName } = require("../appointment_management_service/models/Appointment.js");
 
 const PORT = 3000;
 
@@ -126,7 +127,7 @@ exports.updateIsActive = async (serviceName, topicName) => {
             }
         });
     });
-    // console.log('Active topics are: ',topicArr);
+    //console.log('Active topics are: ',topicArr);
         
    
 }
@@ -202,8 +203,8 @@ app.post("/api/*", async (req, res) => {
         var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
       
         if(!serviceResponse){
-            res.status(400).json({message: "could not find service"})
-            return
+            return res.status(400).json({message: "could not find service"})
+            
         }else if (serviceResponse){
             mqttBroker.unsubscribe(serviceTopicResponse);
         }
@@ -215,8 +216,8 @@ app.post("/api/*", async (req, res) => {
         
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
-            res.status(400).json({message: "could not create object"});
-            return
+            return res.status(400).json({message: "could not create object"});
+            
         }else if(mqttResponse){
             mqttBroker.unsubscribe(responseTopic);
         }
@@ -230,8 +231,8 @@ app.post("/api/*", async (req, res) => {
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);        
     
-        res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
-        return;
+        return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
+        
         }
         var catchArr = []
         if (errorMessage) {
@@ -247,10 +248,10 @@ app.post("/api/*", async (req, res) => {
         let catchArr = errorMessage.split("/")
        
         if(catchArr.length===1){
-            res.status(400).json({message: "something went wrong"}); 
+            return res.status(400).json({message: "something went wrong"}); 
         }else{
             const status = parseInt(catchArr[0]);
-        res.status(status).json({message: catchArr[1]});
+            return res.status(status).json({message: catchArr[1]});
         }
     }
 });
@@ -272,7 +273,12 @@ app.get("/api/*", async (req, res) => {
         }
         var topicArr = topic.split("/");
         var nameOfService = topicArr[0];
-        var serviceTopic = nameOfService+"/topics";
+        const balancedService = balanceService(nameOfService);   
+        console.log("BALANCED SERVICE: ",balancedService);
+        topic = topic.replace(nameOfService,balancedService);
+        console.log("NEW TOPIC: ",topic);
+
+        var serviceTopic = balancedService+"/topics";
         var serviceTopicResponse = "response/"+serviceTopic;
         var responseTopic = 'response/'+topic
 
@@ -280,8 +286,8 @@ app.get("/api/*", async (req, res) => {
         await mqttBroker.subscribeToBroker(serviceTopicResponse);
         var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
         if(!serviceResponse){
-            res.status(400).json({message: "could not find service"})
-            return
+            return res.status(400).json({message: "could not find service"})
+            
         }else if (serviceResponse){
             mqttBroker.unsubscribe(serviceTopicResponse);
         }
@@ -293,22 +299,21 @@ app.get("/api/*", async (req, res) => {
         
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
-            res.status(400).json({message: "could not create object"});
-            return
+            return res.status(400).json({message: "could not create object"});
+            
         }else if(mqttResponse){
             mqttBroker.unsubscribe(responseTopic);
         }
          //exstract information from topic and response, parse the payload and return http response
-        var topicArr = topic.split("/");
-        var nameOfService = topicArr[0]
+        
         var responseArr = mqttResponse.split("/"); 
         var status = parseInt(responseArr[0]);
         if(responseArr.length <=2){
-            res.status(status).json({message : responseArr[1]});
+            return res.status(status).json({message : responseArr[1]});
         }else{
-        var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
-        return;
+            var adaptedResponse = JSON.parse(responseArr[2]);     
+            return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
+        
         }
 
     } catch (error) {
@@ -316,10 +321,10 @@ app.get("/api/*", async (req, res) => {
         let catchArr = errorMessage.split("/")
        
         if(catchArr.length===1){
-            res.status(400).json({message: "something went wrong"}); 
+            return res.status(400).json({message: "something went wrong"}); 
         }else{
             const status = parseInt(catchArr[0]);
-        res.status(status).json({message: catchArr[1]});
+            return res.status(status).json({message: catchArr[1]});
         }
     }
 });
@@ -339,9 +344,14 @@ app.put("/api/*", async (req, res) => {
         }else{
             topic = adaptedURL;
         }
-        var topicArr = topic.split("/");
+         var topicArr = topic.split("/");
         var nameOfService = topicArr[0];
-        var serviceTopic = nameOfService+"/topics";
+        const balancedService = balanceService(nameOfService);   
+        console.log("BALANCED SERVICE: ",balancedService);
+        topic = topic.replace(nameOfService,balancedService);
+        console.log("NEW TOPIC: ",topic);
+
+        var serviceTopic = balancedService+"/topics";
         var serviceTopicResponse = "response/"+serviceTopic;
         var responseTopic = 'response/'+topic
 
@@ -350,8 +360,8 @@ app.put("/api/*", async (req, res) => {
         var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
         
         if(!serviceResponse){
-            res.status(400).json({message: "could not find service"})
-            return
+            return res.status(400).json({message: "could not find service"})
+            
         }else if (serviceResponse){
             mqttBroker.unsubscribe(serviceTopicResponse);
         }
@@ -363,22 +373,21 @@ app.put("/api/*", async (req, res) => {
         
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
-            res.status(400).json({message: "could not update object"});
-            return
+            return res.status(400).json({message: "could not update object"});
+            
         }else if(mqttResponse){
             mqttBroker.unsubscribe(responseTopic);
         }
          //exstract information from topic and response, parse the payload and return http response
-        var topicArr = topic.split("/");
-        var nameOfService = topicArr[0]
+        
         var responseArr = mqttResponse.split("/"); 
         var status = parseInt(responseArr[0]);
         if(responseArr.length <=2){
-            res.status(status).json({message : responseArr[1]});
+            return res.status(status).json({message : responseArr[1]});
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
-        return;
+        return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
+        
         }
 
     } catch (error) {
@@ -386,10 +395,10 @@ app.put("/api/*", async (req, res) => {
         let catchArr = errorMessage.split("/")
        
         if(catchArr.length===1){
-            res.status(400).json({message: "something went wrong"}); 
+            return res.status(400).json({message: "something went wrong"}); 
         }else{
             const status = parseInt(catchArr[0]);
-        res.status(status).json({message: catchArr[1]});
+            return res.status(status).json({message: catchArr[1]});
         }
     }
 });
@@ -409,9 +418,14 @@ app.delete("/api/*", async (req, res) => {
         }else{
             topic = adaptedURL;
         }
-        var topicArr = topic.split("/");
+         var topicArr = topic.split("/");
         var nameOfService = topicArr[0];
-        var serviceTopic = nameOfService+"/topics";
+        const balancedService = balanceService(nameOfService);   
+        console.log("BALANCED SERVICE: ",balancedService);
+        topic = topic.replace(nameOfService,balancedService);
+        console.log("NEW TOPIC: ",topic);
+
+        var serviceTopic = balancedService+"/topics";
         var serviceTopicResponse = "response/"+serviceTopic;
         var responseTopic = 'response/'+topic
 
@@ -420,8 +434,8 @@ app.delete("/api/*", async (req, res) => {
         var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
         
         if(!serviceResponse){
-            res.status(400).json({message: "could not find service"})
-            return
+            return res.status(400).json({message: "could not find service"})
+            
         }else if (serviceResponse){
             mqttBroker.unsubscribe(serviceTopicResponse);
         }
@@ -433,22 +447,20 @@ app.delete("/api/*", async (req, res) => {
         
         var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
         if(!mqttResponse){
-            res.status(400).json({message: "could not delete object"});
-            return
+            return res.status(400).json({message: "could not delete object"});
+            
         }else if(mqttResponse){
             mqttBroker.unsubscribe(responseTopic);
         }
          //exstract information from topic and response, parse the payload and return http response
-        var topicArr = topic.split("/");
-        var nameOfService = topicArr[0]
+        
         var responseArr = mqttResponse.split("/"); 
         var status = parseInt(responseArr[0]);
         if(responseArr.length <=2){
-            res.status(status).json({message : responseArr[1]});
+            return res.status(status).json({message : responseArr[1]});
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
-        return;
+            return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
         }
 
     } catch (error) {
@@ -456,10 +468,10 @@ app.delete("/api/*", async (req, res) => {
         let catchArr = errorMessage.split("/")
        
         if(catchArr.length===1){
-            res.status(400).json({message: "something went wrong"}); 
+            return res.status(400).json({message: "something went wrong"}); 
         }else{
             const status = parseInt(catchArr[0]);
-        res.status(status).json({message: catchArr[1]});
+            return res.status(status).json({message: catchArr[1]});
         }
     }
 });

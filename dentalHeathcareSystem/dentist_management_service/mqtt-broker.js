@@ -43,42 +43,42 @@ function connectToBroker() {
         console.log("On topic: " + topic); 
         let publishTopic = "response/" + topic;
 
-        if(topic.startsWith('dentists/topics')){
+        if(topic.startsWith('dentists-1/topics')){
             subscribeToBroker(payloadReceived);
             var newPayload = '200/subscribed to topic/'+topic;
             publishToBroker(publishTopic,newPayload);
 
-        }else if (topic.startsWith('dentists/create/')) {
+        }else if (topic.startsWith('dentists-1/create/')) {
             dentistCtrl.createDentist(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        }else if(topic.startsWith('dentists/get/clinics/dentists/')){
+        }else if(topic.startsWith('dentists-1/get/clinics/dentists/')){
             dentistCtrl.fetchClinicsDentists(topic).then(response => {
                 publishToBroker(publishTopic,response);
             });
             unsubscribe(topic);
 
-        }else if (topic.startsWith('dentists/get/specific/')) {
+        }else if (topic.startsWith('dentists-1/get/specific/')) {
             dentistCtrl.getSpecificDentist(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        } else if (topic.startsWith('dentists/update/')) {
+        } else if (topic.startsWith('dentists-1/update/')) {
             dentistCtrl.updateSpecificDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        } else if (topic.startsWith('dentists/delete/')) {
+        } else if (topic.startsWith('dentists-1/delete/')) {
             dentistCtrl.deleteSpecificDentist(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        } else if (topic.startsWith('dentists/get/')) {
+        } else if (topic.startsWith('dentists-1/get/')) {
             dentistCtrl.getAllDentists(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
@@ -105,5 +105,5 @@ async function unsubscribe(topic){
 };
 
 connectToBroker();
-subscribeToBroker('dentists/topics');
+subscribeToBroker('dentists-1/topics');
 

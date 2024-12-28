@@ -45,40 +45,40 @@ function connectToBroker() {
         var publishTopic = "response/" + topic;
         console.log("publishTopic =",publishTopic);
 
-        if(topic.startsWith('patients/topics')){
+        if(topic.startsWith('patients-1/topics')){
             subscribeToBroker(payloadReceived);
             var newPayload = '200/subscribed to topic/'+topic;
             publishToBroker(publishTopic,newPayload);
 
-        }else if (topic.startsWith('patients/create/')) {
+        }else if (topic.startsWith('patients-1/create/')) {
             console.log("create a patient");
             patientCtrl.createPatient(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
         
-        }else if (topic.startsWith('patients/get/specific/')) {
+        }else if (topic.startsWith('patients-1/get/specific/')) {
             console.log("get specific patient");
             patientCtrl.fetchSpecificPatient(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        }else if (topic.startsWith('patients/get/')) {
+        }else if (topic.startsWith('patients-1/get/')) {
             console.log("get all patients");
             patientCtrl.fetchAllPatients(payload).then(response => {
                 publishToBroker(publishTopic, response)
             });
             unsubscribe(topic);
 
-        } else if (topic.startsWith('patients/update/')){
+        } else if (topic.startsWith('patients-1/update/')){
             console.log("update patient");
             patientCtrl.updateSpecificPatient(topic,payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        } else if (topic.startsWith('patients/delete/')) {
+        } else if (topic.startsWith('patients-1/delete/')) {
             console.log("delete patient");
             patientCtrl.deleteSpecificPatient(topic).then(response => {
                 publishToBroker(publishTopic, response)
@@ -123,6 +123,6 @@ async function unsubscribe(topic){
 
 connectToBroker();
 // heartbeat();
-subscribeToBroker('patients/topics');
+subscribeToBroker('patients-1/topics');
 
 

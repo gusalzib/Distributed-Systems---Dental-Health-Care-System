@@ -45,53 +45,53 @@ function connectToBroker() {
         console.log(packet);
         var publishTopic = "response/" + topic;
 
-        if(topic.startsWith('clinics/topics')){
+        if(topic.startsWith('clinics-1/topics')){
             subscribeToBroker(payloadReceived);
             var newPayload = '200/subscribed to topic/'+topic;
             publishToBroker(publishTopic,newPayload);
 
-        }else if (topic.startsWith( 'clinics/create/')) {
+        }else if (topic.startsWith( 'clinics-1/create/')) {
             console.log("clinic create");
             clinicCtrl.clinicCreate(payload).then(response =>{ 
                 publishToBroker(publishTopic,response);  
             });
             unsubscribe(topic);
 
-        }else if(topic.startsWith('clinics/delete/')){
+        }else if(topic.startsWith('clinics-1/delete/')){
             console.log("delete clinic");
             clinicCtrl.deleteAClinic(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        }else if (topic.startsWith('clinics/get/clinic/from/appointment/')){
+        }else if (topic.startsWith('clinics-1/get/clinic/from/appointment/')){
             console.log("clinic array");
             clinicCtrl.getClinicInformation(payload).then(response => {
                 publishToBroker(publishTopic,response);
             });
             unsubscribe(topic);
-        }else if (topic.startsWith('clinics/get/specific/')){
+        }else if (topic.startsWith('clinics-1/get/specific/')){
             console.log("get specific clinic");
             clinicCtrl.getOneClinic(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        }else if(topic.startsWith('clinics/get/dentists/')){
+        }else if(topic.startsWith('clinics-1/get/dentists/')){
             console.log("get the clinics dentists");
             clinicCtrl.getDentistFromClinic(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        }else if (topic.startsWith('clinics/get/')){
+        }else if (topic.startsWith('clinics-1/get/')){
             console.log("get all clinics");
             clinicCtrl.getClinics().then( response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        }else if (topic.startsWith('clinics/update/')){
+        }else if (topic.startsWith('clinics-1/update/')){
             console.log("update clinics");
             clinicCtrl.updateAClinic(topic,payload).then(response => {
                 publishToBroker(publishTopic,response);
@@ -125,5 +125,5 @@ async function unsubscribe(topic){
 };
 
 connectToBroker();
-subscribeToBroker('clinics/topics')
+subscribeToBroker('clinics-1/topics')
 
