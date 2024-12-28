@@ -41,15 +41,15 @@ function connectToBroker() {
 
     mqttClient.on("message", (topic, payload, packet) => {
         const messageReceived = payload.toString();
-        console.log("On topic: " + topic);
-        console.log(packet);
+        // console.log("On topic: " + topic);
+        // console.log(packet);
         var stringPayload = payload.toString();
         
         
         if (topic === "active"){
             const messageArr = messageReceived.split('-');
             index.updateIsActive(messageArr[0],messageReceived);
-            // index.updateIsActive()
+            
         }else if (topic.startsWith("response/")){
             var newResponse = {topic : topic, payload: stringPayload}
             responseArr.push(newResponse);

@@ -13,7 +13,7 @@ function connectToBroker() {
     const options = {
         keepalive: 5,
         retryInterval: 0,
-        clientId: 'appointments-1',
+        clientId: 'appointments-2',
         protocolId: "MQTT",
         protocolVersion: 4,
         clean: true,
@@ -46,68 +46,68 @@ function connectToBroker() {
         var publishTopic = "response/" + topic;
         console.log("publishTopic =",publishTopic);
 
-        if(topic.startsWith('appointments-1/topics')){
+        if(topic.startsWith('appointments-2/topics')){
             subscribeToBroker(payloadReceived);
             var newPayload = '200/subscribed to topic/'+topic;
             publishToBroker(publishTopic,newPayload);
 
-        }else if (topic.startsWith( 'appointments-1/create/')) {
+        }else if (topic.startsWith( 'appointments-2/create/')) {
             console.log("create an appointment");
             appointmentCtrl.makeAppointment(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
         
-        }else if (topic.startsWith('appointments-1/get/clinics/available/appointments/')) {
+        }else if (topic.startsWith('appointments-2/get/clinics/available/appointments/')) {
             console.log("get clinics available appointments");
             appointmentCtrl.fetchClinicsAvailableAppointments(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        }else if (topic.startsWith('appointments-1/get/patient/appointments/')) {
+        }else if (topic.startsWith('appointments-2/get/patient/appointments/')) {
             console.log("get a patients appointments");
             appointmentCtrl.fetchPatientAppointments(topic).then(response => {
                 publishToBroker(publishTopic, response)
             });
             unsubscribe(topic);
 
-        }else if (topic.startsWith('appointments-1/get/available/appointments/')) {
+        }else if (topic.startsWith('appointments-2/get/available/appointments/')) {
             console.log("get available appointments");
             appointmentCtrl.fetchAvailableAppointments(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        } else if (topic.startsWith('appointments-1/get/clinic/appointments/')) {
+        } else if (topic.startsWith('appointments-2/get/clinic/appointments/')) {
             console.log("get a clinics appointments");
             appointmentCtrl.fetchClinicAppointments(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        }else if (topic.startsWith('appointments-1/get/specific/')){
+        }else if (topic.startsWith('appointments-2/get/specific/')){
             console.log("get a specific appointment");
             appointmentCtrl.getOneAppointment(topic).then(response => {
                 publishToBroker(publishTopic,response)
             });
             unsubscribe(topic);
 
-        }else if (topic.startsWith('appointments-1/update/')){
+        }else if (topic.startsWith('appointments-2/update/')){
             console.log("update appointment");
             appointmentCtrl.updateOneAppointment(topic,payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        } else if (topic.startsWith('appointments-1/delete/')) {
+        } else if (topic.startsWith('appointments-2/delete/')) {
             console.log("delete appointment");
             appointmentCtrl.removeAppointment(topic).then(response => {
                 publishToBroker(publishTopic, response)
             });
             unsubscribe(topic);
 
-        }else if (topic.startsWith('appointments-1/get/')){
+        }else if (topic.startsWith('appointments-2/get/')){
             console.log("get all appointments");
             appointmentCtrl.getAppointments(payload).then(response =>{
                 publishToBroker(publishTopic, response);
@@ -152,6 +152,6 @@ async function unsubscribe(topic){
 
 connectToBroker();
 // heartbeat();
-subscribeToBroker('appointments-1/topics');
+subscribeToBroker('appointments-2/topics');
 
 

@@ -104,38 +104,7 @@ app.use(express.json());
 // }
 
 
-// const services = [                                      //Service array
-//     {
-//       service: "appointments",
-//       topics: [
-//         {topic:"appointment",isActive:true},
-//         {topic:"appointment2",isActive:true},
-//         {topic:"appointment3",isActive:true}
-//       ],
-//       index:0
-//     },
-//     {
-//       service: "patients",
-//       topics: [
-//             {topic:"patients",isActive:true}
-//       ],
-//       index:0
-//     },
-//     {
-//       service: "clinics",
-//       topics: [
-//         {topic: "clinics", isActive: true}
-//       ],
-//       index:0
-//     },
-//     {
-//       service: "dentists",
-//       topics: [
-//         {topic: "dentists", isActive: true},
-//       ],
-//       index:0
-//     },
-//    ];
+
 exports.updateIsActive = async (serviceName, topicName) => {
     const specificService = services.find((service) => service.service === serviceName);
     if(!specificService){
@@ -148,9 +117,6 @@ exports.updateIsActive = async (serviceName, topicName) => {
         return
     }
     specificTopic.isActive = true;
-    // const activeTopics = services.flatMap((service) => 
-    // service.topics.filter((topic) => topic.isActive).map((topic) => topic.topic))
-    // console.log('Active topics: ',activeTopics);
     
     var topicArr = [];
     services.forEach(service => {
@@ -160,7 +126,7 @@ exports.updateIsActive = async (serviceName, topicName) => {
             }
         });
     });
-    console.log('Active topics are: ',topicArr);
+    // console.log('Active topics are: ',topicArr);
         
    
 }
@@ -213,11 +179,20 @@ app.post("/api/*", async (req, res) => {
         
         //create all topics
         var topic = adaptedURL + "/" + giveUniqueID();
+        var topicArr = topic.split("/");
+        var nameOfService = topicArr[0];
+        const balancedService = balanceService(nameOfService);   
+        console.log("BALANCED SERVICE: ",balancedService);
+        topic = topic.replace(nameOfService,balancedService);
+        console.log("NEW TOPIC: ",topic);
         var responseTopic = 'response/'+topic
 
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity+"/topics";
+        
+        
+
+        //send nameOfService to check service array and make a roundRobin
+        
+        var serviceTopic = balancedService+"/topics";
         
         var serviceTopicResponse = "response/"+serviceTopic;
         var responseTopic = 'response/'+topic
@@ -255,7 +230,7 @@ app.post("/api/*", async (req, res) => {
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);        
     
-        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
         return;
         }
         var catchArr = []
@@ -296,8 +271,8 @@ app.get("/api/*", async (req, res) => {
             topic = adaptedURL;
         }
         var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity+"/topics";
+        var nameOfService = topicArr[0];
+        var serviceTopic = nameOfService+"/topics";
         var serviceTopicResponse = "response/"+serviceTopic;
         var responseTopic = 'response/'+topic
 
@@ -325,14 +300,14 @@ app.get("/api/*", async (req, res) => {
         }
          //exstract information from topic and response, parse the payload and return http response
         var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0]
+        var nameOfService = topicArr[0]
         var responseArr = mqttResponse.split("/"); 
         var status = parseInt(responseArr[0]);
         if(responseArr.length <=2){
             res.status(status).json({message : responseArr[1]});
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
         return;
         }
 
@@ -365,8 +340,8 @@ app.put("/api/*", async (req, res) => {
             topic = adaptedURL;
         }
         var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity+"/topics";
+        var nameOfService = topicArr[0];
+        var serviceTopic = nameOfService+"/topics";
         var serviceTopicResponse = "response/"+serviceTopic;
         var responseTopic = 'response/'+topic
 
@@ -395,14 +370,14 @@ app.put("/api/*", async (req, res) => {
         }
          //exstract information from topic and response, parse the payload and return http response
         var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0]
+        var nameOfService = topicArr[0]
         var responseArr = mqttResponse.split("/"); 
         var status = parseInt(responseArr[0]);
         if(responseArr.length <=2){
             res.status(status).json({message : responseArr[1]});
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
         return;
         }
 
@@ -435,8 +410,8 @@ app.delete("/api/*", async (req, res) => {
             topic = adaptedURL;
         }
         var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity+"/topics";
+        var nameOfService = topicArr[0];
+        var serviceTopic = nameOfService+"/topics";
         var serviceTopicResponse = "response/"+serviceTopic;
         var responseTopic = 'response/'+topic
 
@@ -465,14 +440,14 @@ app.delete("/api/*", async (req, res) => {
         }
          //exstract information from topic and response, parse the payload and return http response
         var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0]
+        var nameOfService = topicArr[0]
         var responseArr = mqttResponse.split("/"); 
         var status = parseInt(responseArr[0]);
         if(responseArr.length <=2){
             res.status(status).json({message : responseArr[1]});
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
         return;
         }
 
@@ -512,54 +487,7 @@ function checkForId(adaptedURL){
 }
 
 
-// const services = [                                      //Service array
-//     {
-//       route: "/api/patients",
-//       target: "",
-//       isRunning: true,
-//       host:"",
-//       ports: [
-//         {port: 3001, isActive: true, host: `http://localhost:3001`},
-//         {port: 3004, isActive: true, host: `http://localhost:3004`},
-//         {port: 3009, isActive: true, host: `http://localhost:3009`}
-//       ] ,
-//       index:0,
-//
-//     },
-//     {
-//         route: "/api/appointments",
-//         target: "",
-//         isRunning: true,
-//         host: "",
-//         ports: [
-//           {port: 3002, isActive: true, host: `http://localhost:3002`},
-//           {port: 3011, isActive: true, host: `http://localhost:3011`},
-//           {port: 3012, isActive: true, host: `http://localhost:3012`}
-//
-//         ],
-//         index:0,
-//       },
-//       {
-//         route: "/api/clinics",
-//         target: "",
-//         isRunning: true,
-//         host: "",
-//         ports: [
-//           {port: 3003, isActive: true, host: `http://localhost:3003`}
-//         ],
-//         index:0,
-//       },
-//       {
-//         route: "/api/dentists",
-//         target: "",
-//         isRunning: true,
-//         host: "",
-//         ports: [
-//           {port: 3005, isActive: true, host: `http://localhost:3005`},
-//         ],
-//         index:0,
-//       },
-//    ];
+
 
    // services.forEach(service => {                    // populate the target and the host with the correct values using roundRobin if there is duplicate services
    //    var portAndIndex = roundRobinPort(service.ports, service.index)
@@ -591,6 +519,40 @@ function checkForId(adaptedURL){
    //      return portAndIndex
    //    }
    // }
+    function balanceService (serviceName){
+        const specificService = services.find((service) => service.service === serviceName);
+        if(!specificService){
+            console.log('service not found');
+            return
+        }
+        const response = roundRobin(specificService.topics,specificService.index);
+        specificService.index = response.index;
+        const balancedService = response.topic;
+        return balancedService;
+    }
+
+
+    function roundRobin(topics,index){
+      var topic = '';
+   
+      if(topics.length === 1){                 //if there is only one service
+        topic = topics[index].topic
+        topicAndIndex = {topic, index}
+   
+        return topicAndIndex
+      } else {                              //If there is duplicate services
+        index = (index + 1) % topics.length   //roundRobin algorithm
+   
+        if (topics[index].isActive == false){
+          roundRobin(topics, index);             //if the current service instance is down, move on to the next
+        } else {
+          topic = topics[index].topic;
+          topicAndIndex = { topic, index }; //returning the portnumber and the new index value
+        }
+   
+        return topicAndIndex
+      }
+   }
 
 
 
