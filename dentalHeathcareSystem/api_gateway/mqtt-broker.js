@@ -40,13 +40,14 @@ function connectToBroker() {
     });
 
     mqttClient.on("message", (topic, payload, packet) => {
-        const messageReceived = JSON.parse(payload);
+        
         // console.log("On topic: " + topic);
         // console.log(packet);
         var stringPayload = payload.toString();
         
         
         if (topic === "active"){
+            const messageReceived = JSON.parse(payload);
             const isActive = messageReceived.isActive;
             const serviceTopic = messageReceived.serviceTopic;
             const messageArr = serviceTopic.split('-');

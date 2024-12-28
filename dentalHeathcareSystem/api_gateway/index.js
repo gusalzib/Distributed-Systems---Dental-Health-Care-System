@@ -87,7 +87,7 @@ exports.updateIsActive = async (serviceName, topicName, activity) => {
             }
         });
     });
-    console.log('Active topics are: ',topicArr);
+    //console.log('Active topics are: ',topicArr);
 }
 function startTimer (topic){
     if(topic.timeout){
