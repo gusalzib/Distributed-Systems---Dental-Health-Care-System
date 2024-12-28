@@ -70,7 +70,6 @@ export default {
       existence of new notifications */
 
       var notification = document.getElementsByClassName('notification-icon');
-      console.log(notification)
       notification.src = 'bell.png'
     },
     loginCheck() {
@@ -100,7 +99,6 @@ export default {
           this.isAdmin = response.data.isAdmin;
           this.isPatient = response.data.isPaitent;
           this.isDentist = response.data.isDentist;
-          console.log(response);
           
         }
       }).catch(error => {

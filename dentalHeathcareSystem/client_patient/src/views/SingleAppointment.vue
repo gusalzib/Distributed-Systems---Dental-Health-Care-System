@@ -137,11 +137,13 @@ export default {
     try {
         const appointmentID = to.params.appointmentID;
         const update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL
+        console.log(`${update_appointment_url}${appointmentID}`);
+        
         await Api.put(`${update_appointment_url}${appointmentID}`, {available: false});
         next();
         
-    } catch(error) {
-        console.error = 'Failed to update appointments availability';
+    } catch (error) {        
+        console.error('Failed to update appointments availability');
         
     }
   },

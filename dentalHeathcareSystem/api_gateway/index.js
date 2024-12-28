@@ -178,9 +178,11 @@ app.post('/api/dentists/login', login)
 /* Below are the enpoints that don't require a login. They do not require a token to be accessed */
 app.get('/api/clinics/get', get)
 app.get('/api/appointments/get/clinics/available/appointments/:appointment_id', get)
+app.put('/api/appointments/update/:appointment_id', put)
 app.get('/api/appointments/get/available/appointments', get)
 app.get('/api/clinics/get/specific/:clinic_id', get)
 app.get('/api/dentists/get/clinics/dentists/:clinic_id', get)
+
 
 /*######################################################################## GENERIC POST ENPOINT #################################################################################### */
 /* catches the rest of post requests after the user is authenticated and given a token */

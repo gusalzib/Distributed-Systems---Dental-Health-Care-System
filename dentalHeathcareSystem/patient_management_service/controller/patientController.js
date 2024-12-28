@@ -61,8 +61,6 @@ exports.createPatient = async (payload) => {
         return status + "/" + message + "/" + stringPatient;
         
     } catch (error) {
-        console.log(error.message);
-        console.log(error);
         
         if (error.name === 'ValidatorError') {
             status = 400
@@ -193,9 +191,7 @@ exports.updateSpecificPatient = async (topic, payload) => {
 
 
 
-    } catch (error) {
-        console.log(error.message);
-        
+    } catch (error) {        
         status = 400; 
         message = "Something went wrong. Failed to update patient."   
         return status + "/" + message + "/" + error.message;

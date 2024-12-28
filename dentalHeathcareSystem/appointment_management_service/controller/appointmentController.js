@@ -113,6 +113,8 @@ exports.getOneAppointment = async (topic) => {
 };
 
 exports.updateOneAppointment = async (topic, payload) => {
+    console.log('here XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+    
     try {
         var message ='';    
         var status = 0;
@@ -158,6 +160,8 @@ exports.updateOneAppointment = async (topic, payload) => {
         return status +"/"+ message +"/"+ stringUpdatedAppointment;
             
     } catch (error) {
+        console.log(error);
+        
             status = 400; 
             message = "Something went wrong!" 
             return status + "/" + message + "/" +error.message;
@@ -174,7 +178,6 @@ exports.fetchPatientAppointments = async (topic, payload) => {
         const parsedPayload = JSON.parse(payload);
         const userRole = parsedPayload.role;
         const currentUserId = parsedPayload.userId;
-        console.log('printing payload in the appointment service', parsedPayload);
 
         if ((userRole === 'admin') || (userRole === 'patient')) { 
 
@@ -202,8 +205,6 @@ exports.fetchPatientAppointments = async (topic, payload) => {
 
 
     } catch (error) {
-        console.log(error);
-        
             status = 400; 
             message = "Something went wrong!" 
             return status + "/" + message + "/" + error.message;
