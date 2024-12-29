@@ -2,67 +2,6 @@ const Patient = require("../models/Patient.js");
 const emailValidator = require('validator');
 const MqttBroker = require("../mqtt-broker");
 
-exports.createPatient = async (payload) => {
-    try {
-      
-        var status = 0;
-        var newPatient = JSON.parse(payload);
-        const email = newPatient.email;
-    
-        const existingPatient = await Patient.findOne({ email });
-        console.log("existing patient =",existingPatient);
-        if (existingPatient) {
-            status = 400
-            message = "Email already exists.";
-            console.log(message);
-            return status + "/" + message
-        } else if(!emailValidator.isEmail(email)){
-            status = 400; 
-            message = "Invalid email";
-            console.log(message);
-            return status + "/" + message
-        }
-        const newPatientValidation = validatePatient(newPatient);
-        if(!newPatientValidation.success) {
-            console.log(newPatientValidation.message);
-            status = 400
-            return status +"/"+ newPatientValidation.message;
-        }
-
-        const patient = new Patient(newPatient);
-        console.log("patient in controller",patient);
-        await patient.save();
-        
-    
-        var patientId = patient._id;
-        if (!patientId) {
-            console.log("NO PATIENT FOUND");
-            status = 400;
-            message = "failed to register patient";
-            return status + "/" + message;
-        }
-        status = 200;
-        message = "Patient registered successfully";
-        console.log(message);
-        var stringPatient = JSON.stringify(patient);
-        return status +"/"+ message +"/"+ stringPatient;
-    
-      }catch(error){
-        if (error.name === 'ValidatorError') {
-            status = 400;
-            message = "invalid email";
-            response = status +"/"+ message;
-        }
-        else if (error.code === 11000 && error.keyValue?.ssn){
-            status = 400;
-            message = "Ssn is not uniqe";
-            response = status +"/"+ message;
-        }
-        status = 400;
-        message = "Failed to register patient";
-        return status + "/" + message + "/" +error.message;
-      }
-}
 
 exports.createPatient = async (payload) => {
     try {
