@@ -2,31 +2,63 @@ const Appointment = require("../models/Appointment.js");
 const mongoose = require('mongoose');
 
 exports.makeAppointment = async (payload) => {
+    /*
+    An example of how the incoming payload looks like. It contains the information of the appointment we want to create and the session variables 
+    like userId and role. 
+    printing payload in the appointment service {
+    patient_id: '67630274c5502c7c3cb1b318',
+    dentist_id: '676abacc424c03dadc73d5d0',
+    date_and_time_from: '2024-12-20T10:09:00Z',
+    date_and_time_until: '2024-12-20T10:10:00Z',
+    dentist_clinic_id: '676ab652b77e8c31f7475fbb',
+    available: true,
+    type_of_appointment: 'General Checkup',
+    userId: '676ae091f926a48638a2f868',
+    role: 'dentist'
+    }
+    */
     try {
         var message ='';
         var status = 0;
-        const newAppointment = JSON.parse(payload);
+        // fetch the session variables from the incoming payload
+        const parsedPayload = JSON.parse(payload);
+        const userRole = parsedPayload.role;
+        const currentUserId = parsedPayload.userId; // when the dentist is logged in, their id will be in this variable
 
-        const newAppointmentValidation = validateAppointment(newAppointment);
-        if(!newAppointmentValidation.success) {
-            status = 400
-            return status +"/"+ newAppointmentValidation.message;
-        }
-     
-        const appointment = new Appointment(newAppointment);
-        await appointment.save();
 
-        var appoinmentId = appointment._id;
-        if (!appoinmentId) {
-            status = 400
-            message = "failed to register clinic";
-            return status +"/"+ message 
+        // add the id of the dentist to the new appointment to be created
+        parsedPayload.dentist_id = currentUserId;
+        
+        /* only admin or owner dentist can create an appointment*/
+        if ((userRole === 'admin') || (userRole === 'dentist')) {
+
+            const newAppointmentValidation = validateAppointment(parsedPayload);
+            if (!newAppointmentValidation.success) {
+                status = 400
+                return status + "/" + newAppointmentValidation.message;
+            }
+        
+            const appointment = new Appointment(parsedPayload);
+            await appointment.save();
+
+            var appoinmentId = appointment._id;
+            if (!appoinmentId) {
+                status = 400
+                message = "failed to register clinic";
+                return status + "/" + message
+            }
+            var retrievedAppointment = await Appointment.find(appoinmentId);
+            message = "Appointment created"
+            var stringAppointment = JSON.stringify(retrievedAppointment)
+            status = 200;
+            return status + "/" + message + "/" + stringAppointment;
+
+        } else {
+            message = "Unauthorized request. Please login to create an appointment "
+            status = 400;
+            return status + "/" + message;
         }
-        var retrievedAppointment = await Appointment.find(appoinmentId);
-        message = "Appointment created"
-        var stringAppointment = JSON.stringify(retrievedAppointment) 
-        status = 200;
-        return status +"/"+ message +"/"+ stringAppointment;
+
 
     } catch(error) {
         status = 400; 
@@ -59,7 +91,7 @@ exports.getOneAppointment = async (topic) => {
     try{
         var message ='';
         var status = 0;
-        var topicArr = topic.split("/");
+        var topicArr = topic.split("/");        
         const id = topicArr[3];
         const appointment = await Appointment.findById(id);
         if(!appointment){
@@ -71,6 +103,7 @@ exports.getOneAppointment = async (topic) => {
         status = 200;
         message = "Appointment retrieved";
         var stringAppointment = JSON.stringify(appointment);
+
         return status +"/"+ message +"/"+ stringAppointment
     }catch (error) {
         status = 400; 
@@ -87,6 +120,11 @@ exports.updateOneAppointment = async (topic, payload) => {
         const _id = topicArr[2];
 
         const existing_appointment = await Appointment.findById(_id);
+
+        const parsedPayload = JSON.parse(payload);
+
+
+        // make sure the appointment is correctly retrieved
         if(!existing_appointment){
             status = 400;
             message = "No appointment found";
@@ -118,8 +156,7 @@ exports.updateOneAppointment = async (topic, payload) => {
         message= "Appointment updated";
         var stringUpdatedAppointment = JSON.stringify(updatedAppointment);
         return status +"/"+ message +"/"+ stringUpdatedAppointment;
-
-
+            
     } catch (error) {
             status = 400; 
             message = "Something went wrong!" 
@@ -128,57 +165,95 @@ exports.updateOneAppointment = async (topic, payload) => {
         }
 };
 
-exports.fetchPatientAppointments = async (topic) => {
+exports.fetchPatientAppointments = async (topic, payload) => {
     try {
         var message ='';
         var status = 0; 
-        var topicArr = topic.split("/");
-        const _id = topicArr[4];
         
-        const appointments = await Appointment.find();
-        if (appointments.length === 0) {
-            status = 404; 
-            message = "No appointments found"; 
-            return status + "/" + message;
-        }
+        // fetch the session variables from the incoming payload
+        const parsedPayload = JSON.parse(payload);
+        const userRole = parsedPayload.role;
+        const currentUserId = parsedPayload.userId;
+        console.log('printing payload in the appointment service', parsedPayload);
 
-        const patientAppointments = appointments.filter(appointment => appointment.patient_id && appointment.patient_id.equals(_id));
-        if (patientAppointments.length === 0) {
-            status = 400; 
-            message = "This patient has no appointments booked"; 
-            return status + "/" + message;
+        if ((userRole === 'admin') || (userRole === 'patient')) { 
 
-        } else {
-            status = 200; 
-            message = "Appointments retrieved"; 
-            var stringAppointments = JSON.stringify(patientAppointments)
-            return status + "/" + message + "/" + stringAppointments;
+            const appointments = await Appointment.find();
+            if (appointments.length === 0) {
+                status = 404; 
+                message = "No appointments found"; 
+                return status + "/" + message;
+            }
+
+            const patientAppointments = appointments.filter(appointment => appointment.patient_id && appointment.patient_id.equals(currentUserId));
+            if (patientAppointments.length === 0) {
+                status = 400; 
+                message = "This patient has no appointments booked"; 
+                return status + "/" + message;
+
+            } else {
+                status = 200; 
+                message = "Appointments retrieved"; 
+                var stringAppointments = JSON.stringify(patientAppointments)
+                return status + "/" + message + "/" + stringAppointments;
+            }
         }
+        
+
 
     } catch (error) {
+        console.log(error);
+        
             status = 400; 
             message = "Something went wrong!" 
             return status + "/" + message + "/" + error.message;
     }
 }
 
-exports.removeAppointment = async (topic) => {
+exports.removeAppointment = async (topic, payload) => {
     try{
         var message ='';
         var status = 0;
         var topicArr = topic.split("/");
         const id = topicArr[2];
-        
-        const appointment = await Appointment.findByIdAndDelete(id);
-        if (!appointment) {
-            status = 404; 
-            message = "No appointment found" 
-            return status + "/" + message;
+
+        // fetch the session variables from the incoming payload
+        var parsedPayload = JSON.parse(payload);   
+        const userRole = parsedPayload.role;
+        const currentUserId = parsedPayload.userId;
+
+        const foundAppointment = await Appointment.findById(id)
+
+        /* only a dentist or an admin can delete an appointment */
+        if ((userRole === 'admin') || (userRole === 'dentist')) {
+
+            /* only the dentist who created the appointment can remove it or the admin
+                converting the foundAppointment.dentist_id to string is necessary because it cannot compare 
+                an ObjectId to a String*/
+            if ((foundAppointment.dentist_id.toString() === currentUserId) || (userRole === 'admin')) {
+
+                const appointment = await Appointment.findByIdAndDelete(id);
+                if (!appointment) {
+                    status = 404; 
+                    message = "No appointment found" 
+                    return status + "/" + message;
+                }
+                var stringAppointment = JSON.stringify(appointment)
+                status = 200; 
+                message = "Appointment deleted"; 
+                return status + "/" + message + "/" + stringAppointment;
+
+            } else {
+                message = "Unauthorized request. The appointment belongs to another dentist "
+                status = 400;
+                return status +"/"+ message;
+            }
+        } else {
+            message = "Unauthorized request. Please login to delete this appointment "
+            status = 400;
+            return status +"/"+ message;
         }
-        var stringAppointment = JSON.stringify(appointment)
-        status = 200; 
-        message = "Appointment deleted"; 
-        return status + "/" + message + "/" + stringAppointment;
+
 
     } catch (error) {
         status = 404; 
@@ -270,9 +345,67 @@ exports.fetchClinicsAvailableAppointments = async (topic) => {
         return status + "/" + message + "/" + error.message;
     }
 }
+exports.bookAppointment = async (topic, payload) => {
+    
+    try {
+
+        var status = 0;
+        var topicArr = topic.split("/");
+        const _id = topicArr[2];
+
+        // fetch the session variables from the incoming payload
+        var parsedPayload = JSON.parse(payload);   
+        const userRole = parsedPayload.role;
+
+        if ((userRole === 'patient') || (userRole === 'admin')) {
+            const existing_appointment = await Appointment.findById(_id);
+            if(!existing_appointment){
+                status = 400;
+                message = "No appointment found";
+                return status +"/"+ message;
+            }
+            
+
+            const appointment = {
+                patient_id: parsedPayload.userId ? parsedPayload.userId : existing_appointment.patient_id,
+                dentist_id: parsedPayload.dentist_id ? parsedPayload.dentist_id: existing_appointment.dentist_id,
+                dentist_clinic_id: parsedPayload.dentist_clinic_id ? parsedPayload.dentist_clinic_id : existing_appointment.dentist_clinic_id,
+                type_of_appointment: parsedPayload.type_of_appointment ? parsedPayload.type_of_appointment : existing_appointment.type_of_appointment,
+                date_and_time_from: parsedPayload.date_and_time_from ? parsedPayload.date_and_time_from: existing_appointment.date_and_time_from,
+                date_and_time_until: parsedPayload.date_and_time_until ? parsedPayload.date_and_time_until: existing_appointment.date_and_time_until,
+                available: false
+            }
+
+            const newAppointmentValidation = validateAppointment(appointment);
+            if(!newAppointmentValidation.success) {
+                status = 400;
+                
+                message = newAppointmentValidation.message;
+                return status +"/"+ newAppointmentValidation.message;
+            };
+
+            const updatedAppointment = await Appointment.findByIdAndUpdate(_id, appointment, {new: true});
+
+            status = 200; 
+            message= "Appointment updated";
+            var stringUpdatedAppointment = JSON.stringify(updatedAppointment);
+            return status +"/"+ message +"/"+ stringUpdatedAppointment;
+
+        } else {
+            message = "Unauthorized request. Please login to book an appointment "
+            status = 400;
+            return status +"/"+ message;
+        }
+        
 
 
-
+    } catch (error) {
+            status = 400; 
+            message = "Something went wrong!" 
+            return status + "/" + message + "/" +error.message;
+                
+        }
+}
 
 
 

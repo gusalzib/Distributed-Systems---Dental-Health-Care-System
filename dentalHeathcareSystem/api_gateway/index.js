@@ -8,6 +8,13 @@ const app = express();
 const mqttBroker = require("./mqtt-broker.js");
 const { baseModelName } = require("../appointment_management_service/models/Appointment.js");
 
+//sessions variables 
+const jwtVerification = require('./jwtVerification.js');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+
 const PORT = 3000;
 
 
@@ -19,6 +26,18 @@ app.use(
   })
 );
 
+// app.use(session({
+//     secret: 'secret_patient_key',
+//     resave: false,
+//     saveUninitialized: true,
+//     store: new MongoStore({
+//         mongoUrl: 'mongodb://127.0.0.1:27017/dentalHealthcareSystem', 
+//         ttl: 14 * 24 * 60 * 60, // this stands for: time to live (14 days)
+//         autoRemove: 'native',  // an automatical removal of expired sessions offered by connect-mongo
+//         collectionName: 'sessions'
+//     })
+// }))
+app.use(cookieParser());
 // Also, handle preflight requests for all routes
 app.options("*", cors());
 app.use(helmet()); // Add security headers
@@ -29,7 +48,7 @@ app.use(express.json());
 
 //----------------------------------- LOAD BALANCER -----------------------------------------
 
-function balanceService (serviceName){
+exports.balanceService = async (serviceName) => {
     const specificService = services.find((service) => service.service === serviceName);
     if(!specificService){
         console.log('service not found');
@@ -68,7 +87,7 @@ function roundRobin(topics,index){
 exports.updateIsActive = async (serviceName, topicName, activity) => {
     const specificService = services.find((service) => service.service === serviceName);
     if(!specificService){
-        console.log('service not found');
+        // console.log('service not found');
         return
     }
     const specificTopic = specificService.topics.find((topic)=> topic.topic === topicName);
@@ -95,7 +114,7 @@ function startTimer (topic){
     }
     topic.timeout = setTimeout(() =>{
         topic.isActive = false;
-    },6000)
+    },7000)
 }
 
 const services = [                                      //Service array
@@ -133,322 +152,58 @@ const services = [                                      //Service array
         ],
         index:0,
       },
+      {
+        service: "authenticate",
+        topics: [
+          {topic: 'authenticate-1', isActive: false},
+        ],
+        index:0,
+      },
    ];
 
 //--------------------------------- ADAPTER -----------------------------------------------   
 
-app.post("/api/*", async (req, res) => {
-    try {
-        
-        //get the body and make it a string, get url, remove "api" and give it a unique id
-        var body = req.body;
-        const payload = JSON.stringify(body);
-        const reqURL = req.url;
-        var adaptedURL = adaptRequestURL(reqURL);
-        
-        //create all topics
-        var topic = adaptedURL + "/" + giveUniqueID();
-        var topicArr = topic.split("/");
-        var nameOfService = topicArr[0];
+const { login, signup, post, get, put, deleteEndpoint, loginCheck, logout } = require('./controller/gatewayController.js')
+/*######################################################################## LOGOUT ENPOINT #################################################################################### */
+/* connected to the logout button in App.vue */
+app.get('/api/logout', logout);
 
-        //send nameOfService to check service array and make a roundRobin
-        const balancedService = balanceService(nameOfService);   
-        topic = topic.replace(nameOfService,balancedService);
-        var responseTopic = 'response/'+topic
-        var serviceTopic = balancedService+"/topics";
-        
-        var serviceTopicResponse = "response/"+serviceTopic;
-        var responseTopic = 'response/'+topic
+/*######################################################################## LOGIN CHECK ENPOINT #################################################################################### */
+/* Login check is performed whenever we need to make sure the user is authorized to do a certain action or if the user is trying to access certain routes.*/
+app.get('/api/login/check', loginCheck);
 
-        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
-        await mqttBroker.subscribeToBroker(serviceTopicResponse);
-        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
-      
-        if(!serviceResponse){
-            return res.status(400).json({message: "could not find service"})
-            
-        }else if (serviceResponse){
-            mqttBroker.unsubscribe(serviceTopicResponse);
-        }
-        
-        //Publish request
-        await mqttBroker.subscribeToBroker(responseTopic);
-        
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-        if(!mqttResponse){
-            return res.status(400).json({message: "could not create object"});
-            
-        }else if(mqttResponse){
-            mqttBroker.unsubscribe(responseTopic);
-        }
-        
-        //exstract information from topic and response, parse the payload and return http response
-        var responseArr = mqttResponse.split("/");
-        var status = parseInt(responseArr[0]);
-        
-        if(responseArr.length <=2){
-            res.status(status).json({message : responseArr[1]});
-        }else{
-        var adaptedResponse = JSON.parse(responseArr[2]);        
-    
-        return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
-        
-        }
-        var catchArr = []
-        if (errorMessage) {
-            catchArr = errorMessage.split("/")
-        }
+/*######################################################################## PATIENT SIGNUP ENPOINT #################################################################################### */
+app.post('/api/patients/signup', signup);
 
-    } catch (error) {
-        const errorMessage = error.toString();
-        let catchArr = errorMessage.split("/")
-       
-        if(catchArr.length===1){
-            return res.status(400).json({message: "something went wrong"}); 
-        }else{
-            const status = parseInt(catchArr[0]);
-            return res.status(status).json({message: catchArr[1]});
-        }
-    }
-});
+/*######################################################################## PATIENT LOGIN ENPOINT #################################################################################### */
+app.post('/api/patients/login', login)
 
-app.get("/api/*", async (req, res) => {
-    try {
-        //get the body and make it a string, get the url and call method to remove "api"
-        var body = req.body;
-        const payload = JSON.stringify(body);
-        const reqURL = req.url;
-        var adaptedURL = adaptRequestURL(reqURL);
-        
-        //create all topics
-        // does url contain an _id? if not give it an unique id
-        var id = checkForId(adaptedURL);
-        if(!id){
-            var topic = adaptedURL + "/" + giveUniqueID();
-        }else{
-            topic = adaptedURL;
-        }
-        var topicArr = topic.split("/");
-        var nameOfService = topicArr[0];
+/*######################################################################## DENTIST LOGIN ENPOINT #################################################################################### */
+app.post('/api/dentists/login', login)
 
-        //send nameOfService to check service array and make a roundRobin
-        const balancedService = balanceService(nameOfService);   
-        topic = topic.replace(nameOfService,balancedService);
-        var serviceTopic = balancedService+"/topics";
-        var serviceTopicResponse = "response/"+serviceTopic;
-        var responseTopic = 'response/'+topic
+/*######################################################################## UNPROTECTED ENPOINT #################################################################################### */
+/* Below are the enpoints that don't require a login. They do not require a token to be accessed */
+app.get('/api/clinics/get', get)
+app.get('/api/appointments/get/clinics/available/appointments/:appointment_id', get)
+app.get('/api/appointments/get/available/appointments', get)
+app.get('/api/clinics/get/specific/:clinic_id', get)
+app.get('/api/dentists/get/clinics/dentists/:clinic_id', get)
 
-        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
-        await mqttBroker.subscribeToBroker(serviceTopicResponse);
-        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
-        if(!serviceResponse){
-            return res.status(400).json({message: "could not find service"})
-            
-        }else if (serviceResponse){
-            mqttBroker.unsubscribe(serviceTopicResponse);
-        }
+/*######################################################################## GENERIC POST ENPOINT #################################################################################### */
+/* catches the rest of post requests after the user is authenticated and given a token */
+app.post("/api/*", jwtVerification.verifyToken, post);
 
-        
+/*######################################################################## GENERIC GET ENPOINT #################################################################################### */
+/* catches all get requests and requires a token otherwise the request will be blocked  */
+app.get("/api/*",  jwtVerification.verifyToken,get);
 
-        //Publish request
-        await mqttBroker.subscribeToBroker(responseTopic);
-        
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-        if(!mqttResponse){
-            return res.status(400).json({message: "could not create object"});
-            
-        }else if(mqttResponse){
-            mqttBroker.unsubscribe(responseTopic);
-        }
-         //exstract information from topic and response, parse the payload and return http response
-        
-        var responseArr = mqttResponse.split("/"); 
-        var status = parseInt(responseArr[0]);
-        if(responseArr.length <=2){
-            return res.status(status).json({message : responseArr[1]});
-        }else{
-            var adaptedResponse = JSON.parse(responseArr[2]);     
-            return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
-        
-        }
+/*######################################################################## GENERIC PUT ENPOINT #################################################################################### */
+/* catches all put requests and requires a token otherwise the request will be blocked  */
+app.put("/api/*", jwtVerification.verifyToken, put);
 
-    } catch (error) {
-        const errorMessage = error.toString();
-        let catchArr = errorMessage.split("/")
-       
-        if(catchArr.length===1){
-            return res.status(400).json({message: "something went wrong"}); 
-        }else{
-            const status = parseInt(catchArr[0]);
-            return res.status(status).json({message: catchArr[1]});
-        }
-    }
-});
-app.put("/api/*", async (req, res) => {
-    try {
-        //get the body and make it a string, get the url and call method to remove "api"
-        var body = req.body;
-        const payload = JSON.stringify(body);
-        const reqURL = req.url;
-        var adaptedURL = adaptRequestURL(reqURL);
-        
-        //create all topics
-        // does url contain an _id? if not give it an unique id
-        var id = checkForId(adaptedURL);
-        if(!id){
-            var topic = adaptedURL + "/" + giveUniqueID();
-        }else{
-            topic = adaptedURL;
-        }
-         var topicArr = topic.split("/");
-        var nameOfService = topicArr[0];
-
-        //send nameOfService to check service array and make a roundRobin
-        const balancedService = balanceService(nameOfService);   
-        topic = topic.replace(nameOfService,balancedService);
-        var serviceTopic = balancedService+"/topics";
-        var serviceTopicResponse = "response/"+serviceTopic;
-        var responseTopic = 'response/'+topic
-
-        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
-        await mqttBroker.subscribeToBroker(serviceTopicResponse);
-        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
-        
-        if(!serviceResponse){
-            return res.status(400).json({message: "could not find service"})
-            
-        }else if (serviceResponse){
-            mqttBroker.unsubscribe(serviceTopicResponse);
-        }
-
-
-
-        //Publish request
-        await mqttBroker.subscribeToBroker(responseTopic);
-        
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-        if(!mqttResponse){
-            return res.status(400).json({message: "could not update object"});
-            
-        }else if(mqttResponse){
-            mqttBroker.unsubscribe(responseTopic);
-        }
-         //exstract information from topic and response, parse the payload and return http response
-        
-        var responseArr = mqttResponse.split("/"); 
-        var status = parseInt(responseArr[0]);
-        if(responseArr.length <=2){
-            return res.status(status).json({message : responseArr[1]});
-        }else{
-        var adaptedResponse = JSON.parse(responseArr[2]);     
-        return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
-        
-        }
-
-    } catch (error) {
-        const errorMessage = error.toString();
-        let catchArr = errorMessage.split("/")
-       
-        if(catchArr.length===1){
-            return res.status(400).json({message: "something went wrong"}); 
-        }else{
-            const status = parseInt(catchArr[0]);
-            return res.status(status).json({message: catchArr[1]});
-        }
-    }
-});
-app.delete("/api/*", async (req, res) => {
-    try {
-        //get the body and make it a string, get the url and call method to remove "api"
-        var body = req.body;
-        const payload = JSON.stringify(body);
-        const reqURL = req.url;
-        var adaptedURL = adaptRequestURL(reqURL);
-        
-        //create all topics
-        // does url contain an _id? if not give it an unique id
-        var id = checkForId(adaptedURL);
-        if(!id){
-            var topic = adaptedURL + "/" + giveUniqueID();
-        }else{
-            topic = adaptedURL;
-        }
-         var topicArr = topic.split("/");
-        var nameOfService = topicArr[0];
-
-        //send nameOfService to check service array and make a roundRobin
-        const balancedService = balanceService(nameOfService);   
-        topic = topic.replace(nameOfService,balancedService);
-        var serviceTopic = balancedService+"/topics";
-        var serviceTopicResponse = "response/"+serviceTopic;
-        var responseTopic = 'response/'+topic
-
-        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
-        await mqttBroker.subscribeToBroker(serviceTopicResponse);
-        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
-        
-        if(!serviceResponse){
-            return res.status(400).json({message: "could not find service"})
-            
-        }else if (serviceResponse){
-            mqttBroker.unsubscribe(serviceTopicResponse);
-        }
-
-        //Publish request
-        await mqttBroker.subscribeToBroker(responseTopic);
-        
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-        if(!mqttResponse){
-            return res.status(400).json({message: "could not delete object"});
-            
-        }else if(mqttResponse){
-            mqttBroker.unsubscribe(responseTopic);
-        }
-         //exstract information from topic and response, parse the payload and return http response
-        
-        var responseArr = mqttResponse.split("/"); 
-        var status = parseInt(responseArr[0]);
-        if(responseArr.length <=2){
-            return res.status(status).json({message : responseArr[1]});
-        }else{
-        var adaptedResponse = JSON.parse(responseArr[2]);     
-            return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
-        }
-
-    } catch (error) {
-        const errorMessage = error.toString();
-        let catchArr = errorMessage.split("/")
-       
-        if(catchArr.length===1){
-            return res.status(400).json({message: "something went wrong"}); 
-        }else{
-            const status = parseInt(catchArr[0]);
-            return res.status(status).json({message: catchArr[1]});
-        }
-    }
-});
-
-function adaptRequestURL (url) {
-    var newURL = url.replace('/api/', '');
-    return newURL;
-}
-
-function giveUniqueID () {
-    let uniqueID = Math.random() + Date.now();
-    return uniqueID;
-}
-function checkForId(adaptedURL){
-    var urlArr = adaptedURL.split("/")
-    var index = urlArr.length -1
-    var lastElement = urlArr[index];
-    if(lastElement.length < 24){
-        //element is not an id
-        return;
-    }else{
-        var id = lastElement;
-        return id;
-    }
-}
+/*######################################################################## GENERIC DELETE ENPOINT #################################################################################### */
+/* catches all delete requests and requires a token otherwise the request will be blocked  */
+app.delete("/api/*",  jwtVerification.verifyToken, deleteEndpoint);
 
 
 // Start Express server

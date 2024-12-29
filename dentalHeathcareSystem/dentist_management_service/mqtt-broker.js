@@ -1,5 +1,6 @@
 const mqtt = require('async-mqtt');
 const dentistCtrl = require('./src/dentist_controller/dentist-controller');
+const dentistAuthenticator = require('./src/dentist_controller/authenticator');
 let mqttClient;
 
 const host = "127.0.0.1";
@@ -53,6 +54,11 @@ function connectToBroker() {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
+        }else if (topic.startsWith('dentists/login/')) {
+            dentistAuthenticator.authenticateDentist(topic, payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            unsubscribe(topic);
 
         }else if(topic.startsWith('dentists-1/get/clinics/dentists/')){
             dentistCtrl.fetchClinicsDentists(topic).then(response => {
@@ -60,8 +66,8 @@ function connectToBroker() {
             });
             unsubscribe(topic);
 
-        }else if (topic.startsWith('dentists-1/get/specific/')) {
-            dentistCtrl.getSpecificDentist(topic).then(response => {
+        }else if (topic.startsWith('dentists/get/specific/')) {
+            dentistCtrl.getSpecificDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
@@ -72,8 +78,8 @@ function connectToBroker() {
             });
             unsubscribe(topic);
 
-        } else if (topic.startsWith('dentists-1/delete/')) {
-            dentistCtrl.deleteSpecificDentist(topic).then(response => {
+        } else if (topic.startsWith('dentists/delete/')) {
+            dentistCtrl.deleteSpecificDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);

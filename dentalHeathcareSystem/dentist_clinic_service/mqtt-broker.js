@@ -40,14 +40,14 @@ function connectToBroker() {
 
     mqttClient.on("message", (topic, payload, packet) => {
         var payloadReceived = payload.toString();
-        console.log("Message received: ", payloadReceived);
-        console.log("On topic: " + topic); 
-        console.log(packet);
+        // console.log("Message received: ", payloadReceived);
+        // console.log("On topic: " + topic); 
+        // console.log(packet);
         var publishTopic = "response/" + topic;
 
         if(topic.startsWith('clinics-1/topics')){
             subscribeToBroker(payloadReceived);
-            var newPayload = '200/subscribed to topic/'+topic;
+            var newPayload = '200/subscribed to topic/'+payloadReceived;
             publishToBroker(publishTopic,newPayload);
 
         }else if (topic.startsWith( 'clinics-1/create/')) {
@@ -59,7 +59,7 @@ function connectToBroker() {
 
         }else if(topic.startsWith('clinics-1/delete/')){
             console.log("delete clinic");
-            clinicCtrl.deleteAClinic(topic).then(response => {
+            clinicCtrl.deleteAClinic(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);

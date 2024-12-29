@@ -48,12 +48,19 @@ function connectToBroker() {
 
         if(topic.startsWith('appointments-1/topics')){
             subscribeToBroker(payloadReceived);
-            var newPayload = '200/subscribed to topic/'+topic;
+            var newPayload = '200/subscribed to topic/'+payloadReceived;
             publishToBroker(publishTopic,newPayload);
 
         }else if (topic.startsWith( 'appointments-1/create/')) {
             console.log("create an appointment");
             appointmentCtrl.makeAppointment(payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            unsubscribe(topic);
+        
+        }else if (topic.startsWith( 'appointments-1/book/')) {
+            console.log("book an appointment");
+            appointmentCtrl.bookAppointment(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
@@ -67,7 +74,7 @@ function connectToBroker() {
 
         }else if (topic.startsWith('appointments-1/get/patient/appointments/')) {
             console.log("get a patients appointments");
-            appointmentCtrl.fetchPatientAppointments(topic).then(response => {
+            appointmentCtrl.fetchPatientAppointments(topic, payload).then(response => {
                 publishToBroker(publishTopic, response)
             });
             unsubscribe(topic);
@@ -102,7 +109,7 @@ function connectToBroker() {
 
         } else if (topic.startsWith('appointments-1/delete/')) {
             console.log("delete appointment");
-            appointmentCtrl.removeAppointment(topic).then(response => {
+            appointmentCtrl.removeAppointment(topic, payload).then(response => {
                 publishToBroker(publishTopic, response)
             });
             unsubscribe(topic);
