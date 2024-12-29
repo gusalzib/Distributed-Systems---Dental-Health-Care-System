@@ -1,5 +1,6 @@
 const mqtt = require('async-mqtt');
-const patientCtrl = require("./controller/patientController")
+const patientCtrl = require("./controller/patientController");
+const authenticator = require('./controller/authenticator')
 // var mqttClient;
 
 const host = "127.0.0.1";
@@ -43,23 +44,28 @@ function connectToBroker() {
         console.log("On topic: " + topic); 
         console.log(packet);
         var publishTopic = "response/" + topic;
-        console.log("publishTopic =",publishTopic);
+        // console.log("publishTopic =",publishTopic);
 
         if(topic.startsWith('patients/topics')){
             subscribeToBroker(payloadReceived);
             var newPayload = '200/subscribed to topic/'+topic;
             publishToBroker(publishTopic,newPayload);
 
-        }else if (topic.startsWith('patients/create/')) {
+        }else if (topic.startsWith('patients/signup/')) {
             console.log("create a patient");
             patientCtrl.createPatient(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
         
+        }else if (topic.startsWith('patients/login/')) {
+            console.log("login patient");
+            authenticator.authenticatePatient(topic ,payload).then(response => {
+                publishToBroker(publishTopic, response)
+            })
         }else if (topic.startsWith('patients/get/specific/')) {
             console.log("get specific patient");
-            patientCtrl.fetchSpecificPatient(topic).then(response => {
+            patientCtrl.fetchSpecificPatient(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
@@ -80,7 +86,7 @@ function connectToBroker() {
 
         } else if (topic.startsWith('patients/delete/')) {
             console.log("delete patient");
-            patientCtrl.deleteSpecificPatient(topic).then(response => {
+            patientCtrl.deleteSpecificPatient(topic, payload).then(response => {
                 publishToBroker(publishTopic, response)
             });
             unsubscribe(topic);
@@ -125,4 +131,6 @@ connectToBroker();
 // heartbeat();
 subscribeToBroker('patients/topics');
 
-
+module.exports = {
+    publishToBroker,
+}

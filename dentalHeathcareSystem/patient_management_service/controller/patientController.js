@@ -7,20 +7,33 @@ exports.createPatient = async (payload) => {
         var message = "";
 
         const patient = JSON.parse(payload);
-        
+        const name = patient.name;
+        const phone_number = patient.phone_number;
+        const address = patient.address;
+        const ssn = patient.ssn;
         const email = patient.email;
         const exisitingPatient = await Patient.findOne({ email });
 
         // check if patient already exist. If not then check if email is valid
         if (exisitingPatient) {
-            status = 400
-            message = "Email already exists."
+            status = 401
+            message = "There is already a user account with this email"
             return status +"/"+ message;
                 
+        } else if (!name || !phone_number || !address || !ssn) {
+            status = 400
+            message = "Missing required fileds"
+            return status + "/" + message; 
+
         } else if (!emailValidator.isEmail(email)) {
             status = 400
             message = "Invalid email"
-            return status +"/"+ message;
+            return status + "/" + message;
+            
+        } else if (!(/^\d{10}$/.test(ssn))) {
+            status = 400
+            message = "SSN must be 10 digits"
+            return status + "/" + message;
         }
 
         var newPatient = new Patient(patient);
@@ -47,7 +60,8 @@ exports.createPatient = async (payload) => {
         status = 200;
         return status + "/" + message + "/" + stringPatient;
         
-    }catch(error){
+    } catch (error) {
+        
         if (error.name === 'ValidatorError') {
             status = 400
             message = "Invalid email"
@@ -93,13 +107,16 @@ exports.fetchAllPatients = async (payload) => {
     }
 }
 
-exports.fetchSpecificPatient = async (topic) => {
+exports.fetchSpecificPatient = async (topic, payload) => {
+    
     try{
         var status = 0;
         var message = "";
 
-        var topicArr = topic.split("/");
-        const id = topicArr[3];
+        var parsedPyload = JSON.parse(payload);
+
+        // get the userId from the session variable that is sent with the payload
+        const id = parsedPyload.userId;
         
         const patient = await Patient.findById(id);
         if(!patient){
@@ -127,43 +144,54 @@ exports.updateSpecificPatient = async (topic, payload) => {
         var status = 0;
         var message = ""; 
 
-        var topicArr = topic.split("/");
-        const _id = topicArr[3];
-        
-        const existingPatient = await Patient.findById(_id);
-        if(!existingPatient){
+        var parsedPyload = JSON.parse(payload);
+
+        // get the userId from the session variable that is sent with the payload
+        const id = parsedPyload.userId;
+        const userRole = parsedPyload.role;
+
+        if ((userRole === 'admin') || (userRole === 'patient')) {
+
+            const existingPatient = await Patient.findById(id);
+            if(!existingPatient){
+                status = 400;
+                message = "No patient found";
+                return status +"/"+ message;
+            }
+            var newPatient = parsedPyload
+
+
+            const patient = {
+                name: newPatient.name ? newPatient.name : existingPatient.name,
+                address: newPatient.address ? newPatient.address : existingPatient.address,
+                email: newPatient.email ? newPatient.email : existingPatient.email,
+                phone_number: newPatient.phone_number ? newPatient.phone_number : existingPatient.phone_number,
+                ssn: newPatient.ssn ? newPatient.ssn : existingPatient.ssn,
+                medical_journal: newPatient.medical_journal ? newPatient.medical_journal : existingPatient.medical_journal,
+                appointments: newPatient.appointments ? newPatient.appointments : existingPatient.appointments
+            }
+
+            if (!patient) {
+                status = 400;
+                message = "Failed to update patient";
+                return status + "/"+ message;
+            };
+
+            const updatedPatient = await Patient.findByIdAndUpdate(id, patient, {new: true});
+
+            status = 200; 
+            message= "Patient updated";
+            var stringUpdatedPatient = JSON.stringify(updatedPatient);
+            return status +"/"+ message +"/"+ stringUpdatedPatient;
+        } else {
+            message = "Unauthorized request. Please login perform this action"
             status = 400;
-            message = "No patient found";
             return status +"/"+ message;
         }
-        var newPatient = JSON.parse(payload)
 
 
-        const patient = {
-            name: newPatient.name ? newPatient.name : existingPatient.name,
-            address: newPatient.address ? newPatient.address : existingPatient.address,
-            email: newPatient.email ? newPatient.email : existingPatient.email,
-            phone_number: newPatient.phone_number ? newPatient.phone_number : existingPatient.phone_number,
-            ssn: newPatient.ssn ? newPatient.ssn : existingPatient.ssn,
-            medical_journal: newPatient.medical_journal ? newPatient.medical_journal : existingPatient.medical_journal,
-            appointments: newPatient.appointments ? newPatient.appointments : existingPatient.appointments
-        }
 
-        if (!patient) {
-            status = 400;
-            message = "Failed to update patient";
-            return status + "/"+ message;
-        };
-
-        const updatedPatient = await Patient.findByIdAndUpdate(_id, patient, {new: true});
-
-        status = 200; 
-        message= "Patient updated";
-        var stringUpdatedPatient = JSON.stringify(updatedPatient);
-        return status +"/"+ message +"/"+ stringUpdatedPatient;
-
-
-    } catch (error) {
+    } catch (error) {        
         status = 400; 
         message = "Something went wrong. Failed to update patient."   
         return status + "/" + message + "/" + error.message;
@@ -171,27 +199,38 @@ exports.updateSpecificPatient = async (topic, payload) => {
         }
 }
 
-exports.deleteSpecificPatient = async (topic) => {
+exports.deleteSpecificPatient = async (topic, payload) => {
     try{
         var status = 0;
         var message = "";
 
-        var topicArr = topic.split("/");
-        const id = topicArr[2];
-        
-        const patient = await Patient.findByIdAndDelete(id);
-        if (!patient) {
-            status = 404; 
-            message = "No patient found" 
-            return status + "/" + message;
+
+        var parsedPyload = JSON.parse(payload);
+        // get the userId from the session variable that is sent with the payload
+        const id = parsedPyload.userId;
+        const userRole = parsedPyload.role;
+
+        if ((userRole === 'admin') || (userRole === 'patient')) { 
+
+            const patient = await Patient.findByIdAndDelete(id);
+            if (!patient) {
+                status = 404; 
+                message = "No patient found" 
+                return status + "/" + message;
+            }
+            var stringPatient = JSON.stringify(patient)
+            status = 200; 
+            message = "Patient deleted"; 
+            return status + "/" + message + "/" + stringPatient;
+        } else {
+            message = "Unauthorized request. Please login perform this action"
+            status = 400;
+            return status +"/"+ message;
         }
-        var stringPatient = JSON.stringify(patient)
-        status = 200; 
-        message = "Patient deleted"; 
-        return status + "/" + message + "/" + stringPatient;
+
 
     } catch (error) {
-        status = 404; 
+        status = 400; 
         message = "Something went wrong!"
         return status + "/" + message + "/" + error.message;
     }

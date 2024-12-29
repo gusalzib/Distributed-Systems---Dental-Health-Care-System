@@ -6,21 +6,31 @@ exports.createDentist = async (payload) => {
     let response;
     let status;
     try {
-        const newDentist = JSON.parse(payload);
-        const newDentistValidation = validateDentist(newDentist);
+        const parsedPayload = JSON.parse(payload);
+        const userRole = parsedPayload.role;
 
-        if (!newDentistValidation.success) {
-            status = 400
-            return status + "/" + newDentistValidation.message;
+        /* only admin can create a dentist */
+        if (userRole === 'admin') { 
+            const newDentistValidation = validateDentist(parsedPayload);
+
+            if (!newDentistValidation.success) {
+                status = 400
+                return status + "/" + newDentistValidation.message;
+            }
+
+            const dentist = new Dentist(parsedPayload);
+            await dentist.save();
+            message = "Dentist registered successfully!"
+            let stringDentist = JSON.stringify(dentist)
+            status = 200;
+            response = status + "/" + message + "/" + stringDentist;
+            return response;
+        }else {
+            message = "Unauthorized request. Only admin can perform this action. "
+            status = 400;
+            return status +"/"+ message;
         }
 
-        const dentist = new Dentist(newDentist);
-        await dentist.save();
-        message = "Dentist registered successfully!"
-        let stringDentist = JSON.stringify(dentist)
-        status = 200;
-        response = status + "/" + message + "/" + stringDentist;
-        return response;
 
     } catch (error) {
         status = 400;
@@ -53,25 +63,41 @@ exports.getAllDentists = async (payload) => {
     }
 };
 
-exports.getSpecificDentist = async (topic) => {
+exports.getSpecificDentist = async (topic, payload) => {
     let status;
     let message;
     try {
+        /* parsedPayload contains the session variables like current (logged in) userId and role */
+        const parsedPayload = JSON.parse(payload);
+        const currentDentistId = parsedPayload.userId; 
+        const userRole = parsedPayload.role;
+
         let topicArray = topic.split("/");
         let id = topicArray[3];
         const dentist = await Dentist.findById(id);
+        
+    
+        /* only admin or the dentist themselve can retrieve a dentist account*/
+        if ((userRole === 'admin') || (currentDentistId === (dentist._id).toString())) { 
+            if (!dentist) {
+                status = 404;
+                message = "No dentist with this ID";
+                return status + "/" + message;
+            }
 
-        if (!dentist) {
-            status = 404;
-            message = "No dentist with this ID";
-            return status + "/" + message;
+            status = 200;
+            message = "Dentist retrieved!";
+            let stringifiedDentist = JSON.stringify(dentist);
+            let messageToReturn = status + "/" + message + "/" + stringifiedDentist;
+            return messageToReturn;
+        }else {
+            message = "Unauthorized request."
+            status = 400;
+            return status +"/"+ message;
         }
 
-        status = 200;
-        message = "Dentist retrieved!";
-        let stringifiedDentist = JSON.stringify(dentist);
-        let messageToReturn = status + "/" + message + "/" + stringifiedDentist;
-        return messageToReturn;
+
+
 
     } catch (error) {
         status = 400;
@@ -84,42 +110,57 @@ exports.updateSpecificDentist = async (topic, payload) => {
     let status;
     let message;
     try {
+        /* parsedPayload also contains the session variables like current (logged in) userId and role */
+        const parsedPayload = JSON.parse(payload);
+        const currentDentistId = parsedPayload.userId; 
+        const userRole = parsedPayload.role;
+        
         let topicArray = topic.split("/");
         let id = topicArray[2];
-
+        
         const foundDentist = await Dentist.findById(id);
+        
         if (!foundDentist) {
             status = 404;
             message = "No dentist with this ID";
             return status + "/" + message;
         }
+        /* only admin or the dentist themselve can update a dentist account*/
+        if ((userRole === 'admin') || (currentDentistId === (foundDentist._id).toString())) { 
 
-        const newDentist = JSON.parse(payload);
 
-        const dentist = {
-            clinic_id: newDentist.clinic_id ? newDentist.clinic_id : foundDentist.clinic_id,
-            name: newDentist.name ? newDentist.name : foundDentist.name,
-            address: newDentist.address ? newDentist.address : foundDentist.address,
-            phone_number: newDentist.phone_number ? newDentist.phone_number : foundDentist.phone_number,
-            email: newDentist.email ? newDentist.email : foundDentist.email,
-            password: newDentist.password ? newDentist.password : foundDentist.password,
-            appointments: newDentist.appointments ? newDentist.appointments : foundDentist.appointments
-        }
+            const newDentist = JSON.parse(payload);
 
-        const newDentistValidation = validateDentist(dentist);
-        if(!newDentistValidation.success) {
+            const dentist = {
+                clinic_id: newDentist.clinic_id ? newDentist.clinic_id : foundDentist.clinic_id,
+                name: newDentist.name ? newDentist.name : foundDentist.name,
+                address: newDentist.address ? newDentist.address : foundDentist.address,
+                phone_number: newDentist.phone_number ? newDentist.phone_number : foundDentist.phone_number,
+                email: newDentist.email ? newDentist.email : foundDentist.email,
+                password: newDentist.password ? newDentist.password : foundDentist.password,
+                appointments: newDentist.appointments ? newDentist.appointments : foundDentist.appointments
+            }
+
+            const newDentistValidation = validateDentist(dentist);
+            if(!newDentistValidation.success) {
+                status = 400;
+                message = newDentistValidation.message;
+                return status + "/" + message;
+            }
+
+            const updatedDentist = await Dentist.findByIdAndUpdate(id, dentist, {new: true});
+            status = 200;
+            message = "Dentist has been updated!";
+
+            let stringifiedUpdatedDentist = JSON.stringify(updatedDentist);
+            let messageToReturn = status + "/" + message + "/" + stringifiedUpdatedDentist;
+            return messageToReturn;
+        }else {
+            message = "Unauthorized request. "
             status = 400;
-            message = newDentistValidation.message;
-            return status + "/" + message;
+            return status +"/"+ message;
         }
 
-        const updatedDentist = await Dentist.findByIdAndUpdate(id, dentist, {new: true});
-        status = 200;
-        message = "Dentist has been updated!";
-
-        let stringifiedUpdatedDentist = JSON.stringify(updatedDentist);
-        let messageToReturn = status + "/" + message + "/" + stringifiedUpdatedDentist;
-        return messageToReturn;
 
     } catch (error) {
         status = 400;
@@ -128,27 +169,46 @@ exports.updateSpecificDentist = async (topic, payload) => {
     }
 };
 
-exports.deleteSpecificDentist = async (topic) => {
+exports.deleteSpecificDentist = async (topic, payload) => {
     let status;
     let message;
     try {
-        let topicArray = topic.split("/");
-        let id = topicArray[2];
+        /* parsedPayload also contains the session variables like current (logged in) userId and role */
+        const parsedPayload = JSON.parse(payload);
+        const currentDentistId = parsedPayload.userId; 
+        const userRole = parsedPayload.role;
 
-        const dentistToDelete = await Dentist.findByIdAndDelete(id);
-        if (!dentistToDelete) {
-            status = 404;
-            message = "No dentist with this ID";
-            return status + "/" + message;
+        
+        let topicArray = topic.split("/");        
+        let id = topicArray[2];
+        
+        // first we are retrieving the dentist to check if the dentist making the request is the same as the one to be deleted. 
+        // this is because only the admin or the owner of the account are allowed to delete the account. 
+        const foundDentist = await Dentist.findById(id);
+        
+        /* only admin or the dentist themselve can delete a dentist account*/
+        if ((userRole === 'admin') || (currentDentistId === (foundDentist._id).toString())) { 
+            
+            const dentistToDelete = await Dentist.findByIdAndDelete(id);
+            if (!dentistToDelete) {
+                status = 404;
+                message = "No dentist with this ID";
+                return status + "/" + message;
+            }
+
+            let stringifiedDeletedDentist = JSON.stringify(dentistToDelete);
+            status = 200;
+            message = "Dentist has been Deleted!";
+            let messageToReturn = status + "/" + message + "/" + stringifiedDeletedDentist;
+            return messageToReturn;
+        }else {
+            message = "Unauthorized request. "
+            status = 400;
+            return status +"/"+ message;
         }
 
-        let stringifiedDeletedDentist = JSON.stringify(dentistToDelete);
-        status = 200;
-        message = "Dentist has been Deleted!";
-        let messageToReturn = status + "/" + message + "/" + stringifiedDeletedDentist;
-        return messageToReturn;
 
-    } catch (error) {
+    } catch (error) {        
         status = 400;
         error.message = "Something went wrong!";
         return status + "/" + error.message;

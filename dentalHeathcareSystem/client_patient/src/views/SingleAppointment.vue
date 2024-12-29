@@ -92,8 +92,7 @@ export default {
             address: '',
             appointments: []
         },
-        current_patient_placeholder: '674e36dedce0fe5f88fd1df9',
-        // current_patient_placeholder:'674516312f3c59c02e4df78d',
+
         confirmation_message: '',
         error_message: '',
         appointment: {
@@ -114,6 +113,7 @@ export default {
         appointments_get_specific_url: '',
         update_appointment_url: '',
         update_patient_specific_url: '',
+        book_appointment_url: '',
         appointmentID: '',
         
     }
@@ -123,6 +123,7 @@ export default {
         this.update_patient_specific_url = import.meta.env.VITE_UPDATE_PATIENT_SPECIFIC_URL;
         this.appointments_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_APPOINTMENTS_URL;
         this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
+        this.book_appointment_url = import.meta.env.VITE_BOOK_APPOINTMENT_URL;
         
         this.watchActivity();
         this.getAppointmentInfo();
@@ -136,11 +137,13 @@ export default {
     try {
         const appointmentID = to.params.appointmentID;
         const update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL
+        console.log(`${update_appointment_url}${appointmentID}`);
+        
         await Api.put(`${update_appointment_url}${appointmentID}`, {available: false});
         next();
         
-    } catch(error) {
-        console.error = 'Failed to update appointments availability';
+    } catch (error) {        
+        console.error('Failed to update appointments availability');
         
     }
   },
@@ -184,10 +187,10 @@ export default {
             this.closePopup();
             await this.addAppointmentToPatient();
             const appointmentID = this.$route.params.appointmentID;
-            this.appointment.available = false; 
+            // this.appointment.available = false; 
             
-            this.appointment.patient_id = this.current_patient_placeholder;
-                await Api.put(`${this.update_appointment_url}${appointmentID}`, this.appointment).then(response => {
+            // this.appointment.patient_id = this.current_patient_placeholder;
+                await Api.put(`${this.book_appointment_url}${appointmentID}`, this.appointment).then(response => {
                 if (response.status === 200) {
                     router.push({path: `/bookingConfirmation/${appointmentID}`})
                 }
@@ -222,7 +225,7 @@ export default {
             booking the appointment. The information is displayed in editable input fields. The patient has the option to change the details 
             prior to booking the appointment. Example: the patient wants to change the contact phone number or email for this particular appointment */
 
-            await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`).then(response => {
+            await Api.get(`${this.patient_get_specific_url}`).then(response => {
                 if (response.status === 200) {
                     this.patient = response.data.patients;    
                     

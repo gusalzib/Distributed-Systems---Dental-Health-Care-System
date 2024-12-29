@@ -21,8 +21,7 @@ export default {
   name: 'medicalJournal',
   data() {
     return {
-          current_patient_placeholder: '674e36dedce0fe5f88fd1df9',
-          // current_patient_placeholder:'674516312f3c59c02e4df78d',
+
           confirmation_message: '',
           error_message: '',
           patient: {
@@ -50,11 +49,10 @@ export default {
   methods: {
       async getPatientInformation() {
             try {
-              const response = await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`)
+              const response = await Api.get(`${this.patient_get_specific_url}`)
               if (response.status === 200) {
                 this.patient = response.data.patients;                
                 this.patient.medical_journal = response.data.patients.medical_journal
-                    console.log(this.patient.medical_journal);
                     
 
                 }
@@ -63,7 +61,6 @@ export default {
                 setTimeout(() => {
                         this.error_message = ''
                     }, 5000);
-                console.log(error.message)
             }
       },
   }

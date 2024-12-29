@@ -13,7 +13,7 @@ var app = express();
 var port = 3001; 
 
 
-var mongoURI =  "mongodb://localhost:27017/dentalHealthcareSystem";
+var mongoURI =  "mongodb://127.0.0.1:27017/dentalHealthcareSystem";
 // Connect to MongoDB
 mongoose
   .connect(mongoURI)

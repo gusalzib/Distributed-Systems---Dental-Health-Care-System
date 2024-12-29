@@ -59,7 +59,7 @@ function connectToBroker() {
 
         }else if(topic.startsWith('clinics/delete/')){
             console.log("delete clinic");
-            clinicCtrl.deleteAClinic(topic).then(response => {
+            clinicCtrl.deleteAClinic(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);

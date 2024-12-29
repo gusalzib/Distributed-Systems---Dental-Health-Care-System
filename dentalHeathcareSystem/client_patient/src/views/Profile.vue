@@ -111,8 +111,6 @@ export default {
       error_message: '',
           confirmation_message: '',
           activeSection: '',
-        current_patient_placeholder: '674e36dedce0fe5f88fd1df9',
-          // current_patient_placeholder:'674516312f3c59c02e4df78d',
           bookedAppoinmentsIds: [],
           bookedAppoinments: [],
           bookedAppointemnt: {
@@ -159,7 +157,7 @@ export default {
             booking the appointment. The information is displayed in editable input fields. The patient has the option to change the details 
             prior to booking the appointment. Example: the patient wants to change the contact phone number or email for this particular appointment */
 
-            await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`).then(response => {
+            await Api.get(`${this.patient_get_specific_url}`).then(response => {
                 if (response.status === 200) {
                     this.patient = response.data.patients;
                     
@@ -170,13 +168,12 @@ export default {
                 setTimeout(() => {
                         this.error_message = ''
                     }, 5000);
-                console.log(error.message)
             })
 
             
         },
         async updatePatientInfo() {
-            await Api.put(`${this.update_patient_specific_url}${this.current_patient_placeholder}`, this.patient).then(response => {
+            await Api.put(`${this.update_patient_specific_url}`, this.patient).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'Updated successfully'
                     setTimeout(() => {

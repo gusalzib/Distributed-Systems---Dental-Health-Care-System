@@ -7,6 +7,13 @@ const request = require("request");
 const app = express();
 const mqttBroker = require("./mqtt-broker.js");
 
+//sessions variables 
+const jwtVerification = require('./jwtVerification.js');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+
 const PORT = 3000;
 
 // function activityCheck(server){                           //ping and echo - is the server running
@@ -18,7 +25,7 @@ const PORT = 3000;
 //       server.isActive = false;
 //       console.log(`Server ${server.host} is not running`);
 //     }
-//   })
+//   }) 
 // }
 
 // setInterval(() => {                                     // Interval for ping and echo (every 5 seconds)
@@ -52,6 +59,18 @@ app.use(
   })
 );
 
+// app.use(session({
+//     secret: 'secret_patient_key',
+//     resave: false,
+//     saveUninitialized: true,
+//     store: new MongoStore({
+//         mongoUrl: 'mongodb://127.0.0.1:27017/dentalHealthcareSystem', 
+//         ttl: 14 * 24 * 60 * 60, // this stands for: time to live (14 days)
+//         autoRemove: 'native',  // an automatical removal of expired sessions offered by connect-mongo
+//         collectionName: 'sessions'
+//     })
+// }))
+app.use(cookieParser());
 // Also, handle preflight requests for all routes
 app.options("*", cors());
 app.use(helmet()); // Add security headers
@@ -137,314 +156,50 @@ app.use(express.json());
 //     },
 //    ];
 
-app.post("/api/*", async (req, res) => {
-    try {
-        
-        //get the body and make it a string, get url, remove "api" and give it a unique id
-        var body = req.body;
-        const payload = JSON.stringify(body);
-        const reqURL = req.url;
-        var adaptedURL = adaptRequestURL(reqURL);
-        
-        //create all topics
-        var topic = adaptedURL + "/" + giveUniqueID();
-        var responseTopic = 'response/'+topic
+const { login, signup, post, get, put, deleteEndpoint, loginCheck, logout } = require('./controller/gatewayController.js')
+/*######################################################################## LOGOUT ENPOINT #################################################################################### */
+/* connected to the logout button in App.vue */
+app.get('/api/logout', logout);
 
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity+"/topics";
-        
-        var serviceTopicResponse = "response/"+serviceTopic;
-        var responseTopic = 'response/'+topic
+/*######################################################################## LOGIN CHECK ENPOINT #################################################################################### */
+/* Login check is performed whenever we need to make sure the user is authorized to do a certain action or if the user is trying to access certain routes.*/
+app.get('/api/login/check', loginCheck);
 
-        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
-        await mqttBroker.subscribeToBroker(serviceTopicResponse);
-        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
-      
-        if(!serviceResponse){
-            res.status(400).json({message: "could not find service"})
-            return
-        }else if (serviceResponse){
-            mqttBroker.unsubscribe(serviceTopicResponse);
-        }
-        
-        
+/*######################################################################## PATIENT SIGNUP ENPOINT #################################################################################### */
+app.post('/api/patients/signup', signup);
 
-        //Publish request
-        await mqttBroker.subscribeToBroker(responseTopic);
-        
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-        if(!mqttResponse){
-            res.status(400).json({message: "could not create object"});
-            return
-        }else if(mqttResponse){
-            mqttBroker.unsubscribe(responseTopic);
-        }
-        
-        //exstract information from topic and response, parse the payload and return http response
-        var responseArr = mqttResponse.split("/");
-        var status = parseInt(responseArr[0]);
-        
-        if(responseArr.length <=2){
-            res.status(status).json({message : responseArr[1]});
-        }else{
-        var adaptedResponse = JSON.parse(responseArr[2]);        
-    
-        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
-        return;
-        }
-        var catchArr = []
-        if (errorMessage) {
-            catchArr = errorMessage.split("/")
-        }
+/*######################################################################## PATIENT LOGIN ENPOINT #################################################################################### */
+app.post('/api/patients/login', login)
+
+/*######################################################################## DENTIST LOGIN ENPOINT #################################################################################### */
+app.post('/api/dentists/login', login)
+
+/*######################################################################## UNPROTECTED ENPOINT #################################################################################### */
+/* Below are the enpoints that don't require a login. They do not require a token to be accessed */
+app.get('/api/clinics/get', get)
+app.get('/api/appointments/get/clinics/available/appointments/:appointment_id', get)
+app.put('/api/appointments/update/:appointment_id', put)
+app.get('/api/appointments/get/available/appointments', get)
+app.get('/api/clinics/get/specific/:clinic_id', get)
+app.get('/api/dentists/get/clinics/dentists/:clinic_id', get)
 
 
+/*######################################################################## GENERIC POST ENPOINT #################################################################################### */
+/* catches the rest of post requests after the user is authenticated and given a token */
+app.post("/api/*", jwtVerification.verifyToken, post);
 
+/*######################################################################## GENERIC GET ENPOINT #################################################################################### */
+/* catches all get requests and requires a token otherwise the request will be blocked  */
+app.get("/api/*", jwtVerification.verifyToken, get);
 
+/*######################################################################## GENERIC PUT ENPOINT #################################################################################### */
+/* catches all put requests and requires a token otherwise the request will be blocked  */
+app.put("/api/*", jwtVerification.verifyToken, put);
 
-    } catch (error) {
-        const errorMessage = error.toString();
-        let catchArr = errorMessage.split("/")
-       
-        if(catchArr.length===1){
-            res.status(400).json({message: "something went wrong"}); 
-        }else{
-            const status = parseInt(catchArr[0]);
-        res.status(status).json({message: catchArr[1]});
-        }
-    }
-});
-app.get("/api/*", async (req, res) => {
-    try {
-        //get the body and make it a string, get the url and call method to remove "api"
-        var body = req.body;
-        const payload = JSON.stringify(body);
-        const reqURL = req.url;
-        var adaptedURL = adaptRequestURL(reqURL);
-        
-        //create all topics
-        // does url contain an _id? if not give it an unique id
-        var id = checkForId(adaptedURL);
-        if(!id){
-            var topic = adaptedURL + "/" + giveUniqueID();
-        }else{
-            topic = adaptedURL;
-        }
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity+"/topics";
-        var serviceTopicResponse = "response/"+serviceTopic;
-        var responseTopic = 'response/'+topic
+/*######################################################################## GENERIC DELETE ENPOINT #################################################################################### */
+/* catches all delete requests and requires a token otherwise the request will be blocked  */
+app.delete("/api/*",  jwtVerification.verifyToken, deleteEndpoint);
 
-        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
-        await mqttBroker.subscribeToBroker(serviceTopicResponse);
-        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
-        if(!serviceResponse){
-            res.status(400).json({message: "could not find service"})
-            return
-        }else if (serviceResponse){
-            mqttBroker.unsubscribe(serviceTopicResponse);
-        }
-
-        
-
-        //Publish request
-        await mqttBroker.subscribeToBroker(responseTopic);
-        
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-        if(!mqttResponse){
-            res.status(400).json({message: "could not create object"});
-            return
-        }else if(mqttResponse){
-            mqttBroker.unsubscribe(responseTopic);
-        }
-         //exstract information from topic and response, parse the payload and return http response
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0]
-        var responseArr = mqttResponse.split("/"); 
-        var status = parseInt(responseArr[0]);
-        if(responseArr.length <=2){
-            res.status(status).json({message : responseArr[1]});
-        }else{
-        var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
-        return;
-        }
-
-    } catch (error) {
-        const errorMessage = error.toString();
-        let catchArr = errorMessage.split("/")
-       
-        if(catchArr.length===1){
-            res.status(400).json({message: "something went wrong"}); 
-        }else{
-            const status = parseInt(catchArr[0]);
-        res.status(status).json({message: catchArr[1]});
-        }
-    }
-});
-app.put("/api/*", async (req, res) => {
-    try {
-        //get the body and make it a string, get the url and call method to remove "api"
-        var body = req.body;
-        const payload = JSON.stringify(body);
-        const reqURL = req.url;
-        var adaptedURL = adaptRequestURL(reqURL);
-        
-        //create all topics
-        // does url contain an _id? if not give it an unique id
-        var id = checkForId(adaptedURL);
-        if(!id){
-            var topic = adaptedURL + "/" + giveUniqueID();
-        }else{
-            topic = adaptedURL;
-        }
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity+"/topics";
-        var serviceTopicResponse = "response/"+serviceTopic;
-        var responseTopic = 'response/'+topic
-
-        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
-        await mqttBroker.subscribeToBroker(serviceTopicResponse);
-        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
-        
-        if(!serviceResponse){
-            res.status(400).json({message: "could not find service"})
-            return
-        }else if (serviceResponse){
-            mqttBroker.unsubscribe(serviceTopicResponse);
-        }
-
-
-
-        //Publish request
-        await mqttBroker.subscribeToBroker(responseTopic);
-        
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-        if(!mqttResponse){
-            res.status(400).json({message: "could not update object"});
-            return
-        }else if(mqttResponse){
-            mqttBroker.unsubscribe(responseTopic);
-        }
-         //exstract information from topic and response, parse the payload and return http response
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0]
-        var responseArr = mqttResponse.split("/"); 
-        var status = parseInt(responseArr[0]);
-        if(responseArr.length <=2){
-            res.status(status).json({message : responseArr[1]});
-        }else{
-        var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
-        return;
-        }
-
-    } catch (error) {
-        const errorMessage = error.toString();
-        let catchArr = errorMessage.split("/")
-       
-        if(catchArr.length===1){
-            res.status(400).json({message: "something went wrong"}); 
-        }else{
-            const status = parseInt(catchArr[0]);
-        res.status(status).json({message: catchArr[1]});
-        }
-    }
-});
-app.delete("/api/*", async (req, res) => {
-    try {
-        //get the body and make it a string, get the url and call method to remove "api"
-        var body = req.body;
-        const payload = JSON.stringify(body);
-        const reqURL = req.url;
-        var adaptedURL = adaptRequestURL(reqURL);
-        
-        //create all topics
-        // does url contain an _id? if not give it an unique id
-        var id = checkForId(adaptedURL);
-        if(!id){
-            var topic = adaptedURL + "/" + giveUniqueID();
-        }else{
-            topic = adaptedURL;
-        }
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity+"/topics";
-        var serviceTopicResponse = "response/"+serviceTopic;
-        var responseTopic = 'response/'+topic
-
-        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
-        await mqttBroker.subscribeToBroker(serviceTopicResponse);
-        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
-        
-        if(!serviceResponse){
-            res.status(400).json({message: "could not find service"})
-            return
-        }else if (serviceResponse){
-            mqttBroker.unsubscribe(serviceTopicResponse);
-        }
-
-
-
-        //Publish request
-        await mqttBroker.subscribeToBroker(responseTopic);
-        
-        var mqttResponse = await mqttBroker.publishToBroker(topic, payload);
-        if(!mqttResponse){
-            res.status(400).json({message: "could not delete object"});
-            return
-        }else if(mqttResponse){
-            mqttBroker.unsubscribe(responseTopic);
-        }
-         //exstract information from topic and response, parse the payload and return http response
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0]
-        var responseArr = mqttResponse.split("/"); 
-        var status = parseInt(responseArr[0]);
-        if(responseArr.length <=2){
-            res.status(status).json({message : responseArr[1]});
-        }else{
-        var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
-        return;
-        }
-
-    } catch (error) {
-        const errorMessage = error.toString();
-        let catchArr = errorMessage.split("/")
-       
-        if(catchArr.length===1){
-            res.status(400).json({message: "something went wrong"}); 
-        }else{
-            const status = parseInt(catchArr[0]);
-        res.status(status).json({message: catchArr[1]});
-        }
-    }
-});
-
-function adaptRequestURL (url) {
-    var newURL = url.replace('/api/', '');
-    return newURL;
-}
-
-function giveUniqueID () {
-    let uniqueID = Math.random() + Date.now();
-    return uniqueID;
-}
-function checkForId(adaptedURL){
-    var urlArr = adaptedURL.split("/")
-    var index = urlArr.length -1
-    var lastElement = urlArr[index];
-    if(lastElement.length < 24){
-        //element is not an id
-        return;
-    }else{
-        var id = lastElement;
-        return id;
-    }
-}
 
 
 // const services = [                                      //Service array
