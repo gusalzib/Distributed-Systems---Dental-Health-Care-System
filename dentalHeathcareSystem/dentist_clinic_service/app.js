@@ -5,12 +5,15 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose')
 var cors = require('cors');
+var dotenv = require('dotenv')
 
+// load environment variables
+dotenv.config({ path: './clinic.env'})
 
 var app = express();
 var port = 3003; 
 
-var mongoURI =  "mongodb://localhost:27017/dentalHealthcareSystem";
+var mongoURI =  "mongodb://127.0.0.1:27017/dentalHealthcareSystem";
 // Connect to MongoDB
 mongoose
   .connect(mongoURI)
@@ -48,14 +51,14 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-const {createClinic,retrieveAllClinics,retrieveSpecificClinic,updateClinic,deleteClinic,retrieveDentistsInSpecificClinic} = require("./controller/clinicController");
+const {createClinic,retrieveAllClinics,retrieveSpecificClinic,updateClinic,deleteClinic,retrieveDentistsInSpecificClinic} = require("./Controller/clinicController");
 
-app.post("/api/clinics", createClinic);
-app.get("/api/clinics", retrieveAllClinics);
-app.get("/api/clinics/:clinic_id",retrieveSpecificClinic);
-app.get("/api/clinics/:clinic_id/dentists",retrieveDentistsInSpecificClinic);
-app.put("/api/clinics/:clinic_id",updateClinic);
-app.delete("/api/clinics/:clinic_id",deleteClinic);
+app.post("/api/clinics/create", createClinic);
+app.get("/api/clinics/get", retrieveAllClinics);
+app.get("/api/clinics/get/:clinic_id",retrieveSpecificClinic);
+app.get("/api/clinics/get/dentists/:clinic_id",retrieveDentistsInSpecificClinic);
+app.put("/api/clinics/update/:clinic_id",updateClinic);
+app.delete("/api/clinics/delete/:clinic_id",deleteClinic);
 
 app.get("/active", (req,res) =>{
   res.sendStatus(200)

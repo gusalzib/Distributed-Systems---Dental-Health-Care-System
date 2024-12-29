@@ -156,12 +156,13 @@ label{
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Home PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 .map-container{
   width: 70%;
-  height: 500px;
+  height: 790px;
   border: 1px grey solid;
   border-radius: 10px;
   margin: 20% auto;
   margin-bottom: 30px;
   padding: 10px;
+  padding-top: 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -170,13 +171,27 @@ label{
 }
 
 
-#google-map{
+#mapbox{
   width: 90%;
-  height: 500px;
+  min-height: 500px;
+  max-height: 600px;
   margin: auto;
 }
-
-
+.mapboxgl-popup {
+  z-index: 1000;
+  border: 1px red solid;
+  background-color: whitesmoke;
+  color: black;
+    max-width: 400px;
+    font:
+        12px/20px 'Helvetica Neue',
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+.mapboxgl-popup span{
+  font-weight: bold;
+}
 .home-page-container{
   /* border: 1px red solid; */
   width: 90%;
@@ -221,6 +236,12 @@ label{
 
 .instruction-item{
   display: inline;
+}
+
+@media only screen and (max-width: 1500px){
+  .map-container{
+    width: 95%;
+  }
 }
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX New Appointment PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 
@@ -275,14 +296,22 @@ label{
   border-radius: 10px;
   padding: 10px;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
   margin: 15px 0;
 }
-
+.appointments-card button{
+  margin: 5px auto;
+  width: 30%;
+}
 .appointments-card:hover{
   transition: .5s ease;
   box-shadow: var(--heavy-shadow);
+}
+
+.appointment-details{
+  text-align: left;
+  padding: 0px 10px;
 }
 
 @media only screen and (max-width: 1580px){
@@ -542,11 +571,32 @@ the card, which is also something that we might need to add later.*/
   }
 }
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Login PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
-.login-container{
-  width: 60%;
-  margin: 15% auto;
+.login-navbar{
+  display: flex;
+  justify-content: center;
+  margin: 20px;
+  margin-top: 50px;
+  padding: 10px 0;
 }
-.patient-login-form{
+
+#navbar-links{
+  width: 50%;
+  margin: 0 15px;
+  cursor: pointer;
+  font-weight: normal;
+  text-align: center;
+  padding: 10px;
+  background: linear-gradient(90deg, rgba(233,236,245,1) 0%, rgba(204,215,228,1) 33%, rgba(204,215,228,1) 71%, rgba(233,236,245,1) 100%);  /* color: whitesmoke; */
+}
+#navbar-links:hover{
+  background: var(--columbia-blue-darker);
+}
+.login-container{
+  border: 1px transparent solid;
+  width: 60%;
+  margin: 10% auto;
+}
+.login-form{
   border: 1px slategrey solid;
   border-radius: 20px;
   padding: 15px;
@@ -555,7 +605,7 @@ the card, which is also something that we might need to add later.*/
   justify-items: left;
 }
 
-.patient-login-form input{
+.login-form input{
   padding: 10px;
   margin: 4px auto;
   width: 100%;
@@ -563,8 +613,37 @@ the card, which is also something that we might need to add later.*/
   border: 1px white solid;
 }
 
-.patient-login-form input:hover{
+.login-form input:hover{
   border: 1px black solid;
+}
+
+@media only screen and (max-width: 1350px){
+  .login-container{
+    width: 90%;
+    margin-top: 10%;
+  }
+  #navbar-links{
+    width: 90%;
+    margin: 5px auto;
+  }
+  .login-navbar{
+    flex-direction: column;
+  }
+}
+@media only screen and (max-width: 1000px){
+  .login-container{
+    width: 90%;
+    margin-top: 20%;
+  }
+
+}
+
+@media only screen and (max-width: 440px){
+  .login-container{
+    width: 90%;
+    margin-top: 30%;
+  }
+
 }
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Medical Journal PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 .journal-container{
@@ -947,7 +1026,8 @@ the card, which is also something that we might need to add later.*/
 }
 #clinic-card {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;

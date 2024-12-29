@@ -7,9 +7,12 @@ var appointmentSchema = new Schema({
         ref:"Patient"
     },
     dentist_id: {
-        type: mongoose.Schema.Types.ObjectId, //ref:"Dentist"
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"Dentist"
 },
-    dentist_clinic_id: {type: mongoose.Schema.Types.ObjectId, //ref: "Dentist_clinic"
+    dentist_clinic_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Clinic",
 },
     type_of_appointment: {
         type: String,

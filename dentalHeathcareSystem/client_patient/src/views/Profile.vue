@@ -19,23 +19,23 @@
                     
                         <label>Name: </label>
                         <input v-model="patient.name" type="text" id="name"/>
-                        </br>
+                        <br>
                         <label>Email: </label>
                         <input v-model="patient.email" type="email" id="email"/>
-                        </br>
+                        <br>
                         <label>SSN: </label>
                         <input v-model="patient.ssn" type="text" id="ssn"/>
-                        </br>
+                        <br>
                         <label>Phone number: </label>
                         <input v-model="patient.phone_number" type="text" id="phone_number"/>
-                        </br>
+                        <br>
                         <label>Address: </label>
                         <input v-model="patient.address" type="address" id="address"/>
-                        </br>
+                        <br>
                         <label>Password: </label>
                         <input v-model="patient.password" type="password" id="password"/>
                         <input type="checkbox" v-on:click="toggle()">
-                        </br>
+                        <br>
 
                         <button id="update-button" class="submit-button" v-on:click="updatePatientInfo()" type="button">Update</button>
                 </div>
@@ -63,7 +63,7 @@
                     <MyAppointments />
                 </div>
                 <div v-else-if="activeSection === 'medical_journal'">
-                    <h3>Medicla Journal</h3>
+                    <h3>Medical Journal</h3>
                     <MedicalJournal />
                 </div>
                 <div v-else>
@@ -111,8 +111,6 @@ export default {
       error_message: '',
           confirmation_message: '',
           activeSection: '',
-        current_patient_placeholder: '673a51d9934efda9cdfa63a6',
-          // current_patient_placeholder:'674516312f3c59c02e4df78d',
           bookedAppoinmentsIds: [],
           bookedAppoinments: [],
           bookedAppointemnt: {
@@ -123,12 +121,16 @@ export default {
             date_and_time_from:"",
             date_and_time_until:"",
             available:"",
-          }
+          },
+          patient_get_specific_url: '',
+          update_patient_specific_url: '',
     }
     },
     mounted() {
+        this.patient_get_specific_url = import.meta.env.VITE_PATIENT_GET_SPECIFIC_URL;
+        this.update_patient_specific_url = import.meta.env.VITE_UPDATE_PATIENT_SPECIFIC_URL;
         this.getPatientInformation();
-        
+
   },
     methods: {
         setActive(section) {
@@ -155,7 +157,7 @@ export default {
             booking the appointment. The information is displayed in editable input fields. The patient has the option to change the details 
             prior to booking the appointment. Example: the patient wants to change the contact phone number or email for this particular appointment */
 
-            await Api.get(`/patients/${this.current_patient_placeholder}`).then(response => {
+            await Api.get(`${this.patient_get_specific_url}`).then(response => {
                 if (response.status === 200) {
                     this.patient = response.data.patients;
                     
@@ -166,13 +168,12 @@ export default {
                 setTimeout(() => {
                         this.error_message = ''
                     }, 5000);
-                console.log(error.message)
             })
 
             
         },
         async updatePatientInfo() {
-            await Api.put(`/patients/${this.current_patient_placeholder}`, this.patient).then(response => {
+            await Api.put(`${this.update_patient_specific_url}`, this.patient).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'Updated successfully'
                     setTimeout(() => {

@@ -1,7 +1,7 @@
 const mqtt = require('async-mqtt');
-const patientCtrl = require("./controller/patientController");
-const authenticator = require('./controller/authenticator')
-// var mqttClient;
+const dentistCtrl = require('./src/dentist_controller/dentist-controller');
+const dentistAuthenticator = require('./src/dentist_controller/authenticator');
+let mqttClient;
 
 const host = "127.0.0.1";
 const protocol = "mqtt";
@@ -42,71 +42,55 @@ function connectToBroker() {
         var payloadReceived = payload.toString()
         console.log("Message received: ",payloadReceived);
         console.log("On topic: " + topic); 
-        console.log(packet);
-        var publishTopic = "response/" + topic;
-        // console.log("publishTopic =",publishTopic);
+        let publishTopic = "response/" + topic;
 
-        if(topic.startsWith('patients/topics')){
+        if(topic.startsWith('dentists/topics')){
             subscribeToBroker(payloadReceived);
             var newPayload = '200/subscribed to topic/'+topic;
             publishToBroker(publishTopic,newPayload);
 
-        }else if (topic.startsWith('patients/signup/')) {
-            console.log("create a patient");
-            patientCtrl.createPatient(payload).then(response => {
+        }else if (topic.startsWith('dentists/create/')) {
+            dentistCtrl.createDentist(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
-        
-        }else if (topic.startsWith('patients/login/')) {
-            console.log("login patient");
-            authenticator.authenticatePatient(topic ,payload).then(response => {
-                publishToBroker(publishTopic, response)
-            })
-        }else if (topic.startsWith('patients/get/specific/')) {
-            console.log("get specific patient");
-            patientCtrl.fetchSpecificPatient(topic, payload).then(response => {
+        }else if (topic.startsWith('dentists/login/')) {
+            dentistAuthenticator.authenticateDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        }else if (topic.startsWith('patients/get/')) {
-            console.log("get all patients");
-            patientCtrl.fetchAllPatients(payload).then(response => {
-                publishToBroker(publishTopic, response)
+        }else if(topic.startsWith('dentists/get/clinics/dentists/')){
+            dentistCtrl.fetchClinicsDentists(topic).then(response => {
+                publishToBroker(publishTopic,response);
             });
             unsubscribe(topic);
 
-        } else if (topic.startsWith('patients/update/')){
-            console.log("update patient");
-            patientCtrl.updateSpecificPatient(topic,payload).then(response => {
+        }else if (topic.startsWith('dentists/get/specific/')) {
+            dentistCtrl.getSpecificDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
-        } else if (topic.startsWith('patients/delete/')) {
-            console.log("delete patient");
-            patientCtrl.deleteSpecificPatient(topic, payload).then(response => {
-                publishToBroker(publishTopic, response)
+        } else if (topic.startsWith('dentists/update/')) {
+            dentistCtrl.updateSpecificDentist(topic, payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            unsubscribe(topic);
+
+        } else if (topic.startsWith('dentists/delete/')) {
+            dentistCtrl.deleteSpecificDentist(topic, payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            unsubscribe(topic);
+
+        } else if (topic.startsWith('dentists/get/')) {
+            dentistCtrl.getAllDentists(payload).then(response => {
+                publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
         }
     });
-}
-// function heartbeat(){
-//     var payload = "patient1"
-//     var topic = "active/patient"
-    
-//     setTimeout(() => {
-//         heartbeat()
-//         console.log("heartbeat");
-//     }, 5000);
-//     publishToBroker(topic,payload);
-    
-// }
-
-function printPayload(payload) {
-    console.log("our payload is: " + payload);
 }
 
 function publishToBroker(topic, payload) {
@@ -114,10 +98,9 @@ function publishToBroker(topic, payload) {
 };
 
 function subscribeToBroker(topic) {
-    mqttClient.subscribe(topic, {qos: 0})
+    mqttClient.subscribe(topic, {qos: 0});
     console.log("subscribed to topic: ",topic);
-    
-};
+}
 async function unsubscribe(topic){
     mqttClient.unsubscribe(topic).then((successful) => {
         console.log("You've successfully unsubscribed from topic: ",topic);
@@ -128,9 +111,5 @@ async function unsubscribe(topic){
 };
 
 connectToBroker();
-// heartbeat();
-subscribeToBroker('patients/topics');
+subscribeToBroker('dentists/topics');
 
-module.exports = {
-    publishToBroker,
-}

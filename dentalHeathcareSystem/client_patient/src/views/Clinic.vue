@@ -20,22 +20,11 @@
 
                 <div id="clinic-card">
                     <div  v-if="activeSection === 'available_appointments'">
-                        <div v-for="appointment in appointments" :key = "appointment._id">
-                            <div class="clinic-appointment_card" @click="rerouting(`/single/appointment/${appointment._id}`)"> Appointment:&nbsp; 
-                                <p> Date:&nbsp; {{ appointment.date_and_time_from }}&nbsp; </p>
-                                <p> Time:&nbsp; {{ appointment.date_and_time_until }}</p>
-                            </div>
-                        </div>  
+                        <ClinicAppointments/> 
                     </div>
 
                     <div v-else-if="activeSection === 'dentists'">
-                        <h1>Dentists working in this clinic are:</h1>
-                        <div v-for="dentist in dentists" :key = "dentist._id">
-                            <div>
-                                <hr>
-                                <p>{{ dentist.dentist_id }}</p> 
-                            </div>
-                        </div>
+                        <ClinicDentists/>
                     </div>
 
                     <div v-else class="clinic-contact-card">
@@ -58,9 +47,15 @@
 <script>
 import { Api } from '@/Api'
 import router from '@/router'
+import ClinicAppointments from '@/views/ClinicAppointments.vue'
+import ClinicDentists from '@/views/ClinicDentists.vue'
 
 export default {
     name: 'clinic',
+    components: {
+        ClinicAppointments,
+        ClinicDentists
+    },
     data() {
         return {
             activeSection: "clinic",
@@ -80,8 +75,12 @@ export default {
         }
     },
     mounted() {
+        this.clinics_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_CLINIC_URL;
+        this.clinics_get_dentists_url = import.meta.env.VITE_GET_CLINICS_DENTISTS_URL;
+        this.appointments_get_clinics_appoitnments_url = import.meta.env.VITE_GET_CLINICS_APPOINTMENTS_URL
+        this.get_clinics_available_appointments_url = import.meta.env.VITE_GET_CLINICS_AVAILABLE_APPOINTMENTS_URL;
         this.getSpecificClinic();
-        this.getClinicsAppointment();
+        
         
 
     },
@@ -91,72 +90,24 @@ export default {
                 this.activeSection = section;
             } catch (error) {
                 this.error_message = error.message;
-                console.log(this.message);
             } 
         },
 
         async getSpecificClinic(){
             this.clinicID = this.$route.params.clinicID;
-            await Api.get(`/clinics/${this.clinicID}`).then(response =>{
+            await Api.get(`${this.clinics_get_specific_url}${this.clinicID}`).then(response =>{
                 if(response.status === 200){
-                this.clinic = response.data.clinic;
+                this.clinic = response.data.clinics;
                 }
-            this.getDentistsFromSpecificClinic();
-        }).catch(error =>{
-            this.error_message = error.response?.data.message;
-            setTimeout(() => {
-                this.error_message = '';
-            }, 5000);
-        })
-        },
-
-        async getDentistsFromSpecificClinic(){
-            this.clinicID = this.$route.params.clinicID;
-            await Api.get(`/clinics/${this.clinicID}/dentists`).then(response =>{
-                if(response.status === 200){
-                this.dentists = response.data.clinicDentists;
-            }
-        }).catch(error =>{
-            this.error_message = error.response?.data.message;
-            setTimeout(() => {
-                this.error_message = '';
-            }, 5000);
-        })
-        },
-        
-
-        async getClinicsAppointment(){
-            this.clinicID = this.$route.params.clinicID;
-            await Api.get(`/appointments/${this.clinicID}/clinics/appointment`).then(response =>{
-                if(response.status === 200){
-                    this.appointments = response.data.appointments
-                    for (let i = 0; i<= this.appointments.length-1; i++){
-                        var dateAndTimeArr= this.extractTimeAndDate(this.appointments[i].date_and_time_from);
-                        this.appointments[i].date_and_time_from = dateAndTimeArr[0];
-                        this.appointments[i].date_and_time_until = dateAndTimeArr[1];  
-                    }
-                }
-            }).catch(error => {
-                this.error_message = error.response?.data.message;
-            setTimeout(() => {
-                this.error_message = '';
-            }, 5000);
-        })
-        },
-
-        extractTimeAndDate(date_and_time) {
-            var date = '';
-            var time = '';
             
-            var tempArr = date_and_time.split('T');
-            date = tempArr[0];
-
-            var tempTime = tempArr[1].split(':')
-            time = tempTime[0] + ':' + tempTime[1];
-
-            var date_and_time_arr = [date, time]
-            return date_and_time_arr;
+        }).catch(error =>{
+            this.error_message = error.response?.data.message;
+            setTimeout(() => {
+                this.error_message = '';
+            }, 5000);
+        })
         },
+
         rerouting(targetPath){
             router.push({path: `${targetPath}`})
         },

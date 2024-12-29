@@ -1,4 +1,5 @@
-const mqtt = require('mqtt');
+const mqtt = require('async-mqtt');
+const oldMqtt = require('mqtt');
 const appointmentCtrl = require("./controller/appointmentController")
 var mqttClient;
 
@@ -38,82 +39,100 @@ function connectToBroker() {
     });
 
     mqttClient.on("message", (topic, payload, packet) => {
-        console.log("Message received: " + payload.toString());
+        var payloadReceived = payload.toString()
+        console.log("Message received: ",payloadReceived);
         console.log("On topic: " + topic); 
         console.log(packet);
         var publishTopic = "response/" + topic;
         console.log("publishTopic =",publishTopic);
 
-        if (topic.startsWith( 'appointment/create/')) {
-            appointmentCtrl.makeAppointment(payload).then(response =>{
-                // console.log("message in broker = ",response);
-                
-                // console.log("status =" )
-                // console.log("newTopic = ",newTopic);
-                publishToBroker(publishTopic,response);
-                
-                // resArr = response.split("/");
-                // var status = resArr[0];
-                // var message = resArr[1];
-                // var appointment = resArr[2];
+        if(topic.startsWith('appointments/topics')){
+            subscribeToBroker(payloadReceived);
+            var newPayload = '200/subscribed to topic/'+topic;
+            publishToBroker(publishTopic,newPayload);
 
-                // console.log("status =", status);
-                // console.log("message =", message);
-                // console.log("appointment =", appointment);
-
+        }else if (topic.startsWith( 'appointments/create/')) {
+            console.log("create an appointment");
+            appointmentCtrl.makeAppointment(payload).then(response => {
+                publishToBroker(publishTopic, response);
             });
-        }else if (topic.startsWith('appointment/get/all/')){
+            unsubscribe(topic);
+        
+        }else if (topic.startsWith( 'appointments/book/')) {
+            console.log("book an appointment");
+            appointmentCtrl.bookAppointment(topic, payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            unsubscribe(topic);
+        
+        }else if (topic.startsWith('appointments/get/clinics/available/appointments/')) {
+            console.log("get clinics available appointments");
+            appointmentCtrl.fetchClinicsAvailableAppointments(topic).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            unsubscribe(topic);
+
+        }else if (topic.startsWith('appointments/get/patient/appointments/')) {
+            console.log("get a patients appointments");
+            appointmentCtrl.fetchPatientAppointments(topic, payload).then(response => {
+                publishToBroker(publishTopic, response)
+            });
+            unsubscribe(topic);
+
+        }else if (topic.startsWith('appointments/get/available/appointments/')) {
+            console.log("get available appointments");
+            appointmentCtrl.fetchAvailableAppointments(payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            unsubscribe(topic);
+
+        } else if (topic.startsWith('appointments/get/clinic/appointments/')) {
+            console.log("get a clinics appointments");
+            appointmentCtrl.fetchClinicAppointments(topic).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            unsubscribe(topic);
+
+        }else if (topic.startsWith('appointments/get/specific/')){
+            console.log("get a specific appointment");
+            appointmentCtrl.getOneAppointment(topic).then(response => {
+                publishToBroker(publishTopic,response)
+            });
+            unsubscribe(topic);
+
+        }else if (topic.startsWith('appointments/update/')){
+            console.log("update appointment");
+            appointmentCtrl.updateOneAppointment(topic,payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            unsubscribe(topic);
+
+        } else if (topic.startsWith('appointments/delete/')) {
+            console.log("delete appointment");
+            appointmentCtrl.removeAppointment(topic, payload).then(response => {
+                publishToBroker(publishTopic, response)
+            });
+            unsubscribe(topic);
+
+        }else if (topic.startsWith('appointments/get/')){
             console.log("get all appointments");
             appointmentCtrl.getAppointments(payload).then(response =>{
-                console.log("all appointments = ",response);
-                console.log("publish topic=",publishTopic);
                 publishToBroker(publishTopic, response);
-            })
-        }else if (topic.startsWith('appointment/get/one/')){
-            appointmentCtrl.getOneAppointment(payload).then(response => {
-                console.log(response);
-                publishToBroker(publishTopic,response)
-            })
-        }else if (topic.startsWith('appointment/update/')){
-            var topicArr = topic.split("/");
-            var _id = topicArr[2];
-            console.log("_id = ",_id);
-            appointmentCtrl.updateOneAppointment(_id,payload).then(response => {
-                console.log("response =",response);
-                publishToBroker(publishTopic, response);
-            })
-        } else if (topic.startsWith('appointment/get/patient/appointments/')) {
-            appointmentCtrl.fetchPatientAppointments(payload).then(response => {
-                
-                
-                console.log("response =", response);
-                publishToBroker(publishTopic, response)
-                
-            })
-        } else if (topic.startsWith('appointment/delete/')) {
-            appointmentCtrl.removeAppointment(payload).then(response => {
-                
-
-                console.log("response =", response);
-                publishToBroker(publishTopic, response)
-            })
-        } else if (topic.startsWith('appointment/get/available/appointments/')) {
-            appointmentCtrl.fetchAvailableAppointments(payload).then(response => {
-
-                console.log("response =", response);
-                publishToBroker(publishTopic, response);
-            })
-        } else if (topic.startsWith('appointment/get/clinic/appointment/')) {
-            appointmentCtrl.fetchAvailableAppointments(payload).then(response => {
-                console.log('publish topid here: ', publishTopic);
-
-                console.log("response =", response);
-                publishToBroker(publishTopic, response);
-            })
+            });
+            unsubscribe(topic);
         }
-
     });
 }
+// function heartbeat(){
+//     var payload = "appointment1"
+//     var topic = "active/appointment"
+    
+//     setTimeout(() => {
+//         heartbeat()
+//         console.log("heartbeat");
+//     }, 5000);
+//     publishToBroker(topic,payload);
+// }
 
 function printPayload(payload) {
     console.log("our payload is: " + payload);
@@ -125,13 +144,21 @@ function publishToBroker(topic, payload) {
 
 function subscribeToBroker(topic) {
     mqttClient.subscribe(topic, {qos: 0})
+    console.log("subscribed to topic: ",topic);
+    
 };
+async function unsubscribe(topic){
+    mqttClient.unsubscribe(topic).then((successful) => {
+        console.log("You've successfully unsubscribed from topic: ",topic);
+    })
+    .catch((e) => {
+        console.log("Unsubscribing failed");
+    }) 
+};
+
+
 connectToBroker();
-subscribeToBroker('appointment/create/+');
-subscribeToBroker('appointment/get/all/+');
-subscribeToBroker('appointment/get/one/+');
-subscribeToBroker('appointment/update/+');
-subscribeToBroker('appointment/get/patient/appointments/+');
-subscribeToBroker('appointment/delete/+');
-subscribeToBroker('appointment/get/available/appointments/+');
-subscribeToBroker('appointment/get/clinic/appointment/+')
+// heartbeat();
+subscribeToBroker('appointments/topics');
+
+
