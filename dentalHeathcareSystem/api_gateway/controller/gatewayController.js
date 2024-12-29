@@ -62,7 +62,7 @@ exports.login = async (req, res) => {
                 res.cookie('token', adaptedResponse.token, {
                     httpOnly: true,
                     secure: true,
-                    sameSite: 'strict',
+                    sameSite: 'None',
                     maxAge: 3600000,
                 })
                 
@@ -91,7 +91,7 @@ exports.logout = async (req, res) => {
         res.clearCookie('token', {
             httpOnly: true,
             secure: true,
-            sameSite: 'strict'
+            sameSite: 'None'
         })
 
         return res.status(200).json({
