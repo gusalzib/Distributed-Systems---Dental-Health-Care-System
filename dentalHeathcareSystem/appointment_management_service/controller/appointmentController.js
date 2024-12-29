@@ -113,7 +113,6 @@ exports.getOneAppointment = async (topic) => {
 };
 
 exports.updateOneAppointment = async (topic, payload) => {
-    console.log('here XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
     
     try {
         var message ='';    
@@ -159,9 +158,7 @@ exports.updateOneAppointment = async (topic, payload) => {
         var stringUpdatedAppointment = JSON.stringify(updatedAppointment);
         return status +"/"+ message +"/"+ stringUpdatedAppointment;
             
-    } catch (error) {
-        console.log(error);
-        
+    } catch (error) {        
             status = 400; 
             message = "Something went wrong!" 
             return status + "/" + message + "/" +error.message;

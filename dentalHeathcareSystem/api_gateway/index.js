@@ -190,7 +190,7 @@ app.post("/api/*", jwtVerification.verifyToken, post);
 
 /*######################################################################## GENERIC GET ENPOINT #################################################################################### */
 /* catches all get requests and requires a token otherwise the request will be blocked  */
-// app.get("/api/*", jwtVerification.verifyToken, get);
+app.get("/api/*", jwtVerification.verifyToken, get);
 
 /*######################################################################## GENERIC PUT ENPOINT #################################################################################### */
 /* catches all put requests and requires a token otherwise the request will be blocked  */

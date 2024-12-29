@@ -43,7 +43,7 @@ import { Api } from './Api'
 
 export default {
   data: () => ({
-    login_url: '/login/check',
+    login_check_url: '',
     logout_url: '/logout',
     loggedIn: false,
     isAdmin: false,
@@ -52,6 +52,7 @@ export default {
   }),
 
   mounted() {
+    this.login_check_url = import.meta.env.VITE_LOGIN_CHECK_URL;
     this.loginCheck();
 
   },
@@ -74,7 +75,7 @@ export default {
     },
     loginCheck() {
 
-        Api.get(`${this.login_url}`).then(response => {
+        Api.get(`${this.login_check_url}`).then(response => {
           if (response.status === 200) {
             this.loggedIn = response.data.loggedIn;
             this.isAdmin = response.data.isAdmin;
