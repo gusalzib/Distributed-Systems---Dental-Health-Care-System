@@ -20,7 +20,7 @@ import { RouterLink, RouterView } from 'vue-router'
           <!-- <router-link class="desktop-header-link" to="/medical_journal">Medical Journal</router-link> -->
           <router-link class="desktop-header-link" to="/registration">Register</router-link>
           <router-link class="desktop-header-link" to="/login" v-if="!this.loggedIn">Login</router-link>
-          <button class="desktop-header-link" @click="logout()"  v-if="this.loggedIn">Logut</button>
+          <button class="desktop-header-link" @click="logout()"  v-if="this.loggedIn">Logout</button>
         </nav>
 
 
