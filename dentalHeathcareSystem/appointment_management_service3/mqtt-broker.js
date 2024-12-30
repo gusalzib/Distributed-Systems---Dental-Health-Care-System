@@ -2,7 +2,7 @@ const mqtt = require('async-mqtt');
 const oldMqtt = require('mqtt');
 const appointmentCtrl = require("./controller/appointmentController")
 var mqttClient;
-const thisService = 'appointments-1';
+const thisService = 'appointments-3';
 const host = "127.0.0.1";
 const protocol = "mqtt";
 const port = "1884";

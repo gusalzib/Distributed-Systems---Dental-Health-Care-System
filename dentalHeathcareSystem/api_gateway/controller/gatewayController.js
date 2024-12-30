@@ -1,4 +1,5 @@
 const mqttBroker = require("../mqtt-broker.js");
+const index = require('../index.js');
 
 //sessions variables 
 const jwtVerification = require('../jwtVerification.js');
@@ -15,19 +16,25 @@ exports.login = async (req, res) => {
         
         //create all topics
         var topic = adaptedURL + "/" + giveUniqueID();
-        var responseTopic = 'response/'+topic
-
         var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity+"/topics";
-        
-        var serviceTopicResponse = "response/"+serviceTopic;
+        var nameOfService = topicArr[0];
+    
+        //send nameOfService to check service array and make a roundRobin
+        const balancedService = await index.balanceService(nameOfService);   
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            return
+        }
+        topic = topic.replace(nameOfService,balancedService);
         var responseTopic = 'response/'+topic
+        var serviceTopic = balancedService+"/topics";
+        var serviceTopicResponse = "response/"+serviceTopic;
+        
 
         //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
         await mqttBroker.subscribeToBroker(serviceTopicResponse);
         var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
-      
+        
         if(!serviceResponse){
             res.status(400).json({message: "could not find service"})
             return
@@ -57,7 +64,7 @@ exports.login = async (req, res) => {
                 
             // after login, each request is supposed to have a token. Here I check if it does exist
                 if (adaptedResponse.token) {
-                
+
                 // setting the token in the cookie
                 res.cookie('token', adaptedResponse.token, {
                     httpOnly: true,
@@ -67,10 +74,11 @@ exports.login = async (req, res) => {
                 })
                 
             }
-            return res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+            
+            return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
             
         }
-    } catch (error) {
+    } catch (error) { console.log(error);
     
         const errorMessage = error.toString();
         let catchArr = errorMessage.split("/")
@@ -150,7 +158,9 @@ exports.loginCheck = async (req, res) => {
             });
         }
 
-    } catch (error) {                
+    } catch (error) {        
+        console.log(error.message);
+        
         return res.status(403).json({message: 'Token either expired or invalid', user: decodedToken})
     }
 }
@@ -166,14 +176,20 @@ exports.signup = async (req, res) => {
         
         //create all topics
         var topic = adaptedURL + "/" + giveUniqueID();
-        var responseTopic = 'response/' + topic
-
         var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity + "/topics";
+        var nameOfService = topicArr[0];
+    
+        //send nameOfService to check service array and make a roundRobin
+        const balancedService = await index.balanceService(nameOfService);  
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            return
+        } 
+        topic = topic.replace(nameOfService,balancedService);
+        var responseTopic = 'response/'+topic
+        var serviceTopic = balancedService+"/topics";
+        var serviceTopicResponse = "response/"+serviceTopic;
         
-        var serviceTopicResponse = "response/" + serviceTopic;
-        var responseTopic = 'response/' + topic
 
         //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
         await mqttBroker.subscribeToBroker(serviceTopicResponse);
@@ -206,7 +222,7 @@ exports.signup = async (req, res) => {
         } else {
             var adaptedResponse = JSON.parse(responseArr[2]);
 
-            return res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+            return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
             
         }
     } catch (error) {
@@ -237,40 +253,44 @@ exports.post = async (req, res) => {
         
         //create all topics
         var topic = adaptedURL + "/" + giveUniqueID();
-        var responseTopic = 'response/'+topic
-
         var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity+"/topics";
+        var nameOfService = topicArr[0];
+    
+        //send nameOfService to check service array and make a roundRobin
+        const balancedService = await index.balanceService(nameOfService);
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            return
+        }  
         
-        var serviceTopicResponse = "response/"+serviceTopic;
+        topic = topic.replace(nameOfService,balancedService);
         var responseTopic = 'response/'+topic
+        var serviceTopic = balancedService+"/topics";
+        var serviceTopicResponse = "response/"+serviceTopic;
+
+        
 
         //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
         await mqttBroker.subscribeToBroker(serviceTopicResponse);
         var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
-      
+        
         if(!serviceResponse){
             res.status(400).json({message: "could not find service"})
             return
         }else if (serviceResponse){
             mqttBroker.unsubscribe(serviceTopicResponse);
         }
-        
         //Publish request
         await mqttBroker.subscribeToBroker(responseTopic);
-
         // I am parsing the payload to json in order to add the userId field to it. 
         payload = JSON.parse(payload);
 
         // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
         const sessionUserId = req.user.userId;
         const sessionUserRole = req.user.role;
-        
         // adding the userId field to the payload 
         payload.userId = sessionUserId;
         payload.role = sessionUserRole;
-
         var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         if(!mqttResponse){
             res.status(400).json({message: "could not create object"});
@@ -289,7 +309,7 @@ exports.post = async (req, res) => {
             var adaptedResponse = JSON.parse(responseArr[2]);        
                 
 
-            return res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+            return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
             
         }
 
@@ -324,10 +344,19 @@ exports.get = async (req, res) => {
             topic = adaptedURL;
         }
         var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity+"/topics";
-        var serviceTopicResponse = "response/"+serviceTopic;
+        var nameOfService = topicArr[0];
+
+        //send nameOfService to check service array and make a roundRobin
+        const balancedService = await index.balanceService(nameOfService);
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            console.log(nameOfService,'IS NOT ACTIVE');
+            return
+        }   
+        topic = topic.replace(nameOfService,balancedService);
         var responseTopic = 'response/'+topic
+        var serviceTopic = balancedService+"/topics";
+        var serviceTopicResponse = "response/"+serviceTopic;
 
         //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
         await mqttBroker.subscribeToBroker(serviceTopicResponse);
@@ -366,15 +395,14 @@ exports.get = async (req, res) => {
             mqttBroker.unsubscribe(responseTopic);
         }
          //exstract information from topic and response, parse the payload and return http response
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0]
+       
         var responseArr = mqttResponse.split("/"); 
         var status = parseInt(responseArr[0]);
         if(responseArr.length <=2){
             res.status(status).json({message : responseArr[1]});
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
         return;
         }
 
@@ -394,6 +422,7 @@ exports.get = async (req, res) => {
 
 exports.put = async (req, res) => { 
     try {
+        console.log('Tesing put');
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
         var payload = JSON.stringify(body);
@@ -409,10 +438,18 @@ exports.put = async (req, res) => {
             topic = adaptedURL;
         }
         var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity+"/topics";
-        var serviceTopicResponse = "response/"+serviceTopic;
+        var nameOfService = topicArr[0];
+
+        //send nameOfService to check service array and make a roundRobin
+        const balancedService = await index.balanceService(nameOfService); 
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            return
+        }  
+        topic = topic.replace(nameOfService,balancedService);
         var responseTopic = 'response/'+topic
+        var serviceTopic = balancedService+"/topics";
+        var serviceTopicResponse = "response/"+serviceTopic;
 
         //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
         await mqttBroker.subscribeToBroker(serviceTopicResponse);
@@ -453,15 +490,13 @@ exports.put = async (req, res) => {
             mqttBroker.unsubscribe(responseTopic);
         }
          //exstract information from topic and response, parse the payload and return http response
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0]
         var responseArr = mqttResponse.split("/"); 
         var status = parseInt(responseArr[0]);
         if(responseArr.length <=2){
             res.status(status).json({message : responseArr[1]});
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
         return;
         }
 
@@ -495,10 +530,18 @@ exports.deleteEndpoint = async (req, res) => {
             topic = adaptedURL;
         }
         var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0];
-        var serviceTopic = nameOfEntity+"/topics";
-        var serviceTopicResponse = "response/"+serviceTopic;
+        var nameOfService = topicArr[0];
+
+        //send nameOfService to check service array and make a roundRobin
+        const balancedService = await index.balanceService(nameOfService); 
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            return
+        }  
+        topic = topic.replace(nameOfService,balancedService);
         var responseTopic = 'response/'+topic
+        var serviceTopic = balancedService+"/topics";
+        var serviceTopicResponse = "response/"+serviceTopic;
 
         //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
         await mqttBroker.subscribeToBroker(serviceTopicResponse);
@@ -533,15 +576,13 @@ exports.deleteEndpoint = async (req, res) => {
             mqttBroker.unsubscribe(responseTopic);
         }
          //exstract information from topic and response, parse the payload and return http response
-        var topicArr = topic.split("/");
-        var nameOfEntity = topicArr[0]
         var responseArr = mqttResponse.split("/"); 
         var status = parseInt(responseArr[0]);
         if(responseArr.length <=2){
             res.status(status).json({message : responseArr[1]});
         }else{
         var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfEntity]: adaptedResponse });
+        res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
         return;
         }
 
@@ -557,18 +598,6 @@ exports.deleteEndpoint = async (req, res) => {
         }
     }
  }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 function adaptRequestURL (url) {

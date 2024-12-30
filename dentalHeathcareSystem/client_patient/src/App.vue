@@ -73,9 +73,9 @@ export default {
       var notification = document.getElementsByClassName('notification-icon');
       notification.src = 'bell.png'
     },
-    loginCheck() {
-
-        Api.get(`${this.login_check_url}`).then(response => {
+    async loginCheck() {
+        await Api.get(`${this.login_check_url}`).then(response => {
+          
           if (response.status === 200) {
             this.loggedIn = response.data.loggedIn;
             this.isAdmin = response.data.isAdmin;

@@ -121,7 +121,7 @@ export default {
             await Api.get(`${this.login_check_url}`).then(response => {
             if (response.status === 200) {
                 this.loggedIn = response.data.loggedIn;
-                console.log('loggedIn: ',this.loggedIn);
+                //console.log('loggedIn: ',this.loggedIn);
                 
                 
             } else {

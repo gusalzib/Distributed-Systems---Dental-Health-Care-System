@@ -1,9 +1,10 @@
 const mqtt = require('async-mqtt');
-var mqttClient;
+const index = require('./index');
 
+var mqttClient;
 const host = "127.0.0.1";
 const protocol = "mqtt";
-const port = "1883";
+const port = "1884";
 var responseArr = [];
 
 
@@ -13,7 +14,7 @@ function connectToBroker() {
     const options = {
         keepalive: 60,
         retryInterval: 0,
-        clientId: clientId,
+        clientId: 'gateway',
         protocolId: "MQTT",
         protocolVersion: 4,
         clean: true,
@@ -38,16 +39,25 @@ function connectToBroker() {
         console.log("client connected. client ID: " + clientId);
     });
 
-    mqttClient.on("message", (topic, payload, packet) => {
-        console.log("Message received: " + payload.toString());
-        console.log("On topic: " + topic);
-        console.log(packet);
+    mqttClient.on("message", async (topic, payload, packet) => {
+        
+        // console.log("On topic: " + topic);
+        // console.log(packet);
         var stringPayload = payload.toString();
         
         
-        if (topic.startsWith("response/")){
+        if (topic === "active"){
+            const messageReceived = JSON.parse(payload);
+            const isActive = messageReceived.isActive;
+            const serviceTopic = messageReceived.serviceTopic;
+            const messageArr = serviceTopic.split('-');
+            await index.updateIsActive(messageArr[0],serviceTopic,isActive);   
+        }else{
+
+         if (topic.startsWith("response/")){
             var newResponse = {topic : topic, payload: stringPayload}
             responseArr.push(newResponse);
+         }
         }
     });
 }
@@ -94,6 +104,7 @@ async function unsubscribe(topic){
 };
 
 connectToBroker();
+subscribeToBroker('active');
 
 
 

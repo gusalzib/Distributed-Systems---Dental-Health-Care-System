@@ -3,7 +3,7 @@ require('dotenv').config();
 
 exports.verifyToken = (req, res, next) => {
     const token = req.cookies.token;
-    // console.log('printing the token in verify method: ', token);
+    //console.log('printing the token in verify method: ', token);
     
     if (!token) {
         // if token is not set, i am returning 401 unauthorized code
@@ -18,7 +18,7 @@ exports.verifyToken = (req, res, next) => {
         const decodedToken = jwt.verify(token, secret_key); 
         
         req.user = decodedToken
-        // console.log('printing the req.user here ',req.user, 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+        //console.log('printing the req.user here ',req.user, 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
         
         next();
     } catch (error) {        

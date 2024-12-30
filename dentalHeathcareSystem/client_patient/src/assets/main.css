@@ -356,7 +356,13 @@ label{
   /* border: 1px green solid; */
   display: flex;
   flex-direction: column;
+  text-align: center;
 
+}
+.no-appointment-message{
+  text-align: center;
+  display: flex;
+  justify-content: center;
 }
 
 .my-appointments-card h2{

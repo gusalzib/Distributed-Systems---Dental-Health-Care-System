@@ -137,7 +137,6 @@ export default {
     try {
         const appointmentID = to.params.appointmentID;
         const update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL
-        console.log(`${update_appointment_url}${appointmentID}`);
         
         await Api.put(`${update_appointment_url}${appointmentID}`, {available: false});
         next();
@@ -189,7 +188,7 @@ export default {
             const appointmentID = this.$route.params.appointmentID;
             // this.appointment.available = false; 
             
-            // this.appointment.patient_id = this.current_patient_placeholder;
+            
                 await Api.put(`${this.book_appointment_url}${appointmentID}`, this.appointment).then(response => {
                 if (response.status === 200) {
                     router.push({path: `/bookingConfirmation/${appointmentID}`})
@@ -240,7 +239,7 @@ export default {
             
         },
         async updatePatientInfo() {
-            await Api.put(`${this.update_patient_specific_url}${this.current_patient_placeholder}`, this.patient).then(response => {
+            await Api.put(`${this.update_patient_specific_url}`, this.patient).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'Updated successfully'
                     setTimeout(() => {
@@ -260,7 +259,7 @@ export default {
             var newAppointment= {appointment_id: appointmentID};
             this.patient.appointments.push(newAppointment);
             
-            await Api.put(`${this.update_patient_specific_url}${this.current_patient_placeholder}`,this.patient).then(response => {
+            await Api.put(`${this.update_patient_specific_url}`,this.patient).then(response => {
                 if (response.status === 200) {
                     this.confirmation_message = 'Updated successfully'
                     this.getPatientInformation();
