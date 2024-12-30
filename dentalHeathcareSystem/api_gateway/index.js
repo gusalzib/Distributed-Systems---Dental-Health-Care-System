@@ -6,7 +6,6 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 const request = require("request");
 const app = express();
 const mqttBroker = require("./mqtt-broker.js");
-const { baseModelName } = require("../appointment_management_service/models/Appointment.js");
 
 //sessions variables 
 const jwtVerification = require('./jwtVerification.js');
@@ -90,12 +89,10 @@ function roundRobin(topics,index){
 exports.updateIsActive = async (serviceName, topicName, activity) => {
     const specificService = services.find((service) => service.service === serviceName);
     if(!specificService){
-        // console.log('service not found');
         return
     }
     const specificTopic = specificService.topics.find((topic)=> topic.topic === topicName);
     if(!specificTopic){
-        console.log('no topic found');
         return
     }
     specificTopic.isActive = activity;

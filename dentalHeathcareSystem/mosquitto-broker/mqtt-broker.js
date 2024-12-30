@@ -22,7 +22,7 @@ function startMosquittoBroker(){
             
             // console.log('[PING] -> ',message);
             const activeService = messageArr[4];
-            console.log('[Active Service] ->',activeService);
+            //console.log('[Active Service] ->',activeService);
             isActive = true;
             serviceTopic = activeService
             const serviceAndActivity = { serviceTopic, isActive };
@@ -35,7 +35,7 @@ function startMosquittoBroker(){
 
             const serviceAndActivity = { serviceTopic, isActive };
             const stringServiceAndActivity = JSON.stringify(serviceAndActivity);
-            console.log('[closed connection] ->',closedService);
+            //console.log('[closed connection] ->',closedService);
             publishToBroker('active',stringServiceAndActivity);
         }else if(message.includes('New client connected')){
             const connectedService = messageArr[7];
@@ -43,7 +43,7 @@ function startMosquittoBroker(){
             serviceTopic = connectedService;
             const serviceAndActivity = { serviceTopic, isActive };
             const stringServiceAndActivity = JSON.stringify(serviceAndActivity);
-            console.log('[connected service] ->',serviceAndActivity);
+            //console.log('[connected service] ->',serviceAndActivity);
             await publishToBroker('active', stringServiceAndActivity)
         }
 
@@ -75,7 +75,6 @@ function connectToBroker() {
             console.log(error);
             mqttClient.end();
         });
-
 
     mqttClient.on("connect", () => {
         console.log("broker connected");

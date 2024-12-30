@@ -74,9 +74,7 @@ export default {
       notification.src = 'bell.png'
     },
     async loginCheck() {
-        console.log('tesing login check');
         await Api.get(`${this.login_check_url}`).then(response => {
-          console.log('login check:',response);
           
           if (response.status === 200) {
             this.loggedIn = response.data.loggedIn;

@@ -7,7 +7,7 @@ const host = "127.0.0.1";
 const protocol = "mqtt";
 const port = "1884";
 
-const thisService = 'patients-1';
+const thisService = 'patients-3';
 
 function connectToBroker() {
     const clientId = "client" + Math.random() + Date.now();

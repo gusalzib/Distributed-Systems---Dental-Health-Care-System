@@ -93,8 +93,7 @@ export default {
       async patientLogin() {
 
         try {
-          const response = await Api.post(`${this.find_patient_url}`, this.patient)   
-          console.log('response:',response);       
+          const response = await Api.post(`${this.find_patient_url}`, this.patient)       
           if (response.status === 200) {
             setTimeout(() => {
               window.location.replace('/')
@@ -108,7 +107,6 @@ export default {
           }
 
         } catch (error) { 
-          // console.log(error.message);
              if ( error.response?.status === 401) {
               this.error_message = 'Incorrect password!';
               setTimeout(() => {

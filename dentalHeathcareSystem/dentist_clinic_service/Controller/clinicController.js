@@ -211,12 +211,10 @@ exports.deleteAClinic = async (topic, payload) => {
     }
 };
 exports.getClinicInformation = async (payload) => {
-    console.log('Testing clinic');
     try {
         var message ='';
         var status = 0;
         const clinicArr = JSON.parse(payload);
-        console.log('payload',clinicArr);
     
         const clinics = clinicArr
         
@@ -242,7 +240,6 @@ exports.getClinicInformation = async (payload) => {
         return status +"/"+ message +"/"+ stringClinics;
 
     } catch (error) {
-        console.log('catch:', error);
         status = 400; 
         return status +"/"+ error.message;
     }

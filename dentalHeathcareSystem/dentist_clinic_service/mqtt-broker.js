@@ -2,6 +2,7 @@ const mqtt = require('async-mqtt');
 const oldMqtt = require('mqtt');
 const clinicCtrl = require("./Controller/clinicController");
 var mqttClient;
+const thisService = 'clinics-1';
 
 const host = "127.0.0.1";
 const protocol = "mqtt";
@@ -13,7 +14,7 @@ function connectToBroker() {
     const options = {
         keepalive: 5,
         retryInterval: 0,
-        clientId: 'clinics-1',
+        clientId: thisService,
         protocolId: "MQTT",
         protocolVersion: 4,
         clean: true,
@@ -36,6 +37,7 @@ function connectToBroker() {
 
     mqttClient.on("connect", () => {
         console.log("client connected. client ID: " + clientId);
+        subscribeToBroker(`${thisService}/topics`);
     });
 
     mqttClient.on("message", async (topic, payload, packet) => {
@@ -45,58 +47,58 @@ function connectToBroker() {
         // console.log(packet);
         var publishTopic = "response/" + topic;
 
-        if(topic.startsWith('clinics-1/topics')){
+        if(topic.startsWith(`${thisService}/topics`)){
             subscribeToBroker(payloadReceived);
             var newPayload = '200/subscribed to topic/'+payloadReceived;
             await publishToBroker(publishTopic,newPayload);
 
-        }else if (topic.startsWith( 'clinics-1/create/')) {
+        }else if (topic.startsWith( `${thisService}/create/`)) {
             console.log("clinic create");
             await clinicCtrl.clinicCreate(payload).then(response =>{ 
                 publishToBroker(publishTopic,response);  
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
-        }else if(topic.startsWith('clinics-1/delete/')){
+        }else if(topic.startsWith(`${thisService}/delete/`)){
             console.log("delete clinic");
             await clinicCtrl.deleteAClinic(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
-        }else if (topic.startsWith('clinics-1/get/clinic/from/appointment/')){
+        }else if (topic.startsWith(`${thisService}/get/clinic/from/appointment/`)){
             console.log("clinic array");
             await clinicCtrl.getClinicInformation(payload).then(response => {
                 publishToBroker(publishTopic,response);
             });
-            unsubscribe(topic);
-        }else if (topic.startsWith('clinics-1/get/specific/')){
+            await unsubscribe(topic);
+        }else if (topic.startsWith(`${thisService}/get/specific/`)){
             console.log("get specific clinic");
             await clinicCtrl.getOneClinic(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
-        }else if(topic.startsWith('clinics-1/get/dentists/')){
+        }else if(topic.startsWith(`${thisService}/get/dentists/`)){
             console.log("get the clinics dentists");
             await clinicCtrl.getDentistFromClinic(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
-        }else if (topic.startsWith('clinics-1/get/')){
+        }else if (topic.startsWith(`${thisService}/get/`)){
             console.log("get all clinics");
             await clinicCtrl.getClinics().then( response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
-        }else if (topic.startsWith('clinics-1/update/')){
+        }else if (topic.startsWith(`${thisService}/update/`)){
             console.log("update clinics");
             await clinicCtrl.updateAClinic(topic,payload).then(response => {
                 publishToBroker(publishTopic,response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
         }
         
 
@@ -117,7 +119,7 @@ async function subscribeToBroker(topic) {
 };
 async function unsubscribe(topic){
     mqttClient.unsubscribe(topic).then((successful) => {
-        //console.log("You've successfully unsubscribed from topic: ",topic);
+        console.log("You've successfully unsubscribed from topic: ",topic);
     })
     .catch((e) => {
         console.log("Unsubscribing failed");
@@ -125,5 +127,5 @@ async function unsubscribe(topic){
 };
 
 connectToBroker();
-subscribeToBroker('clinics-1/topics')
+
 

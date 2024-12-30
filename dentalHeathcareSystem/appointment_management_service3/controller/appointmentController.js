@@ -188,7 +188,6 @@ exports.fetchPatientAppointments = async (topic, payload) => {
             const patientAppointments = appointments.filter(appointment => appointment.patient_id && appointment.patient_id.equals(currentUserId));
             if (patientAppointments.length === 0) {
                 status = 200; 
-                console.log('no appintment status:',status);
                 message = "You have no appointments booked"; 
                 var stringAppointments = JSON.stringify(patientAppointments)
                 return status + "/" + message + "/" + stringAppointments;
@@ -196,7 +195,6 @@ exports.fetchPatientAppointments = async (topic, payload) => {
             } else {
                 status = 200; 
                 message = "Appointments retrieved"; 
-                console.log('status:',status);
                 var stringAppointments = JSON.stringify(patientAppointments)
                 return status + "/" + message + "/" + stringAppointments;
             }
@@ -401,7 +399,6 @@ exports.bookAppointment = async (topic, payload) => {
 
 
     } catch (error) {
-        console.log('appointment catch:',error);
             status = 400; 
             message = "Something went wrong!" 
             return status + "/" + message + "/" +error.message;

@@ -5,11 +5,12 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose')
 var cors = require('cors');
-
+const mqtt = require('mqtt');
+const MqttBroker = require("./mqtt-broker"); //starts the broker
 
 
 var app = express();
-var port = 3009; 
+var port = 3017; 
 
 
 var mongoURI =  "mongodb://127.0.0.1:27017/dentalHealthcareSystem";
@@ -73,11 +74,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const { registerPatient, retrieveAllPatients, retrieveSpecificPatient, updatePatient, deletePatientByID,addAppoinmentToPatient } = require("./controller/patientController");
 
-app.post("/api/patients", registerPatient)
-app.get("/api/patients", retrieveAllPatients)
-app.get("/api/patients/:patient_id", retrieveSpecificPatient)
-app.put("/api/patients/:patient_id", updatePatient)
-app.delete("/api/patients/:patient_id", deletePatientByID)
+app.post("/api/patients/create", registerPatient)
+app.get("/api/patients/get/patients", retrieveAllPatients)
+app.get("/api/patients/get/specific/:patient_id", retrieveSpecificPatient)
+app.put("/api/patients/update/specific/:patient_id", updatePatient)
+app.delete("/api/patients/delete/:patient_id", deletePatientByID)
 
 app.get("/active", (req,res) =>{
   res.sendStatus(200)
