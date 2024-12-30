@@ -21,6 +21,10 @@ exports.login = async (req, res) => {
     
         //send nameOfService to check service array and make a roundRobin
         const balancedService = await index.balanceService(nameOfService);   
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            return
+        }
         topic = topic.replace(nameOfService,balancedService);
         var responseTopic = 'response/'+topic
         var serviceTopic = balancedService+"/topics";
@@ -176,7 +180,11 @@ exports.signup = async (req, res) => {
         var nameOfService = topicArr[0];
     
         //send nameOfService to check service array and make a roundRobin
-        const balancedService = await index.balanceService(nameOfService);   
+        const balancedService = await index.balanceService(nameOfService);  
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            return
+        } 
         topic = topic.replace(nameOfService,balancedService);
         var responseTopic = 'response/'+topic
         var serviceTopic = balancedService+"/topics";
@@ -249,7 +257,11 @@ exports.post = async (req, res) => {
         var nameOfService = topicArr[0];
     
         //send nameOfService to check service array and make a roundRobin
-        const balancedService = await index.balanceService(nameOfService);  
+        const balancedService = await index.balanceService(nameOfService);
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            return
+        }  
         
         topic = topic.replace(nameOfService,balancedService);
         var responseTopic = 'response/'+topic
@@ -335,7 +347,11 @@ exports.get = async (req, res) => {
         var nameOfService = topicArr[0];
 
         //send nameOfService to check service array and make a roundRobin
-        const balancedService = await index.balanceService(nameOfService);   
+        const balancedService = await index.balanceService(nameOfService);
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            return
+        }   
         topic = topic.replace(nameOfService,balancedService);
         var responseTopic = 'response/'+topic
         var serviceTopic = balancedService+"/topics";
@@ -424,7 +440,11 @@ exports.put = async (req, res) => {
         var nameOfService = topicArr[0];
 
         //send nameOfService to check service array and make a roundRobin
-        const balancedService = await index.balanceService(nameOfService);   
+        const balancedService = await index.balanceService(nameOfService); 
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            return
+        }  
         topic = topic.replace(nameOfService,balancedService);
         var responseTopic = 'response/'+topic
         var serviceTopic = balancedService+"/topics";
@@ -512,7 +532,11 @@ exports.deleteEndpoint = async (req, res) => {
         var nameOfService = topicArr[0];
 
         //send nameOfService to check service array and make a roundRobin
-        const balancedService = await index.balanceService(nameOfService);   
+        const balancedService = await index.balanceService(nameOfService); 
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            return
+        }  
         topic = topic.replace(nameOfService,balancedService);
         var responseTopic = 'response/'+topic
         var serviceTopic = balancedService+"/topics";

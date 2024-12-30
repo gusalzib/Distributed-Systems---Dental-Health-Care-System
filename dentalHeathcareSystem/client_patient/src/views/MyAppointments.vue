@@ -4,7 +4,7 @@
                 <!-- /*I added these span tags to the appointment card. I don't think it is necessary at the moment but later on, if we add more 
                 information to the cards, we might need to increase their visual separation to make it easier to read. Right now, there are no labels on
                 the card, which is also something that we might need to add later.*/ -->
-        <div v-if="bookedAppointments.length === 0">
+        <div v-if="bookedAppointments.length === 0" class="no-appointment-message">
           <p> You have no appointments booked at the moment. </p> 
         </div>
         <div v-else class="my-appointments-card" v-for="bookedAppointment in bookedAppointments" :key="bookedAppointment._id">

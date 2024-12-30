@@ -50,13 +50,25 @@ app.use(express.json());
 
 exports.balanceService = async (serviceName) => {
     const specificService = services.find((service) => service.service === serviceName);
+    var balancedService = '';
     if(!specificService){
         console.log('service not found');
         return
     }
-    const response = roundRobin(specificService.topics,specificService.index);
+    var activeTopics = [];
+    specificService.topics.forEach(topic =>{
+      if(topic.isActive){
+        activeTopics.push(topic);
+      }
+    });
+    if(activeTopics.length === 0){
+      balancedService = 0;
+      return message
+    }else{
+    const response = roundRobin(activeTopics,specificService.index);
     specificService.index = response.index;
-    const balancedService = response.topic;
+    balancedService = response.topic;
+    }
     return balancedService;
 }
 
@@ -114,7 +126,7 @@ function startTimer (topic){
     }
     topic.timeout = setTimeout(() =>{
         topic.isActive = false;
-    },8000)
+    },10000)
 }
 
 const services = [                                      //Service array
@@ -149,13 +161,6 @@ const services = [                                      //Service array
         service: "dentists",
         topics: [
           {topic: 'dentists-1', isActive: false},
-        ],
-        index:0,
-      },
-      {
-        service: "authenticate",
-        topics: [
-          {topic: 'authenticate-1', isActive: false},
         ],
         index:0,
       },
