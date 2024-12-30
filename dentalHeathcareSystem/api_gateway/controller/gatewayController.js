@@ -350,6 +350,7 @@ exports.get = async (req, res) => {
         const balancedService = await index.balanceService(nameOfService);
         if(balancedService === 0){
             res.status(400).json({message: "service is not active"});
+            console.log(nameOfService,'IS NOT ACTIVE');
             return
         }   
         topic = topic.replace(nameOfService,balancedService);

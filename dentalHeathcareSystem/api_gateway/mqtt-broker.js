@@ -39,7 +39,7 @@ function connectToBroker() {
         console.log("client connected. client ID: " + clientId);
     });
 
-    mqttClient.on("message", (topic, payload, packet) => {
+    mqttClient.on("message", async (topic, payload, packet) => {
         
         // console.log("On topic: " + topic);
         // console.log(packet);
@@ -51,11 +51,13 @@ function connectToBroker() {
             const isActive = messageReceived.isActive;
             const serviceTopic = messageReceived.serviceTopic;
             const messageArr = serviceTopic.split('-');
-            index.updateIsActive(messageArr[0],serviceTopic,isActive);
-            
-        }else if (topic.startsWith("response/")){
+            await index.updateIsActive(messageArr[0],serviceTopic,isActive);   
+        }else{
+
+         if (topic.startsWith("response/")){
             var newResponse = {topic : topic, payload: stringPayload}
             responseArr.push(newResponse);
+         }
         }
     });
 }

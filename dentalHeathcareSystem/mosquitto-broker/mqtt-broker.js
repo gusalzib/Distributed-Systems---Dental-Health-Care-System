@@ -10,7 +10,7 @@ function startMosquittoBroker(){
     const confPath = './mosquitto-broker.conf';
     const mosquittoProcess = spawn('mosquitto',['-c',confPath]);
     
-    mosquittoProcess.stdout.on('data',(data) => {
+    mosquittoProcess.stdout.on('data', async (data) => {
         const message = data.toString();
         const payloadArr = message.split('\n');
         const messageArr = payloadArr[0].split(' ')
@@ -44,7 +44,7 @@ function startMosquittoBroker(){
             const serviceAndActivity = { serviceTopic, isActive };
             const stringServiceAndActivity = JSON.stringify(serviceAndActivity);
             console.log('[connected service] ->',serviceAndActivity);
-            publishToBroker('active', stringServiceAndActivity)
+            await publishToBroker('active', stringServiceAndActivity)
         }
 
     });
@@ -81,7 +81,7 @@ function connectToBroker() {
         console.log("broker connected");
     });
 }
-function publishToBroker(topic, payload) {
+async function publishToBroker(topic, payload) {
     mqttClient.publish(topic, payload, {qos: 0, retain: false})
 };
 
