@@ -56,40 +56,42 @@ function connectToBroker() {
             await patientCtrl.createPatient(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
         
         }else if (topic.startsWith('patients-1/login/')) {
             console.log("login patient");
             await authenticator.authenticatePatient(topic ,payload).then(response => {
                 publishToBroker(publishTopic, response)
-            })
+            });
+            await unsubscribe(topic);
+
         }else if (topic.startsWith('patients-1/get/specific/')) {
             console.log("get specific patient");
             await patientCtrl.fetchSpecificPatient(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
         }else if (topic.startsWith('patients-1/get/')) {
             console.log("get all patients");
             await patientCtrl.fetchAllPatients(payload).then(response => {
                 publishToBroker(publishTopic, response)
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
         } else if (topic.startsWith('patients-1/update/')){
             console.log("update patient");
             await patientCtrl.updateSpecificPatient(topic,payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
         } else if (topic.startsWith('patients-1/delete/')) {
             console.log("delete patient");
             await patientCtrl.deleteSpecificPatient(topic, payload).then(response => {
                 publishToBroker(publishTopic, response)
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
         }
     });
 }

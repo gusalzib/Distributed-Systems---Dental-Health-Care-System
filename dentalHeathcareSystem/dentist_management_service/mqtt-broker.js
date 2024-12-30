@@ -53,42 +53,42 @@ function connectToBroker() {
             await dentistCtrl.createDentist(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
         }else if (topic.startsWith('dentists/login/')) {
             await dentistAuthenticator.authenticateDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
         }else if(topic.startsWith('dentists-1/get/clinics/dentists/')){
             await dentistCtrl.fetchClinicsDentists(topic).then(response => {
                 publishToBroker(publishTopic,response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
         }else if (topic.startsWith('dentists/get/specific/')) {
             await dentistCtrl.getSpecificDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
         } else if (topic.startsWith('dentists-1/update/')) {
             await dentistCtrl.updateSpecificDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
         } else if (topic.startsWith('dentists/delete/')) {
             await dentistCtrl.deleteSpecificDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
         } else if (topic.startsWith('dentists-1/get/')) {
             await dentistCtrl.getAllDentists(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
         }
     });
 }
