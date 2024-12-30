@@ -5,12 +5,10 @@ const Dentist = require("../dentist_model/Dentist.js");
 const jwt = require('jsonwebtoken');
 
 exports.authenticateDentist = async (topic, payload) => {
-    console.log('secret key ', secret_key);
     
     try{
         var status = 0;
         var message = "";
-        console.log('payload  ',payload.toString());
         
         const incomingPayload = JSON.parse(payload);
 
@@ -54,7 +52,6 @@ exports.authenticateDentist = async (topic, payload) => {
         return status + "/" + message + "/" + stringDentist;
 
     } catch (error) {
-        console.log(error);
         
         status = 400; 
         message = "Something went wrong!" 

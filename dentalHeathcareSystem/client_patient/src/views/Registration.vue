@@ -71,7 +71,6 @@ export default {
       async registerUser() {
           try {
             const response = await Api.post(`${this.signup_url}`, this.patient);
-            console.log(response.data.message);
             
             if (response.status === 200) {
               this.confirmation_message = 'Account created successfully!';
@@ -84,7 +83,6 @@ export default {
               }, 1000);
             }
           } catch (error) {
-              console.log(error.message);
               if ( error.response?.status === 401) {
                 this.error_message = 'A user with this email already exists!';
                 setTimeout(() => {

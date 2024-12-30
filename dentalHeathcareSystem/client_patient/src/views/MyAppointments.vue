@@ -4,8 +4,10 @@
                 <!-- /*I added these span tags to the appointment card. I don't think it is necessary at the moment but later on, if we add more 
                 information to the cards, we might need to increase their visual separation to make it easier to read. Right now, there are no labels on
                 the card, which is also something that we might need to add later.*/ -->
-
-        <div class="my-appointments-card" v-for="bookedAppointment in bookedAppointments" :key="bookedAppointment._id">
+        <div v-if="bookedAppointments.length === 0">
+          <p> You have no appointments booked at the moment. </p> 
+        </div>
+        <div v-else class="my-appointments-card" v-for="bookedAppointment in bookedAppointments" :key="bookedAppointment._id">
           <ul>
             <li><span>Clinic:</span> {{bookedAppointment.clinicName}}</li>
             <li><span>Date:</span> {{ bookedAppointment.date_and_time_from }}</li>
@@ -42,8 +44,7 @@ export default {
   name: 'my_appointments',
   data() {
     return {
-        // current_patient_placeholder: '674e36dedce0fe5f88fd1df9',
-    //  current_patient_placeholder:'674516312f3c59c02e4df78d',
+   
         confirmation_message: '',
         error_message: '',
         bookedAppointmentsIds: [],

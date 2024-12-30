@@ -138,9 +138,7 @@ export default {
 
         try {
           const response = await Api.post(`${this.find_dentist_url}`, this.dentist)
-          
-          console.log(response.status);
-          
+                    
           if (response.status === 200) {
             setTimeout(() => {
               this.$router.push('/');
@@ -154,7 +152,6 @@ export default {
           }
 
         } catch (error) { 
-          console.log(error.message);
              if ( error.response?.status === 401) {
               this.error_message = 'Incorrect password!';
               setTimeout(() => {

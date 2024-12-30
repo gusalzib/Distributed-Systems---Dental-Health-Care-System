@@ -74,7 +74,7 @@ exports.login = async (req, res) => {
             return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
             
         }
-    } catch (error) { 
+    } catch (error) { console.log(error);
     
         const errorMessage = error.toString();
         let catchArr = errorMessage.split("/")
@@ -95,7 +95,7 @@ exports.logout = async (req, res) => {
         res.clearCookie('token', {
             httpOnly: true,
             secure: true,
-            sameSite: 'strict'
+            sameSite: 'None'
         })
 
         return res.status(200).json({
@@ -105,8 +105,7 @@ exports.logout = async (req, res) => {
             isDentist: false,
             isAdmin: false,
         });
-    } catch (error) {
-        
+    } catch (error) {        
         return res.status(400).json({ message: 'Something went wrong. Logout failed!' });
     }
 }
@@ -156,6 +155,7 @@ exports.loginCheck = async (req, res) => {
         }
 
     } catch (error) {        
+        console.log(error.message);
         
         return res.status(403).json({message: 'Token either expired or invalid', user: decodedToken})
     }
@@ -405,6 +405,7 @@ exports.get = async (req, res) => {
 
 exports.put = async (req, res) => { 
     try {
+        console.log('Tesing put');
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
         var payload = JSON.stringify(body);
@@ -447,14 +448,17 @@ exports.put = async (req, res) => {
 
         // I am parsing the payload to json in order to add the userId field to it. 
         payload = JSON.parse(payload);
+        if (req.user) {
 
-        // get the session variable
-        const sessionUserId = req.user.userId;
-        const sessionUserRole = req.user.role;
+            // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
+            const sessionUserId = req.user.userId;
+            const sessionUserRole = req.user.role;
+            
+            // adding the userId field to the payload 
+            payload.userId = sessionUserId;
+            payload.role = sessionUserRole;
+        }
 
-        // adding the userId field to the payload 
-        payload.userId = sessionUserId;
-        payload.role = sessionUserRole;
         // stringifying the payload again because mqtt expects a string
         var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         

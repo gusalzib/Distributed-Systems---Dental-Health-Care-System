@@ -20,7 +20,7 @@ import { RouterLink, RouterView } from 'vue-router'
           <!-- <router-link class="desktop-header-link" to="/medical_journal">Medical Journal</router-link> -->
           <router-link class="desktop-header-link" to="/registration">Register</router-link>
           <router-link class="desktop-header-link" to="/login" v-if="!this.loggedIn">Login</router-link>
-          <button class="desktop-header-link" @click="logout()"  v-if="this.loggedIn">Logut</button>
+          <button class="desktop-header-link" @click="logout()"  v-if="this.loggedIn">Logout</button>
         </nav>
 
 
@@ -43,7 +43,7 @@ import { Api } from './Api'
 
 export default {
   data: () => ({
-    login_url: '/login/check',
+    login_check_url: '',
     logout_url: '/logout',
     loggedIn: false,
     isAdmin: false,
@@ -52,6 +52,7 @@ export default {
   }),
 
   mounted() {
+    this.login_check_url = import.meta.env.VITE_LOGIN_CHECK_URL;
     this.loginCheck();
 
   },
@@ -70,12 +71,11 @@ export default {
       existence of new notifications */
 
       var notification = document.getElementsByClassName('notification-icon');
-      console.log(notification)
       notification.src = 'bell.png'
     },
     async loginCheck() {
         console.log('tesing login check');
-        await Api.get(`${this.login_url}`).then(response => {
+        await Api.get(`${this.login_check_url}`).then(response => {
           console.log('login check:',response);
           
           if (response.status === 200) {
@@ -102,7 +102,6 @@ export default {
           this.isAdmin = response.data.isAdmin;
           this.isPatient = response.data.isPaitent;
           this.isDentist = response.data.isDentist;
-          console.log(response);
           
         }
       }).catch(error => {

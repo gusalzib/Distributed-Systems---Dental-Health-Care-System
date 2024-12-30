@@ -11,7 +11,6 @@ exports.authenticatePatient = async (topic, payload) => {
     try{
         var status = 0;
         var message = "";
-        console.log('payload  ',payload.toString());
         
         const incomingPayload = JSON.parse(payload);
 

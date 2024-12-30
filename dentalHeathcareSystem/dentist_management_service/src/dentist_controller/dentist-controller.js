@@ -208,9 +208,7 @@ exports.deleteSpecificDentist = async (topic, payload) => {
         }
 
 
-    } catch (error) {
-        console.log(error);
-        
+    } catch (error) {        
         status = 400;
         error.message = "Something went wrong!";
         return status + "/" + error.message;

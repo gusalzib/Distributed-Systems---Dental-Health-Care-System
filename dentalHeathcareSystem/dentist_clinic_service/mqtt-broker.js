@@ -38,7 +38,7 @@ function connectToBroker() {
         console.log("client connected. client ID: " + clientId);
     });
 
-    mqttClient.on("message", (topic, payload, packet) => {
+    mqttClient.on("message", async (topic, payload, packet) => {
         var payloadReceived = payload.toString();
         // console.log("Message received: ", payloadReceived);
         // console.log("On topic: " + topic); 
@@ -48,52 +48,52 @@ function connectToBroker() {
         if(topic.startsWith('clinics-1/topics')){
             subscribeToBroker(payloadReceived);
             var newPayload = '200/subscribed to topic/'+payloadReceived;
-            publishToBroker(publishTopic,newPayload);
+            await publishToBroker(publishTopic,newPayload);
 
         }else if (topic.startsWith( 'clinics-1/create/')) {
             console.log("clinic create");
-            clinicCtrl.clinicCreate(payload).then(response =>{ 
+            await clinicCtrl.clinicCreate(payload).then(response =>{ 
                 publishToBroker(publishTopic,response);  
             });
             unsubscribe(topic);
 
         }else if(topic.startsWith('clinics-1/delete/')){
             console.log("delete clinic");
-            clinicCtrl.deleteAClinic(topic, payload).then(response => {
+            await clinicCtrl.deleteAClinic(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
         }else if (topic.startsWith('clinics-1/get/clinic/from/appointment/')){
             console.log("clinic array");
-            clinicCtrl.getClinicInformation(payload).then(response => {
+            await clinicCtrl.getClinicInformation(payload).then(response => {
                 publishToBroker(publishTopic,response);
             });
             unsubscribe(topic);
         }else if (topic.startsWith('clinics-1/get/specific/')){
             console.log("get specific clinic");
-            clinicCtrl.getOneClinic(topic).then(response => {
+            await clinicCtrl.getOneClinic(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
         }else if(topic.startsWith('clinics-1/get/dentists/')){
             console.log("get the clinics dentists");
-            clinicCtrl.getDentistFromClinic(topic).then(response => {
+            await clinicCtrl.getDentistFromClinic(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
         }else if (topic.startsWith('clinics-1/get/')){
             console.log("get all clinics");
-            clinicCtrl.getClinics().then( response => {
+            await clinicCtrl.getClinics().then( response => {
                 publishToBroker(publishTopic, response);
             });
             unsubscribe(topic);
 
         }else if (topic.startsWith('clinics-1/update/')){
             console.log("update clinics");
-            clinicCtrl.updateAClinic(topic,payload).then(response => {
+            await clinicCtrl.updateAClinic(topic,payload).then(response => {
                 publishToBroker(publishTopic,response);
             });
             unsubscribe(topic);
@@ -117,7 +117,7 @@ async function subscribeToBroker(topic) {
 };
 async function unsubscribe(topic){
     mqttClient.unsubscribe(topic).then((successful) => {
-        console.log("You've successfully unsubscribed from topic: ",topic);
+        //console.log("You've successfully unsubscribed from topic: ",topic);
     })
     .catch((e) => {
         console.log("Unsubscribing failed");

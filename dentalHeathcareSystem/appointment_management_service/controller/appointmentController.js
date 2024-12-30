@@ -113,6 +113,7 @@ exports.getOneAppointment = async (topic) => {
 };
 
 exports.updateOneAppointment = async (topic, payload) => {
+    
     try {
         var message ='';    
         var status = 0;
@@ -157,7 +158,7 @@ exports.updateOneAppointment = async (topic, payload) => {
         var stringUpdatedAppointment = JSON.stringify(updatedAppointment);
         return status +"/"+ message +"/"+ stringUpdatedAppointment;
             
-    } catch (error) {
+    } catch (error) {        
             status = 400; 
             message = "Something went wrong!" 
             return status + "/" + message + "/" +error.message;
@@ -174,7 +175,6 @@ exports.fetchPatientAppointments = async (topic, payload) => {
         const parsedPayload = JSON.parse(payload);
         const userRole = parsedPayload.role;
         const currentUserId = parsedPayload.userId;
-        console.log('printing payload in the appointment service', parsedPayload);
 
         if ((userRole === 'admin') || (userRole === 'patient')) { 
 
@@ -187,13 +187,16 @@ exports.fetchPatientAppointments = async (topic, payload) => {
 
             const patientAppointments = appointments.filter(appointment => appointment.patient_id && appointment.patient_id.equals(currentUserId));
             if (patientAppointments.length === 0) {
-                status = 400; 
-                message = "This patient has no appointments booked"; 
-                return status + "/" + message;
+                status = 200; 
+                console.log('no appintment status:',status);
+                message = "You have no appointments booked"; 
+                var stringAppointments = JSON.stringify(patientAppointments)
+                return status + "/" + message + "/" + stringAppointments;
 
             } else {
                 status = 200; 
                 message = "Appointments retrieved"; 
+                console.log('status:',status);
                 var stringAppointments = JSON.stringify(patientAppointments)
                 return status + "/" + message + "/" + stringAppointments;
             }
@@ -202,8 +205,6 @@ exports.fetchPatientAppointments = async (topic, payload) => {
 
 
     } catch (error) {
-        console.log(error);
-        
             status = 400; 
             message = "Something went wrong!" 
             return status + "/" + message + "/" + error.message;
@@ -400,6 +401,7 @@ exports.bookAppointment = async (topic, payload) => {
 
 
     } catch (error) {
+        console.log('appointment catch:',error);
             status = 400; 
             message = "Something went wrong!" 
             return status + "/" + message + "/" +error.message;

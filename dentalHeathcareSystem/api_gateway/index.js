@@ -114,7 +114,7 @@ function startTimer (topic){
     }
     topic.timeout = setTimeout(() =>{
         topic.isActive = false;
-    },7000)
+    },8000)
 }
 
 const services = [                                      //Service array
@@ -185,9 +185,11 @@ app.post('/api/dentists/login', login)
 /* Below are the enpoints that don't require a login. They do not require a token to be accessed */
 app.get('/api/clinics/get', get)
 app.get('/api/appointments/get/clinics/available/appointments/:appointment_id', get)
+app.put('/api/appointments/update/:appointment_id', put)
 app.get('/api/appointments/get/available/appointments', get)
 app.get('/api/clinics/get/specific/:clinic_id', get)
 app.get('/api/dentists/get/clinics/dentists/:clinic_id', get)
+
 
 /*######################################################################## GENERIC POST ENPOINT #################################################################################### */
 /* catches the rest of post requests after the user is authenticated and given a token */
@@ -195,7 +197,7 @@ app.post("/api/*", jwtVerification.verifyToken, post);
 
 /*######################################################################## GENERIC GET ENPOINT #################################################################################### */
 /* catches all get requests and requires a token otherwise the request will be blocked  */
-app.get("/api/*",  jwtVerification.verifyToken,get);
+app.get("/api/*", jwtVerification.verifyToken, get);
 
 /*######################################################################## GENERIC PUT ENPOINT #################################################################################### */
 /* catches all put requests and requires a token otherwise the request will be blocked  */

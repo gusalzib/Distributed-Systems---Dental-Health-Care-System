@@ -1,5 +1,7 @@
 const Patient = require("../models/Patient.js");
 const emailValidator = require('validator');
+const MqttBroker = require("../mqtt-broker");
+
 
 exports.createPatient = async (payload) => {
     try {
@@ -61,8 +63,6 @@ exports.createPatient = async (payload) => {
         return status + "/" + message + "/" + stringPatient;
         
     } catch (error) {
-        console.log(error.message);
-        console.log(error);
         
         if (error.name === 'ValidatorError') {
             status = 400
@@ -193,9 +193,7 @@ exports.updateSpecificPatient = async (topic, payload) => {
 
 
 
-    } catch (error) {
-        console.log(error.message);
-        
+    } catch (error) {        
         status = 400; 
         message = "Something went wrong. Failed to update patient."   
         return status + "/" + message + "/" + error.message;
@@ -385,3 +383,19 @@ exports.deletePatientByID = async (req, res) => {
         res.status(400).json({message: "Something went wrong", error_message: error.message})
     }
 }
+function validatePatient(patient) {
+    const {name, address, email, phone_number,ssn,medical_journal, appointments} = patient; //destructuring the received patient Object.    
+    if (!name || !address || !email || !phone_number || !ssn ) {
+        return {
+            success: false,
+            message: "You missed to fill in required fields!"
+        }
+    } else if (isNaN(ssn)){
+        return {message: "Ssn has to be a number"}
+    }else {
+        return {success: true, message: "Success"}
+    }
+    
+}
+
+            

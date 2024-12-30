@@ -10,7 +10,7 @@ const MqttBroker = require("./mqtt-broker"); //starts the broker
 
 
 var app = express();
-var port = 3001; 
+var port = 3017; 
 
 
 var mongoURI =  "mongodb://127.0.0.1:27017/dentalHealthcareSystem";
