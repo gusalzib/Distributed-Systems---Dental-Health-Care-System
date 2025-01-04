@@ -4,7 +4,7 @@ const clinicCtrl = require("./Controller/clinicController");
 var mqttClient;
 const thisService = 'clinics-1';
 
-const host = "127.0.0.1";
+const host = "mosquitto-broker";
 const protocol = "mqtt";
 const port = "1884";
 
