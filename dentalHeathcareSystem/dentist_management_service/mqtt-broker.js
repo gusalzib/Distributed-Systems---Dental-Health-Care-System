@@ -4,7 +4,7 @@ const dentistAuthenticator = require('./src/dentist_controller/authenticator');
 let mqttClient;
 const thisService = 'dentists-1';
 
-const host = "127.0.0.1";
+const host = "mosquitto-broker";
 const protocol = "mqtt";
 const port = "1884";
 
