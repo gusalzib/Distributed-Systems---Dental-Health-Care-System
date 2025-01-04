@@ -2,7 +2,7 @@ const mqtt = require('async-mqtt');
 const index = require('./index');
 
 var mqttClient;
-const host = "127.0.0.1";
+const host = "mosquitto-broker";
 const protocol = "mqtt";
 const port = "1884";
 var responseArr = [];
