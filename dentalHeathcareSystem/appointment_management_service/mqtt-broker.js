@@ -2,8 +2,10 @@ const mqtt = require('async-mqtt');
 const oldMqtt = require('mqtt');
 const appointmentCtrl = require("./controller/appointmentController")
 var mqttClient;
+
 const thisService = 'appointments-1';
-const host = "127.0.0.1";
+
+const host = "mosquitto-broker";
 const protocol = "mqtt";
 const port = "1884";
 
