@@ -3,7 +3,6 @@ version: '3.9'
 services:
   mongo:
     image: mongo
-    container_name: mongodb
     ports:
       - "27017:27017"
     networks:
@@ -14,7 +13,6 @@ services:
   mosquitto-broker:
     build:
       context: ./mosquitto-broker
-    container_name: mosquitto-broker
     ports:
       - "1884:1884"
     volumes:
@@ -30,7 +28,6 @@ services:
   api_gateway:
     build:
       context: ./api_gateway
-    container_name: api_gateway
     ports:
       - "3000:3000"
     networks:
@@ -49,9 +46,6 @@ services:
   patients-service:
     build:
       context: ./patient_management_service
-    container_name: patients-service
-    ports:
-      - "3017:3017"
     networks:
       - my-network
     depends_on:
@@ -59,25 +53,22 @@ services:
       - mongo
     environment:
       JWT_SECRET_KEY: "dentime_session"
+      SERVICE: "patients"
 
   appointments-service:
     build:
       context: ./appointment_management_service
-    container_name: appointments-service
-    ports:
-      - "3002:3002"
     networks:
       - my-network
     depends_on:
       - mongo
       - mosquitto-broker
+    environment:
+      SERVICE: "appointments"
 
   dentists-service:
     build:
       context: ./dentist_management_service
-    container_name: dentists-service
-    ports:
-      - "3004:3004"
     networks:
       - my-network
     depends_on:
@@ -85,23 +76,22 @@ services:
       - mosquitto-broker
     environment:
       JWT_SECRET_KEY: "dentime_session"
+      SERVICE: "dentists"
 
   dentist-clinic-service:
     build:
       context: ./dentist_clinic_service
-    container_name: dentist-clinic-service
-    ports:
-      - "3003:3003"
     networks:
       - my-network
     depends_on:
       - mongo
       - mosquitto-broker
+    environment:
+      SERVICE: "clinics"
 
   client-patient-ui:
     build:
       context: ./client_patient
-    container_name: client-patient-ui
     ports:
       - "8080:80"
     networks:

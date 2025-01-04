@@ -93,7 +93,11 @@ exports.updateIsActive = async (serviceName, topicName, activity) => {
     }
     const specificTopic = specificService.topics.find((topic)=> topic.topic === topicName);
     if(!specificTopic){
-        return
+      tempTopic = {topic: topicName, isActive: activity};
+      specificService.topics.push(tempTopic);
+      startTimer(tempTopic);
+      
+      return
     }
     specificTopic.isActive = activity;
     startTimer(specificTopic);
@@ -106,7 +110,7 @@ exports.updateIsActive = async (serviceName, topicName, activity) => {
             }
         });
     });
-    //console.log('Active topics are: ',topicArr);
+    console.log('Active topics are: ',topicArr);
 }
 function startTimer (topic){
     if(topic.timeout){
@@ -117,13 +121,11 @@ function startTimer (topic){
     },20000)
 }
 
-const services = [                                      //Service array
+var services = [                                      //Service array
     {
       service: "patients",
       topics: [
-        {topic: "patients-1", isActive: false},
-        {topic: "patients-2", isActive: false},
-        {topic: "patients-3", isActive: false}
+        {topic: "", isActive: false}
       ] ,
       index:0,
 
@@ -131,24 +133,21 @@ const services = [                                      //Service array
     {
         service: "appointments",
         topics: [
-          {topic: "appointments-1", isActive: false},
-          {topic: "appointments-2", isActive: false},
-          {topic: "appointments-3", isActive: false}
-
+          {topic: "", isActive: false}
         ],
         index:0,
       },
       {
         service: "clinics",
         topics: [
-          {topic: 'clinics-1', isActive: false}
+          {topic: "", isActive: false}
         ],
         index:0,
       },
       {
         service: "dentists",
         topics: [
-          {topic: 'dentists-1', isActive: false},
+          {topic: "", isActive: false},
         ],
         index:0,
       },
