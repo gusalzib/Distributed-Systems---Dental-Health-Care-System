@@ -3,7 +3,7 @@ const patientCtrl = require("./controller/patientController");
 const authenticator = require('./controller/authenticator')
 // var mqttClient;
 
-const host = "127.0.0.1";
+const host = "mosquitto-broker";
 const protocol = "mqtt";
 const port = "1884";
 
