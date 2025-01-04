@@ -1,0 +1,115 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - my-network
+    volumes:
+      - mongo-data:/data/db
+
+  mosquitto-broker:
+    build:
+      context: ./mosquitto-broker
+    container_name: mosquitto-broker
+    ports:
+      - "1884:1884"
+    volumes:
+      - ./mosquitto-broker/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - my-network
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-p", "1884", "-t", "test"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api_gateway:
+    build:
+      context: ./api_gateway
+    container_name: api_gateway
+    ports:
+      - "3000:3000"
+    networks:
+      - my-network
+    depends_on:
+      - mosquitto-broker
+      - mongo
+    healthcheck:
+      test: ["CMD","curl","-f","http://localhost:3000"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    environment:
+      JWT_SECRET_KEY: "dentime_session"
+
+  patients-service:
+    build:
+      context: ./patient_management_service
+    container_name: patients-service
+    ports:
+      - "3017:3017"
+    networks:
+      - my-network
+    depends_on:
+      - mosquitto-broker
+      - mongo
+    environment:
+      JWT_SECRET_KEY: "dentime_session"
+
+  appointments-service:
+    build:
+      context: ./appointment_management_service
+    container_name: appointments-service
+    ports:
+      - "3002:3002"
+    networks:
+      - my-network
+    depends_on:
+      - mongo
+      - mosquitto-broker
+
+  dentists-service:
+    build:
+      context: ./dentist_management_service
+    container_name: dentists-service
+    ports:
+      - "3004:3004"
+    networks:
+      - my-network
+    depends_on:
+      - mongo
+      - mosquitto-broker
+    environment:
+      JWT_SECRET_KEY: "dentime_session"
+
+  dentist-clinic-service:
+    build:
+      context: ./dentist_clinic_service
+    container_name: dentist-clinic-service
+    ports:
+      - "3003:3003"
+    networks:
+      - my-network
+    depends_on:
+      - mongo
+      - mosquitto-broker
+
+  client-patient-ui:
+    build:
+      context: ./client_patient
+    container_name: client-patient-ui
+    ports:
+      - "8080:80"
+    networks:
+      - my-network
+
+volumes:
+  mongo-data:
+
+networks:
+  my-network:
+    driver: bridge
