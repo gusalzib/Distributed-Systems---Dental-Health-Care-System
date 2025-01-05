@@ -53,7 +53,6 @@ export default {
               if (response.status === 200) {
                 this.patient = response.data.patients;                
                 this.patient.medical_journal = response.data.patients.medical_journal
-                    console.log(this.patient.medical_journal);
                     
 
                 }
@@ -62,7 +61,6 @@ export default {
                 setTimeout(() => {
                         this.error_message = ''
                     }, 5000);
-                console.log(error.message)
             }
       },
   }

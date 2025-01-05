@@ -4,15 +4,13 @@
           <h1>Confirmation:</h1>
           <div class="booking-confirmation-details">
             <h2>You have booked this kind of appointment: {{appointment.type_of_appointment}}</h2>
-              <h2>Date: {{date}} | Time: {{ appointmentStart }}  | Clinic name: {{clinic.name}}</h2>
-              
-              <p>Address to clinic: {{clinic.address}} </p>
-              <br>
-              <p>Note: Please note that cancelling an appointment less than 24 hours in 
-                advance will result in additional fees up to 200 SEK. If the appointment 
-                was cancelled by the clinic for any reason, you will be notified via email.</p>
-              <hr>
-
+            <h2>Date: {{date}} | Time: {{ appointmentStart }}  | Clinic name: {{clinic.name}}</h2>
+            <p>Address to clinic: {{clinic.address}} </p>
+            <br>
+            <p>Note: Please note that cancelling an appointment less than 24 hours in 
+              advance will result in additional fees up to 200 SEK. If the appointment 
+              was cancelled by the clinic for any reason, you will be notified via email.</p>
+            <hr>
           </div>
           <button class="booking-confirmation-button" @click="rerouting('/')">Done</button>
           <div class="confirmation_message">{{ confirmation_message }}</div>
@@ -79,7 +77,8 @@
             const clinic_id = this.appointment.dentist_clinic_id
             await Api.get(`${this.clinics_get_specific_url}${clinic_id}`).then(response =>{
                 if(response.status === 200){
-                    this.clinic = response.data.clinics;   
+                    this.clinic = response.data.clinics;
+                    this.clinic.address = this.clinic.location.formattedAddress;
                     
                 }
             }).catch(error =>{

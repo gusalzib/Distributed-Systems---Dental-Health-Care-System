@@ -67,7 +67,8 @@ export default {
         date: '',
         time: '',
       },
-
+      loggedIn: false,
+      login_check_url: '',
       appointments: [],
       clinics: [],
       clinicID: "",
@@ -83,6 +84,7 @@ export default {
     }
   },
   mounted() {
+    this.login_check_url = import.meta.env.VITE_LOGIN_CHECK_URL;
     this.appointments_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_APPOINTMENTS_URL;
     this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
     this.get_available_appointments_url = import.meta.env.VITE_GET_AVAILABLE_APPOINTMENTS_URL;
@@ -133,7 +135,7 @@ export default {
             }
           });
         }
-      }).catch(error => {        
+      }).catch(error => {       
         this.error_message = 'Sorry. There are no available appointments currently. Please check again later.';
             setTimeout(() => {
                 this.error_message = '';
@@ -142,28 +144,39 @@ export default {
     },
     
       async checkAvailability(appointmentID) {
-        Api.get(`${this.appointments_get_specific_url}${appointmentID}`).then(response => {
-          if (response.status === 200) {
-            this.appointment = response.data
-            var clinicID = this.appointment.appointments.dentist_clinic_id 
-            if (!this.appointment.appointments.available) {
-              this.error_message = 'Sorry this apointment was just taken by another user. '
-                + 'Please choose another one!';
+        await this.loginCheck();
+        
+        if (this.loggedIn === true) {
 
-                setTimeout(() => {
-                    this.error_message = '';
-                }, 8000);
-            } else {
-             
-              router.push({path: `/single/appointment/${appointmentID}`})
+          await Api.get(`${this.appointments_get_specific_url}${appointmentID}`).then(response => {
+            if (response.status === 200) {
+              this.appointment = response.data
+              var clinicID = this.appointment.appointments.dentist_clinic_id 
+              if (!this.appointment.appointments.available) {
+                this.error_message = 'Sorry this apointment was just taken by another user. '
+                  + 'Please choose another one!';
+
+                  setTimeout(() => {
+                      this.error_message = '';
+                  }, 8000);
+              } else {
+              
+                router.push({path: `/single/appointment/${appointmentID}`})
+              }
             }
-          }
-        }).catch(error => {          
-          this.error_message = error.response?.data.message;
-            setTimeout(() => {
-                this.error_message = '';
-            }, 5000);
-        })
+          }).catch(error => {          
+            this.error_message = error.response?.data.message;
+              setTimeout(() => {
+                  this.error_message = '';
+              }, 5000);
+          })
+        } else {
+            this.error_message = 'You need to be logged in to book an appointment'
+              setTimeout(() => {
+                  this.error_message = '';
+              }, 10000);
+        }
+
     },
     rerouting(targetPath){
             router.push({path: `${targetPath}`})
@@ -180,7 +193,20 @@ export default {
 
           var date_and_time_arr = [date, time]
           return date_and_time_arr;
-        },
+      },
+    async loginCheck() {
+
+        await Api.get(`${this.login_check_url}`).then(response => {
+          if (response.status === 200) {
+            this.loggedIn = response.data.loggedIn;
+          } else {
+            this.loggedIn = false;
+          }
+        }).catch(error => {
+          console.log(error.message);
+          
+        })
+    },
   }, 
   
   

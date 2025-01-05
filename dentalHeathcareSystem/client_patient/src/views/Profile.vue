@@ -205,7 +205,6 @@ export default {
                 setTimeout(() => {
                         this.error_message = ''
                     }, 5000);
-                console.log(error.message)
             })
 
             

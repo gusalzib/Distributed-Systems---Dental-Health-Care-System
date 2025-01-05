@@ -1,0 +1,105 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - my-network
+    volumes:
+      - mongo-data:/data/db
+
+  mosquitto-broker:
+    build:
+      context: ./mosquitto-broker
+    ports:
+      - "1884:1884"
+    volumes:
+      - ./mosquitto-broker/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - my-network
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-h", "localhost", "-p", "1884", "-t", "test"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api_gateway:
+    build:
+      context: ./api_gateway
+    ports:
+      - "3000:3000"
+    networks:
+      - my-network
+    depends_on:
+      - mosquitto-broker
+      - mongo
+    healthcheck:
+      test: ["CMD","curl","-f","http://localhost:3000"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    environment:
+      JWT_SECRET_KEY: "dentime_session"
+
+  patients-service:
+    build:
+      context: ./patient_management_service
+    networks:
+      - my-network
+    depends_on:
+      - mosquitto-broker
+      - mongo
+    environment:
+      JWT_SECRET_KEY: "dentime_session"
+      SERVICE: "patients"
+
+  appointments-service:
+    build:
+      context: ./appointment_management_service
+    networks:
+      - my-network
+    depends_on:
+      - mongo
+      - mosquitto-broker
+    environment:
+      SERVICE: "appointments"
+
+  dentists-service:
+    build:
+      context: ./dentist_management_service
+    networks:
+      - my-network
+    depends_on:
+      - mongo
+      - mosquitto-broker
+    environment:
+      JWT_SECRET_KEY: "dentime_session"
+      SERVICE: "dentists"
+
+  dentist-clinic-service:
+    build:
+      context: ./dentist_clinic_service
+    networks:
+      - my-network
+    depends_on:
+      - mongo
+      - mosquitto-broker
+    environment:
+      SERVICE: "clinics"
+
+  client-patient-ui:
+    build:
+      context: ./client_patient
+    ports:
+      - "8080:80"
+    networks:
+      - my-network
+
+volumes:
+  mongo-data:
+
+networks:
+  my-network:
+    driver: bridge

@@ -1,19 +1,26 @@
 const mqtt = require('async-mqtt');
 const oldMqtt = require('mqtt');
 const appointmentCtrl = require("./controller/appointmentController")
-var mqttClient;
 
-const host = "127.0.0.1";
+const os = require('os');
+const specialNumber = os.hostname();
+const service = process.env.SERVICE;
+const thisService = service +'-'+specialNumber;
+
+var mqttClient;
+const host = "mosquitto-broker";
 const protocol = "mqtt";
-const port = "1883";
+const port = "1884";
+
+var activeSubscriptions = [];
 
 function connectToBroker() {
     const clientId = "client" + Math.random() + Date.now();
     const hostURL = `${protocol}://${host}:${port}`;
     const options = {
-        keepalive: 60,
+        keepalive: 5,
         retryInterval: 0,
-        clientId: clientId,
+        clientId: thisService,
         protocolId: "MQTT",
         protocolVersion: 4,
         clean: true,
@@ -36,129 +43,142 @@ function connectToBroker() {
 
     mqttClient.on("connect", () => {
         console.log("client connected. client ID: " + clientId);
+        subscribeToBroker(`${thisService}/topics`);
     });
 
-    mqttClient.on("message", (topic, payload, packet) => {
+    mqttClient.on("disconnect", async () => {
+        console.log(clientId,'disconnected.');
+        for (const topic of activeSubscriptions){
+            await unsubscribe(topic);
+        };
+        activeSubscriptions = [];
+    });
+
+    mqttClient.on("message",async (topic, payload, packet) => {
         var payloadReceived = payload.toString()
-        console.log("Message received: ",payloadReceived);
-        console.log("On topic: " + topic); 
-        console.log(packet);
+        // console.log("Message received: ",payloadReceived);
+        // console.log("On topic: " + topic); 
+        // console.log(packet);
         var publishTopic = "response/" + topic;
-        console.log("publishTopic =",publishTopic);
+        // console.log("publishTopic =",publishTopic);
 
-        if(topic.startsWith('appointments/topics')){
-            subscribeToBroker(payloadReceived);
-            var newPayload = '200/subscribed to topic/'+topic;
-            publishToBroker(publishTopic,newPayload);
+        if(topic.startsWith(`${thisService}/topics`)){
+            await subscribeToBroker(payloadReceived);
+            var newPayload = '200/subscribed to topic/'+payloadReceived;
+            await publishToBroker(publishTopic,newPayload);
 
-        }else if (topic.startsWith( 'appointments/create/')) {
+        }else if (topic.startsWith( `${thisService}/create/`)) {
             console.log("create an appointment");
-            appointmentCtrl.makeAppointment(payload).then(response => {
+            await appointmentCtrl.makeAppointment(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
         
-        }else if (topic.startsWith( 'appointments/book/')) {
+        }else if (topic.startsWith( `${thisService}/book/`)) {
             console.log("book an appointment");
-            appointmentCtrl.bookAppointment(topic, payload).then(response => {
+            await appointmentCtrl.bookAppointment(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
         
-        }else if (topic.startsWith('appointments/get/clinics/available/appointments/')) {
+        }else if (topic.startsWith(`${thisService}/get/clinics/available/appointments/`)) {
             console.log("get clinics available appointments");
-            appointmentCtrl.fetchClinicsAvailableAppointments(topic).then(response => {
+            await appointmentCtrl.fetchClinicsAvailableAppointments(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
-        }else if (topic.startsWith('appointments/get/patient/appointments/')) {
+        }else if (topic.startsWith(`${thisService}/get/patient/appointments/`)) {
             console.log("get a patients appointments");
-            appointmentCtrl.fetchPatientAppointments(topic, payload).then(response => {
+            await appointmentCtrl.fetchPatientAppointments(topic, payload).then(response => {
                 publishToBroker(publishTopic, response)
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
-        }else if (topic.startsWith('appointments/get/available/appointments/')) {
+        }else if (topic.startsWith(`${thisService}/get/available/appointments/`)) {
             console.log("get available appointments");
-            appointmentCtrl.fetchAvailableAppointments(payload).then(response => {
+            await appointmentCtrl.fetchAvailableAppointments(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
-        } else if (topic.startsWith('appointments/get/clinic/appointments/')) {
+        } else if (topic.startsWith(`${thisService}/get/clinic/appointments/`)) {
             console.log("get a clinics appointments");
-            appointmentCtrl.fetchClinicAppointments(topic).then(response => {
+            await appointmentCtrl.fetchClinicAppointments(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
-        }else if (topic.startsWith('appointments/get/specific/')){
+        }else if (topic.startsWith(`${thisService}/get/specific/`)){
             console.log("get a specific appointment");
-            appointmentCtrl.getOneAppointment(topic).then(response => {
+            await appointmentCtrl.getOneAppointment(topic).then(response => {
                 publishToBroker(publishTopic,response)
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
-        }else if (topic.startsWith('appointments/update/')){
+        }else if (topic.startsWith(`${thisService}/update/`)){
             console.log("update appointment");
-            appointmentCtrl.updateOneAppointment(topic,payload).then(response => {
+            await appointmentCtrl.updateOneAppointment(topic,payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
-        } else if (topic.startsWith('appointments/delete/')) {
+        } else if (topic.startsWith(`${thisService}/delete/`)) {
             console.log("delete appointment");
-            appointmentCtrl.removeAppointment(topic, payload).then(response => {
+            await appointmentCtrl.removeAppointment(topic, payload).then(response => {
                 publishToBroker(publishTopic, response)
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
 
-        }else if (topic.startsWith('appointments/get/')){
+        }else if (topic.startsWith(`${thisService}/get/`)){
             console.log("get all appointments");
-            appointmentCtrl.getAppointments(payload).then(response =>{
+            await appointmentCtrl.getAppointments(payload).then(response =>{
                 publishToBroker(publishTopic, response);
             });
-            unsubscribe(topic);
+            await unsubscribe(topic);
         }
     });
 }
-// function heartbeat(){
-//     var payload = "appointment1"
-//     var topic = "active/appointment"
-    
-//     setTimeout(() => {
-//         heartbeat()
-//         console.log("heartbeat");
-//     }, 5000);
-//     publishToBroker(topic,payload);
-// }
 
 function printPayload(payload) {
     console.log("our payload is: " + payload);
 }
 
-function publishToBroker(topic, payload) {
+async function publishToBroker(topic, payload) {
     mqttClient.publish(topic, payload, {qos: 0, retain: false})
 };
 
-function subscribeToBroker(topic) {
-    mqttClient.subscribe(topic, {qos: 0})
-    console.log("subscribed to topic: ",topic);
-    
+async function subscribeToBroker(topic) {
+    try{
+        if(activeSubscriptions.includes(topic)){
+            console.log('Already subscribed to',topic);
+            return;
+        }else{
+            mqttClient.subscribe(topic, {qos: 0});
+            activeSubscriptions.push(topic);
+            //console.log("subscribed to topic: ",topic);
+        };
+    }catch(error){
+        console.log('could not subscribe to',topic);
+    }
 };
+
 async function unsubscribe(topic){
-    mqttClient.unsubscribe(topic).then((successful) => {
-        console.log("You've successfully unsubscribed from topic: ",topic);
-    })
-    .catch((e) => {
+    try{
+        if(!activeSubscriptions.includes(topic)){
+            console.log('Not subscribed to',topic);
+            return;
+        }else{
+            await mqttClient.unsubscribe(topic)
+            // console.log("You've successfully unsubscribed from topic: ",topic);
+            const tempActiveSubscriptions = activeSubscriptions.filter((activeTopic) => activeTopic !== topic);
+            activeSubscriptions = tempActiveSubscriptions;
+        };
+    }catch(error){
         console.log("Unsubscribing failed");
-    }) 
+    }
 };
 
 
 connectToBroker();
-// heartbeat();
-subscribeToBroker('appointments/topics');
-
 

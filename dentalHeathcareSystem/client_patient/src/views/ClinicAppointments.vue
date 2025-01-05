@@ -1,12 +1,17 @@
 <template>
 <div id="clinic-card">    
-    <h1>{{headerMessage}}</h1>            
+    <h1>{{headerMessage}}</h1> 
+
+    <div class="confirmation_message">{{ confirmation_message }}</div>
+    <div class="error_message">{{ error_message }}</div>     
+    
     <div v-for="appointment in appointments" :key = "appointment._id">
         <div class="clinic-appointment_card" @click="rerouting(`/single/appointment/${appointment._id}`)"> Appointment:&nbsp; 
             <p> Date:&nbsp; {{ appointment.date_and_time_from }}&nbsp; </p>
             <p> Time:&nbsp; {{ appointment.date_and_time_until }}</p>
         </div>
     </div>
+
 </div>
 </template>
 
@@ -32,10 +37,13 @@ export default {
             headerMessage: '',
             confirmation_message: '',
             error_message: '',
+            login_check_url: '',
+            loggedIn: false,
         }
     },
 
-    mounted(){
+    mounted() {
+        this.login_check_url = import.meta.env.VITE_LOGIN_CHECK_URL;
         this.clinics_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_CLINIC_URL;
         this.get_clinics_available_appointments_url = import.meta.env.VITE_GET_CLINICS_AVAILABLE_APPOINTMENTS_URL;
         this.getSpecificClinic();
@@ -93,8 +101,36 @@ export default {
             var date_and_time_arr = [date, time]
             return date_and_time_arr;
         },
-        rerouting(targetPath){
-            router.push({path: `${targetPath}`})
+
+        async rerouting(targetPath) {
+            await this.loginCheck();
+
+            if (this.loggedIn) {
+                router.push({ path: `${targetPath}` });
+            } else {
+                this.error_message = 'You need to login to book an appointment.';
+                setTimeout(() => {
+                    this.error_message = '';
+                }, 5000);
+            }
+            
+        },
+
+        async loginCheck() {
+
+            await Api.get(`${this.login_check_url}`).then(response => {
+            if (response.status === 200) {
+                this.loggedIn = response.data.loggedIn;
+                //console.log('loggedIn: ',this.loggedIn);
+                
+                
+            } else {
+                this.loggedIn = false;
+            }
+            }).catch(error => {
+                console.log(error.message);
+            
+            })
         },
     }
 }
