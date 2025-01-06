@@ -89,6 +89,15 @@ services:
     environment:
       SERVICE: "clinics"
 
+  monitoring-service:
+    build:
+      context: ./monitoring_service
+    networks:
+      - my-network
+    environment:
+      JWT_SECRET_KEY: "dentime_session"
+      SERVICE: "patients"
+
   client-patient-ui:
     build:
       context: ./client_patient
