@@ -45,6 +45,8 @@ exports.clinicCreate = async (payload) => {
 
 
     } catch (error) {        
+        console.log(error);
+        
         status = 400
         return status +"/"+ error.message;
     }

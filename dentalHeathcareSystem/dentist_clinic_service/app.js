@@ -13,7 +13,9 @@ dotenv.config({ path: './clinic.env'})
 var app = express();
 var port = 3003; 
 
-var mongoURI =  "mongodb://host.docker.internal:27017/dentalHealthcareSystem";
+var mongoURI =  "mongodb://host.docker.internal:27017/clinics_db";
+// var mongoURI =  "mongodb://host.docker.internal:27017/dentalHealthcareSystem";
+// var mongoURI =  process.env.CLINIC_DB_CONNECTION_STRING;
 // Connect to MongoDB
 mongoose
   .connect(mongoURI)
