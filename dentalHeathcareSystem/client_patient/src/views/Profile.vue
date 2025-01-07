@@ -178,7 +178,7 @@ export default {
                 this.activeSection = section;
 
                 if (section === "add_subscription") {
-                  this.setCurrentDate();
+                  this.setSubDateBoundaries();
                 }
             } catch (error) {
                 this.error_message = error.message;
@@ -232,38 +232,26 @@ export default {
             })
         },
 
-      setCurrentDate() {
+      setSubDateBoundaries() {
           this.$nextTick(() => {
             //   //setting min date attribute to current time-picking date
             //   // 2024-12-25T08:00
-            // my date 2025-01-05T19:42
-
-            //
             const currentDate = new Date().toISOString().slice(0, 16);
-            console.log("my date " + currentDate);
-            //   // let year = dateToday.getFullYear();
-            //   // let month = dateToday.getMonth();
-            //   // console.log("month is " + month);
-            //   // let day = dateToday.getDay();
-            //   // console.log("day is " + day);
-            //
-            //   // if (day < 10) {
-            //   //   day = '0' + day;
-            //   // }
-            //   // if (month < 10) {
-            //   //   month = '0' + month;
-            //   // }
-            //
-            //   // this.currentDate = year + "-" + month + "-" + day + "T00:01";
-            const subFrom = document.getElementById("subscription-from");
-            subFrom.setAttribute("min", currentDate);
 
-            //
-            //   // console.log("my current date " + this.currentDate);
-            //   const subFrom = document.getElementById("subscription-from");
-            //   console.log("my element " + subFrom.id);
-            //       subFrom.setAttribute("min", "2025-01-06T08:00");
-            //
+            //change minimum selectable date of the "subscription from" to current date
+            document.getElementById("subscription-from").setAttribute("min", currentDate);
+            //change minimum selectable date of the "subscription until" to current date
+            document.getElementById("subscription-until").setAttribute("min", currentDate);
+
+            const anotherCurrentDate = new Date();
+            anotherCurrentDate.setMonth(anotherCurrentDate.getMonth() + 6);
+            const sixMonthsLater = anotherCurrentDate.toISOString().slice(0, 16);
+
+            //change maximum selectable date of the "subscription from" to 6 months from current date
+            document.getElementById("subscription-from").setAttribute("max", sixMonthsLater);
+            //change maximum selectable date of the "subscription until" to 6 months from current date
+            document.getElementById("subscription-until").setAttribute("max", sixMonthsLater);
+
           });
       }
 
