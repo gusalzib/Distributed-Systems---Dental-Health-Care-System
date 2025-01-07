@@ -15,9 +15,8 @@ var port = 3002;
 //app.set('views', path.join(__dirname, 'views'));
 //app.set('view engine', 'jade');
 
-var mongoURI =  "mongodb://host.docker.internal:27017/appointments_db";
-// var mongoURI =  "mongodb://host.docker.internal:27017/dentalHealthcareSystem";
-// var mongoURI =  process.env.APPOINTMENTS_DB_CONNECTION_STRING;
+
+var mongoURI =  process.env.APPOINTMENTS_DB_CONNECTION_STRING;
 // Connect to MongoDB
 mongoose
   .connect(mongoURI)
