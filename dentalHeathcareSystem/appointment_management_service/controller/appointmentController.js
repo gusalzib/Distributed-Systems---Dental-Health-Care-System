@@ -414,7 +414,7 @@ exports.filterAppointments = async (topic, payload) => {
 
         var parsedPayload = JSON.parse(payload);
         
-        const { day, time, region } = parsedPayload;
+        const { day, region } = parsedPayload;        
 
         const query = {};
 
@@ -438,10 +438,6 @@ exports.filterAppointments = async (topic, payload) => {
         }
 
         console.log('query date ', query.date_and_time_from);
-        
-        if (time) {
-            query.time = time;
-        }
 
         if (region) {
             query.region = region;

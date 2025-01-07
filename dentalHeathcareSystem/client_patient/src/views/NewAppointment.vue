@@ -6,9 +6,6 @@
             <div class="filter">
               <input id="day" type="date" v-model="filters.day" @input="applyFilter('day', filters.day)">
             </div>
-            <!-- <div class="filter">
-              <input id="time" type="time" v-model="filters.time" @input="applyFilter('time', filters.time)">
-            </div> -->
             <div class="filter">
               <input id="clinic-name" type="search" placeholder="Search for clinic">
             </div>
@@ -78,7 +75,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const filters = {
     day: document.getElementById("day"),
-    time: document.getElementById("time"),
     clinicName: document.getElementById("clinic-name"),
     patientRegion: document.getElementById("patient-region"),
   }
@@ -96,7 +92,6 @@ export default {
     return {
       filters: {
         day: '',
-        time: '',
         clinicName: '',
         patientRegion: '',
       },
@@ -124,6 +119,7 @@ export default {
           region: ''
         },
       loggedIn: false,
+      userRegion: '',
       login_check_url: '',
       appointments: [],
       filteredAppointments: [],
@@ -142,7 +138,7 @@ export default {
         
     }
   },
-  mounted() {
+  async mounted() {
     this.login_check_url = import.meta.env.VITE_LOGIN_CHECK_URL;
     this.appointments_get_specific_url = import.meta.env.VITE_GET_SPECIFIC_APPOINTMENTS_URL;
     this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
@@ -151,9 +147,10 @@ export default {
     this.get_cuurent_patient_info_url = import.meta.env.VITE_PATIENT_GET_SPECIFIC_URL;
     this.get_filtered_appointments_url = import.meta.env.VITE_FILTERED_APPOINTMENTS_URL;
 
-
-    this.getAllClinics();
-    this.getAvailableAppointments();
+    await this.getAllClinics();
+    await this.getAvailableAppointments();
+    await this.showRegionSpecificAppointments();
+    
   },
     methods: {
       async getAllClinics(){
@@ -262,6 +259,7 @@ export default {
         await Api.get(`${this.login_check_url}`).then(response => {
           if (response.status === 200) {
             this.loggedIn = response.data.loggedIn;
+            this.userRegion = response.data.region;
           } else {
             this.loggedIn = false;
           }
@@ -270,14 +268,39 @@ export default {
           
         })
       },
+      async showRegionSpecificAppointments() {
+        /* using this method to show the user appointments in his/her region by default
+        we only have access to user region when they are logged in, otherwise the user
+        can just use the region filter to get relevant result */
 
-      async applyFilter(filterType, value) {
+        await this.loginCheck();
+        
+        if (this.loggedIn === true) { 
+          try {
+            this.filters.patientRegion = this.userRegion
+
+            await this.applyFilter('region', this.filters.patientRegion);
+
+          } catch (error) {
+            this.error_message = error.response?.data.message || 'An error occured while applying filter.';
+            setTimeout(() => {
+                this.error_message = '';
+            }, 10000);
+          }
+        }
+
+      },
+      async applyFilter(filterType, value) {        
         try {
           const payload = { [filterType]: value }
 
           const response = await Api.post(`${this.get_filtered_appointments_url}`, payload);
 
           if (response.status === 200) {
+            // remove any leftover error messages
+            this.error_message = '';
+
+
             this.appointments = response.data.appointments;
 
             this.clinics.forEach(clinic => {
@@ -292,7 +315,6 @@ export default {
                   appointment.clinic_address = clinicAddress;
 
                 }
-
                 //fix the time and date formatting and store them inside appointment to be displayed
                 var result = this.extractTimeAndDate(appointment.date_and_time_from)
                 
@@ -300,17 +322,20 @@ export default {
                 appointment.time = result[1];
 
                 this.appointment[index] = appointment;
-                
               }
             });
-            
           }
 
         } catch (error) {
-            this.error_message = error.response?.data.message || 'An error occured while applying filter.';
+            if (error.code === 'ECONNABORTED') {
+              this.error_message = 'The request timed out. Please try again. ';
+            } else {
+              this.error_message = error.response?.data.message || 'An error occured while applying filter.';
+
+            }
             setTimeout(() => {
                 this.error_message = '';
-            }, 5000);
+            }, 10000);
       }
     }
   }, 
