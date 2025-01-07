@@ -37,7 +37,7 @@
                 </select>
             </div>
             <div class="filter-button">
-              <button>Apply filter</button>
+              <button @click="resetFilters">Reset filter</button>
             </div>
             
           </div>
@@ -337,6 +337,24 @@ export default {
                 this.error_message = '';
             }, 10000);
       }
+      },
+      async resetFilters() {
+        this.filters = {
+          day: '',
+          patientRegion: ''
+        }
+
+        try {
+          await this.getAvailableAppointments();
+
+          // clear any remaining message
+          this.error_message = ''; 
+        } catch (error) {
+          this.error_message = 'An error occurred while resetting filters. PLease try again.'; 
+            setTimeout(() => {
+                this.error_message = '';
+            }, 10000);
+        }
     }
   }, 
   
