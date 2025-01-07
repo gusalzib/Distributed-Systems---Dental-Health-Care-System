@@ -3,17 +3,23 @@ const subscriptionCtrl = require("./src/subscription_controller/subscription_con
 const {retrieveSubscriptions} = require("./src/subscription_controller/subscription_controller");
 let mqttClient;
 
-const host = "127.0.0.1";
+const os = require('os');
+const specialNumber = os.hostname();
+const service = process.env.SERVICE;
+const thisService = service +'-'+specialNumber;
+console.log(thisService);
+console.log("this service");
+const host = "mosquitto-broker";
 const protocol = "mqtt";
-const port = "1883";
+const port = "1884";
 
 function connectToBroker() {
     const clientId = "client" + Math.random() + Date.now();
     const hostURL = `${protocol}://${host}:${port}`;
     const options = {
-        keepalive: 60,
+        keepalive: 5,
         retryInterval: 0,
-        clientId: clientId,
+        clientId: thisService,
         protocolId: "MQTT",
         protocolVersion: 4,
         clean: true,
@@ -38,36 +44,41 @@ function connectToBroker() {
         console.log("client connected. client ID: " + clientId);
     });
 
-    mqttClient.on("message", (topic, payload, packet) => {
+    mqttClient.on("message", async (topic, payload, packet) => {
         console.log("Message received: " + payload.toString());
         console.log("On topic: " + topic); 
         console.log(packet);
         var publishTopic = "response/" + topic;
         console.log("publishTopic =",publishTopic);
 
-        if (topic.startsWith('subscriptions/create/')) {
+        if (topic.startsWith(`${thisService}/create/`)) {
             console.log("create a subscription");
-            subscriptionCtrl.createSubscription(payload).then(response => {
+            await subscriptionCtrl.createSubscription(payload).then(response => {
                 publishToBroker(publishTopic, response);
             })
-        } else if (topic.startsWith('subscriptions/get/specific/')) {
-            subscriptionCtrl.getSpecificSubscription(topic).then(response => {
+        } else if (topic.startsWith(`${thisService}/get/specific/`)) {
+            await subscriptionCtrl.getSpecificSubscription(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
+            await unsubscribe(topic);
 
-        } else if (topic.startsWith('subscriptions/update/')) {
-            subscriptionCtrl.updateSpecificSubscription(topic, payload).then(response => {
+        } else if (topic.startsWith(`${thisService}/update/`)) {
+            await subscriptionCtrl.updateSpecificSubscription(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
+            await unsubscribe(topic);
 
-        } else if (topic.startsWith('subscriptions/delete/')) {
-            subscriptionCtrl.deleteSpecificSubscription(topic).then(response => {
-                publishToBroker(publishTopic, response);
-            })
-        } else if (topic.startsWith('subscriptions/get/')) {
-            subscriptionCtrl.getAllSubscriptions(payload).then(response => {
+        } else if (topic.startsWith(`${thisService}/delete/`)) {
+            await subscriptionCtrl.deleteSpecificSubscription(topic).then(response => {
                 publishToBroker(publishTopic, response);
             });
+            await unsubscribe(topic);
+
+        } else if (topic.startsWith(`${thisService}/get/`)) {
+            await subscriptionCtrl.getAllSubscriptions(payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            await unsubscribe(topic);
         }
     });
 }
@@ -82,11 +93,15 @@ function subscribeToBroker(topic) {
     
 };
 
+async function unsubscribe(topic){
+    mqttClient.unsubscribe(topic).then((successful) => {
+        console.log("You've successfully unsubscribed from topic: ",topic);
+    })
+        .catch((e) => {
+            console.log("Unsubscribing failed");
+        })
+};
+
 connectToBroker();
 
-subscribeToBroker('subscriptions/create/+');
-subscribeToBroker('subscriptions/get/+');
-subscribeToBroker('subscriptions/get/specific/+');
-subscribeToBroker('subscriptions/update/+');
-subscribeToBroker('subscriptions/delete/+');
-
+subscribeToBroker(`${thisService}/topics`);

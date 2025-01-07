@@ -151,6 +151,13 @@ var services = [                                      //Service array
         ],
         index:0,
       },
+    {
+        service: "subscriptions",
+        topics: [
+            {topic: "", isActive: false}
+        ] ,
+        index:0,
+    }
    ];
 
 //--------------------------------- ADAPTER -----------------------------------------------   

@@ -46,11 +46,13 @@
                 <h3>Add A Subscription</h3>
                 <div id="add-subscriptions">
                   <label>Subscription from: </label>
-                  <input v-model="subscription.period_subscription.sub_from" type="text" id="name"/>
+                  <input v-model="subscription.period_subscription.sub_from"
+                         type="datetime-local" id="subscription-from"/>
                   <label>Subscription until: </label>
-                  <input v-model="subscription.period_subscription.sub_ultil" type="email" id="email"/>
-                  <label>Appointment type: </label>
-                  <input v-model="subscription.appointment_type" type="text" id="ssn"/>
+                  <input v-model="subscription.period_subscription.sub_ultil"
+                         type="datetime-local" id="subscription-until"/>
+<!--                  <label>Appointment type: </label>-->
+<!--                  <input v-model="subscription.appointment_type" type="text" id="ssn"/>-->
                   <label>Notification Preference:</label>
                   <div class="radio-group">
                   <input v-model="subscription.notification_preference" type="radio" id="yes" value="true"/>
@@ -161,18 +163,23 @@ export default {
           },
           patient_get_specific_url: '',
           update_patient_specific_url: '',
+        // currentDate: ""
     }
     },
     mounted() {
+        // this.setCurrentDate();
         this.patient_get_specific_url = import.meta.env.VITE_PATIENT_GET_SPECIFIC_URL;
         this.update_patient_specific_url = import.meta.env.VITE_UPDATE_PATIENT_SPECIFIC_URL;
         this.getPatientInformation();
-
   },
     methods: {
         setActive(section) {
             try {
                 this.activeSection = section;
+
+                if (section === "add_subscription") {
+                  this.setCurrentDate();
+                }
             } catch (error) {
                 this.error_message = error.message;
             }
@@ -224,6 +231,41 @@ export default {
                 }, 5000);
             })
         },
+
+      setCurrentDate() {
+          this.$nextTick(() => {
+            //   //setting min date attribute to current time-picking date
+            //   // 2024-12-25T08:00
+            // my date 2025-01-05T19:42
+
+            //
+            const currentDate = new Date().toISOString().slice(0, 16);
+            console.log("my date " + currentDate);
+            //   // let year = dateToday.getFullYear();
+            //   // let month = dateToday.getMonth();
+            //   // console.log("month is " + month);
+            //   // let day = dateToday.getDay();
+            //   // console.log("day is " + day);
+            //
+            //   // if (day < 10) {
+            //   //   day = '0' + day;
+            //   // }
+            //   // if (month < 10) {
+            //   //   month = '0' + month;
+            //   // }
+            //
+            //   // this.currentDate = year + "-" + month + "-" + day + "T00:01";
+            const subFrom = document.getElementById("subscription-from");
+            subFrom.setAttribute("min", currentDate);
+
+            //
+            //   // console.log("my current date " + this.currentDate);
+            //   const subFrom = document.getElementById("subscription-from");
+            //   console.log("my element " + subFrom.id);
+            //       subFrom.setAttribute("min", "2025-01-06T08:00");
+            //
+          });
+      }
 
       // async getSubscriptions() {
       //   await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`).then(response => {

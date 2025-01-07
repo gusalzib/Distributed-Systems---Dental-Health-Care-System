@@ -22,7 +22,7 @@ function startMosquittoBroker(){
             
             // console.log('[PING] -> ',message);
             const activeService = messageArr[4];
-            //console.log('[Active Service] ->',activeService);
+            console.log('[Active Service] ->',activeService);
             isActive = true;
             serviceTopic = activeService
             const serviceAndActivity = { serviceTopic, isActive };

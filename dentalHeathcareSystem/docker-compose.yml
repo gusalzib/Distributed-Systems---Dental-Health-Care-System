@@ -97,6 +97,17 @@ services:
     networks:
       - my-network
 
+  subscriptions-service:
+    build:
+      context: ./subscription_management-service
+    networks:
+      - my-network
+    depends_on:
+      - mongo
+      - mosquitto-broker
+    environment:
+      SERVICE: "subscriptions"
+
 volumes:
   mongo-data:
 

@@ -10,7 +10,7 @@ const mqtt = require('mqtt');
 var app = express();
 var port = 3020;
 
-var mongoURI =  "mongodb://localhost:27017/dentalHealthcareSystem";
+var mongoURI =  "mongodb://host.docker.internal:27017/dentalHealthcareSystem";
 // Connect to MongoDB
 mongoose
     .connect(mongoURI)
