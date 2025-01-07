@@ -309,6 +309,27 @@ main{
   display: block;
   width: 50%;
 }
+
+.spinner{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+}
+
+.spinner-icon{
+  border: 4px transparent solid;
+  border-top: 4px #3498db solid;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {transform:  rotate(0deg);}
+  100% {transform: rotate(360deg);}
+}
 .appointments-card{
   width: 100%;
   border: 1px black solid;

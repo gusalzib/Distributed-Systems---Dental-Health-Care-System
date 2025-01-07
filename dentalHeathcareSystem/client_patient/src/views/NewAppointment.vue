@@ -7,7 +7,7 @@
               <input id="day" type="date" v-model="filters.day" @input="applyFilter('day', filters.day)">
             </div>
             <div class="filter">
-              <input id="clinic-name" type="search" placeholder="Search for clinic">
+              <input id="clinic-name" type="search" v-model="searchQuery" @input="searchAppointments()" placeholder="Search for clinic">
             </div>
             <div class="filter">
                 <select id="patient-region" v-model="filters.patientRegion" @change="applyFilter('region', filters.patientRegion)">
@@ -39,7 +39,9 @@
             <div class="filter-button">
               <button @click="resetFilters">Reset filter</button>
             </div>
-            
+            <div class="spinner" v-if="this.loading">
+              <div class="spinner-icon"></div>
+            </div>
           </div>
 
           <div class="confirmation_message">{{ confirmation_message }}</div>
@@ -85,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // @ is an alias to /src
 import { Api } from '@/Api'
 import router from '@/router'
+import Fuse from 'fuse.js'
 
 export default {
   name: 'newAppointment',
@@ -120,6 +123,8 @@ export default {
         },
       loggedIn: false,
       userRegion: '',
+      searchQuery: '',
+      loading: false,
       login_check_url: '',
       appointments: [],
       filteredAppointments: [],
@@ -355,6 +360,44 @@ export default {
                 this.error_message = '';
             }, 10000);
         }
+      },
+      searchAppointments() {      
+        this.loading = true;
+
+        setTimeout(() => {
+        if (!this.searchQuery) {
+          this.filteredAppointments = this.appointments;
+
+          this.loading = false;
+          return;
+        }
+
+        const options = {
+          keys: ['clinic_name', 'clinic_address'],
+          threshold: 0.3,
+        };
+
+        const fuse = new Fuse(this.appointments, options);
+
+        const results = fuse.search(this.searchQuery);
+
+        if (results.length === 0) {
+          this.error_message = 'No results found'; 
+            setTimeout(() => {
+                this.error_message = '';
+            }, 5000);
+
+        } else {
+
+          this.error_message = '';
+          this.filteredAppointments = results.map(result => result.item)
+        }
+
+        
+        this.appointments = this.filteredAppointments;
+        this.loading = false;
+        }, 200);
+
     }
   }, 
   
