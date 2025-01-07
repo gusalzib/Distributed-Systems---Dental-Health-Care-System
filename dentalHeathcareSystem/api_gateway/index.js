@@ -180,7 +180,8 @@ app.get('/api/appointments/get/clinics/available/appointments/:appointment_id', 
 app.put('/api/appointments/update/:appointment_id', put)
 app.get('/api/appointments/get/available/appointments', get)
 app.get('/api/clinics/get/specific/:clinic_id', get)
-app.get('/api/dentists/get/clinics/dentists/:clinic_id', get)
+app.get('/api/dentists/get/clinics/dentists/:clinic_id', get);
+app.post('/api/appointments/filter', get);
 
 
 /*######################################################################## GENERIC POST ENPOINT #################################################################################### */

@@ -81,6 +81,13 @@ function connectToBroker() {
             });
             await unsubscribe(topic);
         
+        }else if (topic.startsWith( `${thisService}/filter/`)) {
+            console.log("filter appointments");
+            await appointmentCtrl.filterAppointments(topic, payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            await unsubscribe(topic);
+        
         }else if (topic.startsWith(`${thisService}/get/clinics/available/appointments/`)) {
             console.log("get clinics available appointments");
             await appointmentCtrl.fetchClinicsAvailableAppointments(topic).then(response => {

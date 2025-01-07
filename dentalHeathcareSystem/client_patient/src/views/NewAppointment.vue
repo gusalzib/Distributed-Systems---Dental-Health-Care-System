@@ -4,13 +4,40 @@
           <h2>Available appointments</h2>
           <div class="appointments-filter">
             <div class="filter">
-              <input id="day" type="date">
+              <input id="day" type="date" v-model="filters.day" @input="applyFilter('day', filters.day)">
             </div>
-            <div class="filter">
-              <input id="time" type="time">
-            </div>
+            <!-- <div class="filter">
+              <input id="time" type="time" v-model="filters.time" @input="applyFilter('time', filters.time)">
+            </div> -->
             <div class="filter">
               <input id="clinic-name" type="search" placeholder="Search for clinic">
+            </div>
+            <div class="filter">
+                <select id="patient-region" v-model="filters.patientRegion" @change="applyFilter('region', filters.patientRegion)">
+                  <option value="" disabled selected> Select you region </option>
+                  <option value="Blekinge">Blekinge</option>
+                  <option value="Dalarna">Dalarna</option>
+                  <option value="Gotland">Gotland</option>
+                  <option value="Gävleborg">Gävleborg</option>
+                  <option value="Göteborg">Göteborg</option>
+                  <option value="Halland">Halland</option>
+                  <option value="Jämtland">Jämtland</option>
+                  <option value="Jönköping">Jönköping</option>
+                  <option value="Kalmar">Kalmar</option>
+                  <option value="Kronoberg">Kronoberg</option>
+                  <option value="Norrbotten">Norrbotten</option>
+                  <option value="Skåne">Skåne</option>
+                  <option value="Stockholm">Stockholm</option>
+                  <option value="Södermanland">Södermanland</option>
+                  <option value="Uppsala">Uppsala</option>
+                  <option value="Värmland">Värmland</option>
+                  <option value="Västerbotten">Västerbotten</option>
+                  <option value="Västernorrland">Västernorrland</option>
+                  <option value="Västmanland">Västmanland</option>
+                  <option value="Västra Götaland">Västra Götaland</option>
+                  <option value="Örebro">Örebro</option>
+                  <option value="Östergötland">Östergötland</option>
+                </select>
             </div>
             <div class="filter-button">
               <button>Apply filter</button>
@@ -47,6 +74,18 @@
 
 
 <script>
+
+document.addEventListener("DOMContentLoaded", () => {
+  const filters = {
+    day: document.getElementById("day"),
+    time: document.getElementById("time"),
+    clinicName: document.getElementById("clinic-name"),
+    patientRegion: document.getElementById("patient-region"),
+  }
+});
+
+
+
 // @ is an alias to /src
 import { Api } from '@/Api'
 import router from '@/router'
@@ -55,6 +94,12 @@ export default {
   name: 'newAppointment',
   data() {
     return {
+      filters: {
+        day: '',
+        time: '',
+        clinicName: '',
+        patientRegion: '',
+      },
       appointment:{
         patient_id: "",
         dentist_id:"",
@@ -69,9 +114,19 @@ export default {
         time: '',
         region: '',
       },
+      patient: {
+          name: '',
+          email: '',
+          phone_number: '',
+          ssn: '',
+          address: '',
+          appointments: [],
+          region: ''
+        },
       loggedIn: false,
       login_check_url: '',
       appointments: [],
+      filteredAppointments: [],
       clinics: [],
       clinicID: "",
       clinic_address: "",
@@ -81,6 +136,8 @@ export default {
       appointments_get_specific_url: '',
       update_appointment_url: '',
       get_available_appointments_url: '',
+      get_cuurent_patient_info_url: '',
+      get_filtered_appointments_url: '',
 
         
     }
@@ -91,6 +148,10 @@ export default {
     this.update_appointment_url = import.meta.env.VITE_UPDATE_APPOINTMENT_URL;
     this.get_available_appointments_url = import.meta.env.VITE_GET_AVAILABLE_APPOINTMENTS_URL;
     this.clinics_get_all_ulr = import.meta.env.VITE_GET_ALL_CLINICS_URL;
+    this.get_cuurent_patient_info_url = import.meta.env.VITE_PATIENT_GET_SPECIFIC_URL;
+    this.get_filtered_appointments_url = import.meta.env.VITE_FILTERED_APPOINTMENTS_URL;
+
+
     this.getAllClinics();
     this.getAvailableAppointments();
   },
@@ -208,7 +269,53 @@ export default {
           console.log(error.message);
           
         })
-    },
+      },
+
+      async applyFilter(filterType, value) {
+        try {
+          const payload = { [filterType]: value }
+
+          const response = await Api.post(`${this.get_filtered_appointments_url}`, payload);
+
+          if (response.status === 200) {
+            this.appointments = response.data.appointments;
+
+            this.clinics.forEach(clinic => {
+              var clinicName = clinic.name;
+              var clinicAddress = clinic.location.formattedAddress;
+
+              //add clinic name and clinic address to appointment object if the ids match 
+              for (let index = 0; index < this.appointments.length; index++) {
+                const appointment = this.appointments[index];
+                if (appointment.dentist_clinic_id === clinic._id) {
+                  appointment.clinic_name = clinicName;
+                  appointment.clinic_address = clinicAddress;
+
+                }
+
+                //fix the time and date formatting and store them inside appointment to be displayed
+                var result = this.extractTimeAndDate(appointment.date_and_time_from)
+                
+                appointment.date = result[0];
+                appointment.time = result[1];
+
+                this.appointment[index] = appointment;
+                
+              }
+            });
+            console.log(this.appointments, 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+            console.log('ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
+            
+            
+          }
+
+        } catch (error) {
+            this.error_message = error.response?.data.message || 'An error occured while applying filter.';
+            setTimeout(() => {
+                this.error_message = '';
+            }, 5000);
+      }
+    }
   }, 
   
   

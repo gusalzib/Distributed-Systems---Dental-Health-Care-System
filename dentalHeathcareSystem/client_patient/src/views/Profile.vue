@@ -103,7 +103,8 @@ export default {
             phone_number: '',
             ssn: '',
             address: '',
-            appointments: []
+            appointments: [],
+            region: ''
           },
       error_message: '',
           confirmation_message: '',

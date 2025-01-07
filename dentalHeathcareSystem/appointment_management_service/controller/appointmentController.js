@@ -1,5 +1,6 @@
 const Appointment = require("../models/Appointment.js");
 const mongoose = require('mongoose');
+const FlexSerach = require('flexsearch')
 
 exports.makeAppointment = async (payload) => {
     /*
@@ -406,7 +407,69 @@ exports.bookAppointment = async (topic, payload) => {
         }
 }
 
+exports.filterAppointments = async (topic, payload) => {
+    try {
+        var status = 0;
+        var message = '';
 
+        var parsedPayload = JSON.parse(payload);
+        console.log('payload in filter', parsedPayload, 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+        
+        const { day, time, region } = parsedPayload;
+
+        const query = {};
+
+        if (day) {
+            const date = new Date(day);
+            const startOfDay = new Date(day);
+            startOfDay.setUTCHours(0, 0, 0, 0);
+
+            const endOfDay = new Date(day);
+            endOfDay.setUTCHours(23, 59, 59, 99);
+
+            // the dates are stored in the db as strings so we need to convert them to strings
+            const startOfDayString = startOfDay.toISOString();
+            const endOfDayString = endOfDay.toISOString();
+
+            // query that gets the appointment withing the selected day
+            query.date_and_time_from = {
+                $gte: startOfDayString,
+                $lt: endOfDayString,
+            }
+        }
+
+        console.log('query date ', query.date_and_time_from);
+        
+        if (time) {
+            query.time = time;
+        }
+
+        if (region) {
+            query.region = region;
+        }
+
+        const filteredAppointments = await Appointment.find(query);
+
+        if (!filteredAppointments || filteredAppointments.length === 0) {
+            status = 404;
+            message = 'No appointment found matching the search criteria.';
+            return status + '/' + message;
+        }
+
+        status = 200; 
+        message = 'Filtered appointments retrieved successfully.'
+        var stringAppointments = JSON.stringify(filteredAppointments);
+        console.log('returned appointments filter', stringAppointments, 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
+        
+        return status +"/"+ message +"/"+ stringAppointments
+
+
+    } catch (error) {
+        status = 404;
+        message = 'Something went wrong!';
+        return status + '/' + message + '/' + error.message ;
+    }
+}
 
 
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX HTTP METHODS XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
