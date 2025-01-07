@@ -29,6 +29,10 @@ var appointmentSchema = new Schema({
     available: {
         type: Boolean,
         required: true
+    },
+    region: {
+        type: String,
+        required: true
     }
 })
 

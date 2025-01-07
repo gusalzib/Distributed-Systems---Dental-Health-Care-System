@@ -32,6 +32,10 @@ var dentistSchema = new Schema({
     appointments: [{
         appointment_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Appointment'}
     }],
+    region: {
+        type: String,
+        required: true
+    }
 
 });
 module.exports = mongoose.model("dentist", dentistSchema);

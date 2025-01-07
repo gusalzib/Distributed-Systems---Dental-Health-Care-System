@@ -32,6 +32,7 @@
                 <p>Time: {{appointment.time }}</p>
                 <p>Type of appointment: {{appointment.type_of_appointment }}</p>
                 <p>Address: {{appointment.clinic_address}}</p>
+                <p>Region: {{ appointment.region }}</p>
               </div>
               
               <button class="clinic-button" @click="rerouting(`/clinic/${appointment.dentist_clinic_id}`)">Contact Clinic</button>
@@ -66,6 +67,7 @@ export default {
         clinic_name: '',
         date: '',
         time: '',
+        region: '',
       },
       loggedIn: false,
       login_check_url: '',

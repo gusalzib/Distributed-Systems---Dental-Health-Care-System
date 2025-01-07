@@ -1028,6 +1028,7 @@ the card, which is also something that we might need to add later.*/
   justify-content: center;
   align-items: center;
   padding: 30px;
+  text-align: left !important;
   /* border: 3px red solid; */
 }
 #clinic-card {
