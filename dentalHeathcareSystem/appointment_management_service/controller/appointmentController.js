@@ -413,7 +413,6 @@ exports.filterAppointments = async (topic, payload) => {
         var message = '';
 
         var parsedPayload = JSON.parse(payload);
-        console.log('payload in filter', parsedPayload, 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
         
         const { day, time, region } = parsedPayload;
 
@@ -459,7 +458,6 @@ exports.filterAppointments = async (topic, payload) => {
         status = 200; 
         message = 'Filtered appointments retrieved successfully.'
         var stringAppointments = JSON.stringify(filteredAppointments);
-        console.log('returned appointments filter', stringAppointments, 'ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ');
         
         return status +"/"+ message +"/"+ stringAppointments
 

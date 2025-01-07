@@ -78,7 +78,7 @@ exports.login = async (req, res) => {
             return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
             
         }
-    } catch (error) { console.log(error);
+    } catch (error) {
     
         const errorMessage = error.toString();
         let catchArr = errorMessage.split("/")
@@ -132,6 +132,8 @@ exports.loginCheck = async (req, res) => {
         decodedToken = jwt.verify(token, secret_key); 
         
         const userRole = decodedToken.role;
+        const userRegion = decodedToken.region;
+
         if (userRole === 'patient') {
             return res.status(200).json({
                 message: 'Logged in!',
@@ -139,6 +141,7 @@ exports.loginCheck = async (req, res) => {
                 isPatient: true,
                 isDentist: false,
                 isAdmin: false,
+                region: userRegion
             });
         } else if (userRole === 'dentist') {
             return res.status(200).json({
@@ -147,6 +150,7 @@ exports.loginCheck = async (req, res) => {
                 isPatient: false,
                 isDentist: true,
                 isAdmin: false,
+                region: userRegion
             });
         } else if (userRole === 'admin') {
             return res.status(200).json({
@@ -155,12 +159,11 @@ exports.loginCheck = async (req, res) => {
                 isPatient: false,
                 isDentist: false,
                 isAdmin: true,
+                region: userRegion
             });
         }
 
-    } catch (error) {        
-        console.log(error.message);
-        
+    } catch (error) {                
         return res.status(403).json({message: 'Token either expired or invalid', user: decodedToken})
     }
 }
@@ -422,7 +425,6 @@ exports.get = async (req, res) => {
 
 exports.put = async (req, res) => { 
     try {
-        console.log('Tesing put');
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
         var payload = JSON.stringify(body);
