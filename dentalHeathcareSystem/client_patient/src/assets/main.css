@@ -330,6 +330,21 @@ main{
   0% {transform:  rotate(0deg);}
   100% {transform: rotate(360deg);}
 }
+
+.pagination-controls{
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.pagination-controls button{
+  width: 35%;
+  margin: auto 5px;
+
+}
+.pagination-controls button:disabled{
+  cursor: not-allowed;
+  opacity: 0.5;
+}
 .appointments-card{
   width: 100%;
   border: 1px black solid;

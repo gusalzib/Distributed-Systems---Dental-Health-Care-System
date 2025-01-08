@@ -42,6 +42,12 @@
             <div class="spinner" v-if="this.loading">
               <div class="spinner-icon"></div>
             </div>
+
+            <div class="pagination-controls">
+              <button @click="getAvailableAppointments(currentPage - 1)" :disabled="currentPage === 1">Previous</button>
+              <span>Page {{ currentPage }} of {{ totalPages }}</span>
+              <button @click="getAvailableAppointments(currentPage + 1)" :disabled="currentPage === totalPages">Next</button>
+            </div>
           </div>
 
           <div class="confirmation_message">{{ confirmation_message }}</div>
@@ -134,6 +140,11 @@ export default {
       error_message: '',
       confirmation_message: '',
 
+      paginationInfo: '',
+      currentPage: 1,
+      appointmentsPerPage: 10,
+      totalPages: 0,
+
       appointments_get_specific_url: '',
       update_appointment_url: '',
       get_available_appointments_url: '',
@@ -152,8 +163,13 @@ export default {
     this.get_cuurent_patient_info_url = import.meta.env.VITE_PATIENT_GET_SPECIFIC_URL;
     this.get_filtered_appointments_url = import.meta.env.VITE_FILTERED_APPOINTMENTS_URL;
 
+    // first page is page no.1 of appointments
+    // first batch is the group of 10 appointments to be shown first
+    const firstPage = 1;
+    const firstBatch = this.appointmentsPerPage; 
+
     await this.getAllClinics();
-    await this.getAvailableAppointments();
+    await this.getAvailableAppointments(firstPage, firstBatch);
     await this.showRegionSpecificAppointments();
     
   },
@@ -170,11 +186,20 @@ export default {
             }, 5000);
         })
     },
-    async getAvailableAppointments(){
-      await Api.get(`${this.get_available_appointments_url}`).then(response =>{
-        if(response.status === 200){
-          this.appointments = response.data.appointments;
+      async getAvailableAppointments(page = 1, limit = 10) {
 
+        await Api.get(`${this.get_available_appointments_url}?page=${page}&limit=${limit}`).then(response =>{
+
+        if (response.status === 200) {
+          
+          var appointmentsArr = response.data.appointments.appointments;
+
+          var receivedPaginationInfo = response.data.appointments.paginationInfo;
+
+          this.appointments = appointmentsArr;
+          
+          this.currentPage = receivedPaginationInfo.currentPage; 
+          this.totalPages = receivedPaginationInfo.totalPages;
 
           this.clinics.forEach(clinic => {
             var clinicName = clinic.name;
@@ -200,7 +225,7 @@ export default {
             }
           });
         }
-      }).catch(error => {       
+        }).catch(error => {        
         this.error_message = 'Sorry. There are no available appointments currently. Please check again later.';
             setTimeout(() => {
                 this.error_message = '';
@@ -307,6 +332,8 @@ export default {
 
 
             this.appointments = response.data.appointments;
+            // recalculate the number of pages based on the new array of appointments resulting from the search
+            this.totalPages = Math.ceil(this.appointments.length /  this.appointmentsPerPage)
 
             this.clinics.forEach(clinic => {
               var clinicName = clinic.name;
@@ -349,6 +376,9 @@ export default {
           patientRegion: ''
         }
 
+        this.searchQuery = '';
+        this.currentPage = 1;
+        
         try {
           await this.getAvailableAppointments();
 
@@ -395,10 +425,16 @@ export default {
 
         
         this.appointments = this.filteredAppointments;
+        // recalculate the number of pages based on the new array of appointments resulting from the search
+        this.totalPages = Math.ceil(this.appointments.length /  this.appointmentsPerPage)
         this.loading = false;
+        this.currentPage = 1;
+
+      
         }, 200);
 
-    }
+      },
+    
   }, 
   
   

@@ -68,18 +68,46 @@ exports.makeAppointment = async (payload) => {
     }
 };
 exports.getAppointments = async (payload) => {
-    try{
-        var message ='';
-        const appointments = await Appointment.find().sort({"date_and_time_from": 1});
+    try {
+        var message = '';
         var status = "";
+        
+        var parsedPayload = JSON.parse(payload);
+
+        // get pagination variables from the payload
+        const page = parseInt(parsedPayload.page) || 1; 
+        const limit = parseInt(parsedPayload.limit) || 10;
+        
+        const skip = (page - 1) * limit;
+
+        const totalNumberOfAppointments = await Appointment.countDocuments();
+
+        
+        const appointments = await Appointment.find()
+            .sort({ "date_and_time_from": 1 })
+            .skip(skip)
+            .limit(limit);
+        
         if(appointments.length === 0){
             status = 404
             message = "No appointments found"
             return status +"/"+ message
         }
+
+        var paginationInfo = {
+            totalNumberOfAppointments,
+            currentPage: page,
+            totalPages: Math.ceil(totalNumberOfAppointments / limit),
+            limit
+        }
         status = 200;
         message = "All appointments retrieved";
-        var stringAppointments = JSON.stringify(appointments);
+
+        var stringAppointments = JSON.stringify({
+            "appointments": appointments,
+            "paginationInfo": paginationInfo
+        });
+
         return status +"/"+ message +"/"+ stringAppointments
     }catch (error) {
         status = 400; 
@@ -264,21 +292,49 @@ exports.removeAppointment = async (topic, payload) => {
 
 
 exports.fetchAvailableAppointments = async (payload) => {    
-    try{
-        var message ='';
-        const appointments = await Appointment.find({available: true}).sort({"date_and_time_from": 1});
-        var status = 0;
+    try {
+        var message = '';
+        var status = "";
+        
+        var parsedPayload = JSON.parse(payload);
+
+        // get pagination variables from the payload
+        const page = parseInt(parsedPayload.page) || 1; 
+        const limit = parseInt(parsedPayload.limit) || 10;
+        
+        const skip = (page - 1) * limit;
+
+        const totalNumberOfAppointments = await Appointment.countDocuments();
+
+        
+        const appointments = await Appointment.find({available: true})
+            .sort({ "date_and_time_from": 1 })
+            .skip(skip)
+            .limit(limit);
+        
+        // var message ='';
+        // const appointments = await Appointment.find({available: true}).sort({"date_and_time_from": 1});
+        // var status = 0;
 
         if(appointments.length === 0){
             status = 404
             message = "No appointments found"
             return status +"/"+ message
         }
-
+        
+        var paginationInfo = {
+            totalNumberOfAppointments,
+            currentPage: page,
+            totalPages: Math.ceil(totalNumberOfAppointments / limit),
+            limit
+        }
         status = 200;
         message = "All appointments retrieved";
 
-        var stringAppointments = JSON.stringify(appointments);
+        var stringAppointments = JSON.stringify({
+            "appointments": appointments,
+            "paginationInfo": paginationInfo
+        });
         
         return status + "/" + message + "/" + stringAppointments;
 

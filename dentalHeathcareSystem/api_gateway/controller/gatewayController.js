@@ -291,9 +291,12 @@ exports.post = async (req, res) => {
         // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
         const sessionUserId = req.user.userId;
         const sessionUserRole = req.user.role;
+        const sessionUserEmail = req.user.email
         // adding the userId field to the payload 
         payload.userId = sessionUserId;
         payload.role = sessionUserRole;
+        payload.email = sessionUserEmail
+        
         var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         if(!mqttResponse){
             res.status(400).json({message: "could not create object"});
@@ -338,6 +341,11 @@ exports.get = async (req, res) => {
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
+        // pagination variables
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10; 
+        
+
         //create all topics
         // does url contain an _id? if not give it an unique id
         var id = checkForId(adaptedURL);
@@ -377,6 +385,12 @@ exports.get = async (req, res) => {
         await mqttBroker.subscribeToBroker(responseTopic);
         // I am parsing the payload to json in order to add the userId field to it. 
         payload = JSON.parse(payload);
+
+        // add the pagination variables to the payload
+        if (page && limit) {
+            payload.page = page;
+            payload.limit = limit; 
+        }
 
         if (req.user) {
 
