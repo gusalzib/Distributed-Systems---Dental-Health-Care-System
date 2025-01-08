@@ -45,17 +45,24 @@ function connectToBroker() {
     });
 
     mqttClient.on("message", async (topic, payload, packet) => {
-        console.log("Message received: " + payload.toString());
-        console.log("On topic: " + topic); 
+        let payloadReceived = payload.toString()
+        console.log("Message received: " + payloadReceived);
+        console.log("On topic: " + topic);
         console.log(packet);
-        var publishTopic = "response/" + topic;
-        console.log("publishTopic =",publishTopic);
+        let publishTopic = "response/" + topic;
+        console.log("publishTopic =", publishTopic);
 
-        if (topic.startsWith(`${thisService}/create/`)) {
+        if (topic === `${thisService}/topics`){
+            subscribeToBroker(payloadReceived);
+            let newPayload = '200/subscribed to topic/' + payloadReceived;
+            await publishToBroker(publishTopic,newPayload);
+
+        } else if (topic.startsWith(`${thisService}/create/`)) {
             console.log("create a subscription");
             await subscriptionCtrl.createSubscription(payload).then(response => {
                 publishToBroker(publishTopic, response);
             })
+
         } else if (topic.startsWith(`${thisService}/get/specific/`)) {
             await subscriptionCtrl.getSpecificSubscription(topic).then(response => {
                 publishToBroker(publishTopic, response);
@@ -89,7 +96,7 @@ function publishToBroker(topic, payload) {
 
 function subscribeToBroker(topic) {
     mqttClient.subscribe(topic, {qos: 0})
-    console.log("subscribed to topic: ",topic);
+    console.log("subscribed to topic: ", topic);
     
 };
 

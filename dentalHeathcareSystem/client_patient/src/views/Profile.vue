@@ -46,10 +46,10 @@
                 <h3>Add A Subscription</h3>
                 <div id="add-subscriptions">
                   <label>Subscription from: </label>
-                  <input v-model="subscription.period_subscription.sub_from"
+                  <input v-model="subscription.period_sub_from"
                          type="datetime-local" id="subscription-from"/>
                   <label>Subscription until: </label>
-                  <input v-model="subscription.period_subscription.sub_ultil"
+                  <input v-model="subscription.period_sub_until"
                          type="datetime-local" id="subscription-until"/>
 <!--                  <label>Appointment type: </label>-->
 <!--                  <input v-model="subscription.appointment_type" type="text" id="ssn"/>-->
@@ -138,10 +138,8 @@ export default {
             appointments: []
           },
         subscription: {
-          period_subscription: {
-            sub_from: "",
-            sub_ultil: ""
-          },
+          period_sub_from: "",
+          period_sub_until: "",
           appointment_type: "",
           notification_preference: false,
           email_notification: "",
@@ -163,6 +161,7 @@ export default {
           },
           patient_get_specific_url: '',
           update_patient_specific_url: '',
+          create_subscription: ''
         // currentDate: ""
     }
     },
@@ -171,7 +170,8 @@ export default {
         this.patient_get_specific_url = import.meta.env.VITE_PATIENT_GET_SPECIFIC_URL;
         this.update_patient_specific_url = import.meta.env.VITE_UPDATE_PATIENT_SPECIFIC_URL;
         this.getPatientInformation();
-  },
+        this.create_subscription = import.meta.env.VITE_CREATE_NEW_SUBSCRIPTION;
+    },
     methods: {
         setActive(section) {
             try {
@@ -253,7 +253,47 @@ export default {
             document.getElementById("subscription-until").setAttribute("max", sixMonthsLater);
 
           });
+      },
+
+      /*
+          subscription: {
+          period_subscription: {
+            sub_from: "",
+            sub_ultil: ""
+          },
+          appointment_type: "",
+          notification_preference: false,
+          email_notification: "",
+          phone_notification: ""
+        },*/
+
+      async createSubscription() {
+        try {
+          const response = await Api.post(`${this.create_subscription}`, this.subscription);
+
+          if (response.status === 200) {
+            this.confirmation_message = 'Subscribed to time period!';
+          }
+        } catch (error) {
+            this.error_message = 'Subscription failed!';
+            setTimeout(() => {
+              this.error_message = ''
+            }, 10000);
+          }
       }
+      // async addSubscription() {
+      //     var formData = new FormData();
+      //     formData.append('sub_from', this.subscription.period_subscription.sub_from);
+      //     formData.append('sub_until', this.subscription.period_subscription.sub_ultil);
+      //     formData.append('notification_preference', this.subscription.notification_preference);
+      //     formData.append('email_notification', this.subscription.email_notification);
+      //     formData.append('phone_notification', this.subscription.phone_notification);
+      //
+      // try {
+      //   const response = await fetch()
+      // }
+      // }
+
 
       // async getSubscriptions() {
       //   await Api.get(`${this.patient_get_specific_url}${this.current_patient_placeholder}`).then(response => {

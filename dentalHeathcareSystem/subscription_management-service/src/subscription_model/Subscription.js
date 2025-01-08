@@ -16,23 +16,17 @@ var subscriptionSchema = new Schema({
         isActive: Boolean
         },
 
-    period_subscription: {
-        sub_from: {
-            type: Date,
-            required: true
+    period_sub_from: {
+            type: String
         },
-        sub_until: {
-            type: Date,
-            required: true
+    period_sub_until: {
+            type: String
         },
-        isActive: Boolean
-    },
 
     appointment_type: {
         type: String,
-        required: true
+        required: false
     },
-
     notification_preference: {
         type: Boolean,
         required: true

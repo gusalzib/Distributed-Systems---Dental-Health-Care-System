@@ -59,7 +59,7 @@ function connectToBroker() {
             var newPayload = '200/subscribed to topic/'+payloadReceived;
             await publishToBroker(publishTopic,newPayload);
 
-        }else if (topic.startsWith(`${thisService}/signup/`)) {
+        } else if (topic.startsWith(`${thisService}/signup/`)) {
             console.log("create a patient");
             await patientCtrl.createPatient(payload).then(response => {
                 publishToBroker(publishTopic, response);

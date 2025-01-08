@@ -3,20 +3,22 @@ const MqttBroker = require("../../mqtt-broker");
 // const emailValidator = require('validator'); // this could be used to validate email from notification means
 
 exports.createSubscription = async (payload) => {
-    console.log("first payload, ", payload);
+    console.log("Helloooooooooooooooooooooooooooooooo");
     let message;
     let response;
     let status;
     try {
         const newSubscription = JSON.parse(payload);
         console.log("second parsed payload", payload);
-        const newSubscriptionValidation = validateSubscription(newSubscription);
+        // const newSubscriptionValidation = validateSubscription(newSubscription);
 
         console.log("parsed payload " + JSON.stringify(newSubscription));
-        if (!newSubscriptionValidation.success) {
-            status = 400
-            return status + "/" + newSubscriptionValidation.message;
-        }
+        // if (!newSubscriptionValidation.success) {
+        //     console.log("We are HAVING A PROBLEM HERE 400")
+        //     status = 400;
+        //     console.log("/" + newSubscriptionValidation.message);
+        //     return status + "/" + newSubscriptionValidation.message;
+        // }
 
         const subscription = new Subscription(newSubscription);
         console.log("just before saving " , newSubscription);
@@ -28,12 +30,14 @@ exports.createSubscription = async (payload) => {
         console.log("string ", subscription);
         status = 200;
         response = status + "/" + message + "/" + stringSubscription;
+        console.log("/" + message + "/" + stringSubscription);
         return response;
 
     } catch (error) {
         console.log("are we catching?" , error.message);
         status = 400;
         message = "Failed to create. Something went wrong!"
+        console.log("/" + message + "/" + error.message);
         return status + "/" + message + "/" + error.message;
     }
 };
@@ -109,7 +113,8 @@ exports.updateSpecificSubscription = async (topic, payload) => {
         const subscription = {
             patient_id: newSubscription.patient_id ? newSubscription.patient_id : foundSub.patient_id,
             clinic_subscription: newSubscription.clinic_subscription ? newSubscription.clinic_subscription : foundSub.clinic_subscription,
-            period_subscription: newSubscription.period_subscription ? newSubscription.period_subscription : foundSub.period_subscription,
+            period_sub_from: newSubscription.period_sub_from ? newSubscription.period_sub_from : foundSub.period_sub_from,
+            period_sub_until: newSubscription.period_sub_until ? newSubscription.period_sub_until : foundSub.period_sub_until,
             appointment_type: newSubscription.appointment_type ? newSubscription.appointment_type : foundSub.appointment_type,
             notification_preference: newSubscription.notification_preference ? newSubscription.notification_preference : foundSub.notification_preference,
             email_notification: newSubscription.email_notification ? newSubscription.email_notification : foundSub.email_notification,
@@ -176,7 +181,8 @@ exports.registerSubscription = async (req, res) => {
             patient_id: req.body.patient_id,
             // subscription_type: req.body.subscription_type,
             clinic_subscription: req.body.clinic_subscription,
-            period_subscription: req.body.period_subscription,
+            period_sub_from: req.body.period_sub_from,
+            period_sub_until: req.body.period_sub_until,
             appointment_type: req.body.appointment_type,
             notification_preference: req.body.notification_preference,
             // notification_means: req.body.notification_means
@@ -255,7 +261,8 @@ exports.updateSubscription = async (req, res) => {
         const subscription = {
             patient_id: req.body.patient_id ? req.body.patient_id : existingSub.patient_id,
             clinic_subscription: req.body.clinic_subscription ? req.body.clinic_subscription : existingSub.clinic_subscription,
-            period_subscription: req.body.period_subscription ? req.body.period_subscription : existingSub.period_subscription,
+            period_sub_from: req.body.period_sub_from ? req.body.period_sub_from : existingSub.period_sub_from,
+            period_sub_until: req.body.period_sub_until ? req.body.period_sub_until : existingSub.period_sub_until,
             appointment_type: req.body.appointment_type ? req.body.appointment_type : existingSub.appointment_type,
             notification_preference: req.body.notification_preference ? req.body.notification_preference : existingSub.notification_preference,
             email_notification: req.body.email_notification ? req.body.email_notification : existingSub.email_notification,
@@ -301,13 +308,13 @@ exports.deleteSubscription = async (req, res) => {
 
 
 function validateSubscription(subscription) {
-    const {patient_id, appointment_type, clinic_subscription, period_subscription,
+    const {patient_id, appointment_type, clinic_subscription, period_sub_from, period_sub_until,
         notification_preference, email_notification, phone_notification} = subscription;
 
     console.log("are we validating?");
     console.log("my email is " + email_notification);
-    if (!patient_id || !(clinic_subscription || period_subscription) || !appointment_type ||
-        !notification_preference || !(email_notification || phone_notification)) {
+    if (!patient_id || !(clinic_subscription || (period_sub_from && period_sub_until))
+        || !(email_notification || phone_notification)) {
         return {
             success: false, message: "must provide all required fields!"
         }
