@@ -90,7 +90,7 @@ function connectToBroker() {
         
         }else if (topic.startsWith(`${thisService}/get/clinics/available/appointments/`)) {
             console.log("get clinics available appointments");
-            await appointmentCtrl.fetchClinicsAvailableAppointments(topic).then(response => {
+            await appointmentCtrl.fetchClinicsAvailableAppointments(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             await unsubscribe(topic);

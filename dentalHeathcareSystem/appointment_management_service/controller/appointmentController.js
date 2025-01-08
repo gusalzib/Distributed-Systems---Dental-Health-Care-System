@@ -321,7 +321,7 @@ exports.fetchAvailableAppointments = async (payload) => {
             message = "No appointments found"
             return status +"/"+ message
         }
-        
+
         var paginationInfo = {
             totalNumberOfAppointments,
             currentPage: page,
@@ -346,15 +346,34 @@ exports.fetchAvailableAppointments = async (payload) => {
 }
 
 
-exports.fetchClinicAppointments = async (topic) => {
+exports.fetchClinicAppointments = async (topic, payload) => {    
     try {
-        var message ='';
-        var topicArr = topic.split("/");
-        const id = topicArr[4];
+        var message = '';
+        var status = "";
 
-        var status = 0;
+        /* i needed to split twice because the topic structure changed after implementing the pagination
+        this an example of how the new topic looks like
+        appointments-f079ffb1b096/get/clinics/available/appointments/677ecfd7b15aeef08164a688?page=1&limit=10 */
+        var topicArr = topic.split("/");
+        var temp = topicArr[4].split('?')
+        const id = temp[0];
+        
+        var parsedPayload = JSON.parse(payload);
+
+        // get pagination variables from the payload
+        const page = parseInt(parsedPayload.page) || 1; 
+        const limit = parseInt(parsedPayload.limit) || 10;
+        
+        const skip = (page - 1) * limit;
+
+        const totalNumberOfAppointments = await Appointment.countDocuments({dentist_clinic_id: id});
+
+
         var allAppointments = []
-        allAppointments = await Appointment.find({ dentist_clinic_id: id });
+        allAppointments = await Appointment.find({dentist_clinic_id: id})
+            .sort({ "date_and_time_from": 1 })
+            .skip(skip)
+            .limit(limit);
        
         if (allAppointments.length === 0) {
             status = 200; 
@@ -362,24 +381,59 @@ exports.fetchClinicAppointments = async (topic) => {
             return status + "/" + message + allAppointments;
 
         }
-        var stringAppointments = JSON.stringify(allAppointments)
+
+        var paginationInfo = {
+            totalNumberOfAppointments,
+            currentPage: page,
+            totalPages: Math.ceil(totalNumberOfAppointments / limit),
+            limit
+        }
+
+        var stringAppointments = JSON.stringify({
+            "appointments": allAppointments,
+            "paginationInfo": paginationInfo
+        });
+
+        // var stringAppointments = JSON.stringify(allAppointments)
         status = 200; 
         message = "All available appointments retrieved"
         return status + "/" + message + "/" + stringAppointments;
 
-    }catch (error) {
+    } catch (error) {        
         status = 400; 
         message = "Something went wrong!" 
         return status + "/" + message + "/" + error.message;
     }
 };
-exports.fetchClinicsAvailableAppointments = async (topic) => {    
-    try{
+exports.fetchClinicsAvailableAppointments = async (topic, payload) => {    
+    try {
+        var message = '';
+        var status = "";
+
+        /* i needed to split twice because the topic structure changed after implementing the pagination
+        this an example of how the new topic looks like
+        appointments-f079ffb1b096/get/clinics/available/appointments/677ecfd7b15aeef08164a688?page=1&limit=10 */
         var topicArr = topic.split("/");
-        const id = topicArr[5];
+        var temp = topicArr[5].split('?')
+        const id = temp[0];
+
+        var parsedPayload = JSON.parse(payload);
+
+        // get pagination variables from the payload
+        const page = parseInt(parsedPayload.page) || 1; 
+        const limit = parseInt(parsedPayload.limit) || 10;
+        
+        const skip = (page - 1) * limit;
+
+        const totalNumberOfAppointments = await Appointment.countDocuments({dentist_clinic_id: id});
+
+
 
         var allAppointments = []
-        allAppointments = await Appointment.find({ dentist_clinic_id: id }).sort({"date_and_time_from": 1});
+        allAppointments = await Appointment.find({dentist_clinic_id: id})
+            .sort({ "date_and_time_from": 1 })
+            .skip(skip)
+            .limit(limit);
         
         const appointments = allAppointments.filter(appointment => appointment.available);
         
@@ -391,11 +445,22 @@ exports.fetchClinicsAvailableAppointments = async (topic) => {
         }
 
         status = 200;
-        var stringAppointments = JSON.stringify(appointments);
-        
+        // var stringAppointments = JSON.stringify(appointments);
+        var paginationInfo = {
+            totalNumberOfAppointments,
+            currentPage: page,
+            totalPages: Math.ceil(totalNumberOfAppointments / limit),
+            limit
+        }
+
+        var stringAppointments = JSON.stringify({
+            "appointments": allAppointments,
+            "paginationInfo": paginationInfo
+        });
+
         return status + "/" + message + "/" + stringAppointments;
 
-    }catch (error) {
+    } catch (error) {        
         status = 400; 
         message = "Something went wrong!" 
         return status + "/" + message + "/" + error.message;

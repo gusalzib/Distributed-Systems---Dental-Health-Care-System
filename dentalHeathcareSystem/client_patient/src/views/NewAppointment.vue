@@ -186,7 +186,7 @@ export default {
             }, 5000);
         })
     },
-      async getAvailableAppointments(page = 1, limit = 10) {
+      async getAvailableAppointments(page = 1, limit = this.appointmentsPerPage) {
 
         await Api.get(`${this.get_available_appointments_url}?page=${page}&limit=${limit}`).then(response =>{
 

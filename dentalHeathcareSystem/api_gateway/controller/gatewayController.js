@@ -344,8 +344,7 @@ exports.get = async (req, res) => {
         // pagination variables
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10; 
-        
-
+                
         //create all topics
         // does url contain an _id? if not give it an unique id
         var id = checkForId(adaptedURL);
