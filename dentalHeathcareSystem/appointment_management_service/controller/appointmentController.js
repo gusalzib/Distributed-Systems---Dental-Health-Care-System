@@ -1,6 +1,4 @@
 const Appointment = require("../models/Appointment.js");
-const mongoose = require('mongoose');
-const FlexSerach = require('flexsearch')
 
 exports.makeAppointment = async (payload) => {
     /*
@@ -558,7 +556,6 @@ exports.filterAppointments = async (topic, payload) => {
             }
         }
 
-        console.log('query date ', query.date_and_time_from);
 
         if (region) {
             query.region = region;

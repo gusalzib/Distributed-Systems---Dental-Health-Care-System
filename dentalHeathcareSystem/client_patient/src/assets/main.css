@@ -309,7 +309,11 @@ main{
   display: block;
   width: 50%;
 }
-
+.spinner-pagination-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .spinner{
   display: flex;
   justify-content: center;

@@ -39,15 +39,18 @@
             <div class="filter-button">
               <button @click="resetFilters">Reset filter</button>
             </div>
-            <div class="spinner" v-if="this.loading">
-              <div class="spinner-icon"></div>
+            <div class="spinner-pagination-container">
+              <div class="spinner" v-if="this.loading">
+                <div class="spinner-icon"></div>
+              </div>
+
+              <div class="pagination-controls">
+                <button @click="getAvailableAppointments(currentPage - 1)" :disabled="currentPage === 1">Previous</button>
+                <span>Page {{ currentPage }} of {{ totalPages }}</span>
+                <button @click="getAvailableAppointments(currentPage + 1)" :disabled="currentPage === totalPages">Next</button>
+              </div>
             </div>
 
-            <div class="pagination-controls">
-              <button @click="getAvailableAppointments(currentPage - 1)" :disabled="currentPage === 1">Previous</button>
-              <span>Page {{ currentPage }} of {{ totalPages }}</span>
-              <button @click="getAvailableAppointments(currentPage + 1)" :disabled="currentPage === totalPages">Next</button>
-            </div>
           </div>
 
           <div class="confirmation_message">{{ confirmation_message }}</div>
