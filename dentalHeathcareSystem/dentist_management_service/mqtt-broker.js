@@ -1,10 +1,14 @@
 const mqtt = require('async-mqtt');
 const dentistCtrl = require('./src/dentist_controller/dentist-controller');
 const dentistAuthenticator = require('./src/dentist_controller/authenticator');
-let mqttClient;
-const thisService = 'dentists-1';
 
-const host = "127.0.0.1";
+const os = require('os');
+const specialNumber = os.hostname();
+const service = process.env.SERVICE;
+const thisService = service +'-'+specialNumber;
+
+let mqttClient;
+const host = "mosquitto-broker";
 const protocol = "mqtt";
 const port = "1884";
 

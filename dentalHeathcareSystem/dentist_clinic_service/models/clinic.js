@@ -4,8 +4,18 @@ const geocoder = require('../utils/geocoder')
 var Schema = mongoose.Schema;
 
 var clinicSchema = new Schema({
-    name: {type: String, required: true},
-    address: { type: String, required: true },
+    name: {
+        type: String,
+        required: true
+    },
+    address: {
+        type: String,
+        required: true
+    },
+    region: {
+        type: String,
+        required: true
+    },
     location: {
         type: {
             type: String,

@@ -4,7 +4,13 @@
 
     <div class="confirmation_message">{{ confirmation_message }}</div>
     <div class="error_message">{{ error_message }}</div>     
-    
+
+    <div class="pagination-controls">
+        <button @click="getClinicsAppointment(currentPage - 1)" :disabled="currentPage === 1">Previous</button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button @click="getClinicsAppointment(currentPage + 1)" :disabled="currentPage === totalPages">Next</button>
+    </div>
+
     <div v-for="appointment in appointments" :key = "appointment._id">
         <div class="clinic-appointment_card" @click="rerouting(`/single/appointment/${appointment._id}`)"> Appointment:&nbsp; 
             <p> Date:&nbsp; {{ appointment.date_and_time_from }}&nbsp; </p>
@@ -39,6 +45,10 @@ export default {
             error_message: '',
             login_check_url: '',
             loggedIn: false,
+            paginationInfo: '',
+            currentPage: 1,
+            appointmentsPerPage: 10,
+            totalPages: 0,
         }
     },
 
@@ -64,12 +74,22 @@ export default {
         })
         },
 
-        async getClinicsAppointment(){
+        async getClinicsAppointment(page = 1, limit = this.appointmentsPerPage){
             this.clinicID = this.$route.params.clinicID;
-            await Api.get(`${this.get_clinics_available_appointments_url}${this.clinicID}`).then(response =>{
+            await Api.get(`${this.get_clinics_available_appointments_url}${this.clinicID}?page=${page}&limit=${limit}`).then(response =>{
 
                 if(response.status === 200){
-                    this.appointments = response.data.appointments
+                    // this.appointments = response.data.appointments
+
+                    var appointmentsArr = response.data.appointments.appointments;
+
+                    var receivedPaginationInfo = response.data.appointments.paginationInfo;
+
+                    this.appointments = appointmentsArr;
+                    
+                    this.currentPage = receivedPaginationInfo.currentPage; 
+                    this.totalPages = receivedPaginationInfo.totalPages;
+
                     if(this.appointments.length === 0){
                         this.headerMessage = "This clinic has no available appointments."
                     }else{

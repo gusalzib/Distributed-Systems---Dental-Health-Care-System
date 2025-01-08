@@ -91,8 +91,10 @@ export default {
                     try{
                         var responseArr = await Api.get(`${this.get_clinics_available_appointments_url}${clinic._id}`);
                        
-                        clinic.appointments = responseArr.data.appointments;
-                        clinic.numOfAvailableAppointments = clinic.appointments.length;
+                        clinic.appointments = responseArr.data.appointments.appointments;
+                        
+                        var tempArr = responseArr.data.appointments.appointments;
+                        clinic.numOfAvailableAppointments = tempArr.length;
                         
                         if (clinic.numOfAvailableAppointments === 0) {
                             clinic.clinicColor = 'red'

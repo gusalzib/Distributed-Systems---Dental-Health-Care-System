@@ -7,7 +7,7 @@ const path = require('path');
 
 function startMosquittoBroker(){
     
-    const confPath = './mosquitto-broker.conf';
+    const confPath = './mosquitto.conf';
     const mosquittoProcess = spawn('mosquitto',['-c',confPath]);
     
     mosquittoProcess.stdout.on('data', async (data) => {
@@ -65,12 +65,25 @@ function startMosquittoBroker(){
 }
 
 var mqttClient;
-const host = "127.0.0.1";
+const host = "mosquitto-broker";
 const protocol = "mqtt";
 const port = "1884";
 
 function connectToBroker() {
-    mqttClient = mqtt.connect(protocol+'://'+host+':'+port);
+    const options = {
+        keepalive: 5,
+        retryInterval: 0,
+        clientId: 'broker-client',
+        protocolId: "MQTT",
+        protocolVersion: 4,
+        clean: true,
+        reconnectPeriod: 1000,
+        connectTimeout: 30 * 1000,
+        anonymous: false,
+        username: 'extraOrdinary-mosquitto-33',
+        password: '12345'
+    }
+    mqttClient = mqtt.connect(protocol+'://'+host+':'+port,options);
         mqttClient.on("error", (error) => {
             console.log(error);
             mqttClient.end();

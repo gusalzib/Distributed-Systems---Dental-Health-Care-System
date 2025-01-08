@@ -14,6 +14,7 @@ exports.createPatient = async (payload) => {
         const address = patient.address;
         const ssn = patient.ssn;
         const email = patient.email;
+        const region = patient.region;
         const exisitingPatient = await Patient.findOne({ email });
 
         // check if patient already exist. If not then check if email is valid
@@ -22,7 +23,7 @@ exports.createPatient = async (payload) => {
             message = "There is already a user account with this email"
             return status +"/"+ message;
                 
-        } else if (!name || !phone_number || !address || !ssn) {
+        } else if (!name || !phone_number || !address || !ssn || !region) {
             status = 400
             message = "Missing required fileds"
             return status + "/" + message; 

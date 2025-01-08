@@ -1,13 +1,18 @@
 const mqtt = require('async-mqtt');
 const patientCtrl = require("./controller/patientController");
 const authenticator = require('./controller/authenticator')
-// var mqttClient;
 
-const host = "127.0.0.1";
+const os = require('os');
+const specialNumber = os.hostname();
+const service = process.env.SERVICE;
+const thisService = service +'-'+specialNumber;
+
+var mqttClient;
+const host = "mosquitto-broker";
 const protocol = "mqtt";
 const port = "1884";
 
-const thisService = 'patients-1';
+
 
 function connectToBroker() {
     const clientId = "client" + Math.random() + Date.now();

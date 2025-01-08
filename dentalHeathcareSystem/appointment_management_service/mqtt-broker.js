@@ -1,9 +1,14 @@
 const mqtt = require('async-mqtt');
 const oldMqtt = require('mqtt');
 const appointmentCtrl = require("./controller/appointmentController")
+
+const os = require('os');
+const specialNumber = os.hostname();
+const service = process.env.SERVICE;
+const thisService = service +'-'+specialNumber;
+
 var mqttClient;
-const thisService = 'appointments-1';
-const host = "127.0.0.1";
+const host = "mosquitto-broker";
 const protocol = "mqtt";
 const port = "1884";
 
@@ -76,9 +81,16 @@ function connectToBroker() {
             });
             await unsubscribe(topic);
         
+        }else if (topic.startsWith( `${thisService}/filter/`)) {
+            console.log("filter appointments");
+            await appointmentCtrl.filterAppointments(topic, payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            await unsubscribe(topic);
+        
         }else if (topic.startsWith(`${thisService}/get/clinics/available/appointments/`)) {
             console.log("get clinics available appointments");
-            await appointmentCtrl.fetchClinicsAvailableAppointments(topic).then(response => {
+            await appointmentCtrl.fetchClinicsAvailableAppointments(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             await unsubscribe(topic);
