@@ -24,6 +24,10 @@
         <input v-model="subscription.phone_notification" type="tel" id="phone_number"/>
 
         <button id="update-button" class="submit-button" v-on:click="createSubscription()" type="button">Subscribe</button>
+
+        <div id="confirmation_message" class="confirmation_message">{{ confirmation_message }}</div>
+        <div id="error_message" class="error_message">{{ error_message }}</div>
+
       </div>
     </div>
   </main>
@@ -46,7 +50,9 @@ export default {
         email_notification: "",
         phone_notification: ""
       },
-      create_subscription: ''
+      create_subscription: '',
+      confirmation_message: '',
+      error_message: ''
     }
   },
   mounted() {
@@ -78,11 +84,17 @@ export default {
     },
     async createSubscription() {
       try {
+        const validatedPeriod = this.validatePeriod();
+        if (!validatedPeriod) {
+          this.error_message = 'subscription period is invalid';
+          console.log(this.error_message);
+          // return this.error_message;
+        } else {
+          console.log("we got to the else after validating the period")
         const response = await Api.post(`${this.create_subscription}`, this.subscription);
-
         if (response.status === 200) {
           this.confirmation_message = 'Subscribed to time period!';
-        }
+        }}
       } catch (error) {
         this.error_message = 'Subscription failed!';
         setTimeout(() => {
@@ -90,6 +102,21 @@ export default {
         }, 10000);
       }
     },
+    validatePeriod() {
+      let subFrom = this.subscription.period_sub_from;
+      let subUntil = this.subscription.period_sub_until;
+      console.log(subFrom + " is from date");
+      console.log(subUntil + " is until date");
+
+      if (subFrom >= subUntil) {
+        this.error_message = "subscription period is invalid"
+        console.log("we are returning false in validation")
+        return false;
+      } else {
+        console.log("we are returning true in validation")
+        return true;
+      }
+    }
   }
 }
 </script>

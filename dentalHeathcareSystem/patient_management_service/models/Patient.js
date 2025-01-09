@@ -14,7 +14,7 @@ var patientSchema = new Schema({
   },
   phone_number: { type: String, required: true, match: [ /^\d+$/, "Phone number has to be only digits"]}, 
   password: {type: String, required: true},
-  ssn: { type: Number, required: true, unique: [true,'This Ssn already exists '], min: [1111111111,'Ssn has to be 10 digits'], max: [11111111111,'Ssn has to be 10 digits']},
+  ssn: { type: String, required: true, unique: [true,'This Ssn already exists ']},
   medical_journal: [
     {
       journal: { type: String, required: true },

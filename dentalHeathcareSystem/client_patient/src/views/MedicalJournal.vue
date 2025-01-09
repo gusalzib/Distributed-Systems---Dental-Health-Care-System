@@ -21,7 +21,6 @@ export default {
   name: 'medicalJournal',
   data() {
     return {
-
           confirmation_message: '',
           error_message: '',
           patient: {
