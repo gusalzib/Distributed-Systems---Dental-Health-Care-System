@@ -5,7 +5,7 @@ const MqttBroker = require("../mqtt-broker");
 
 exports.createPatient = async (payload) => {
     try {
-        var status = 0; 
+        var status = 0;
         var message = "";
 
         const patient = JSON.parse(payload);
@@ -15,6 +15,8 @@ exports.createPatient = async (payload) => {
         const ssn = patient.ssn;
         const email = patient.email;
         const region = patient.region;
+
+
         const exisitingPatient = await Patient.findOne({ email });
 
         // check if patient already exist. If not then check if email is valid
@@ -26,19 +28,20 @@ exports.createPatient = async (payload) => {
         } else if (!name || !phone_number || !address || !ssn || !region) {
             status = 400
             message = "Missing required fileds"
-            return status + "/" + message; 
+            return status + "/" + message;
 
         } else if (!emailValidator.isEmail(email)) {
             status = 400
             message = "Invalid email"
             return status + "/" + message;
-            
+
         } else if (!(/^\d{10}$/.test(ssn))) {
             status = 400
             message = "SSN must be 10 digits"
             return status + "/" + message;
         }
 
+        patient.ssn = patient.ssn.toString();
         var newPatient = new Patient(patient);
         await newPatient.save();
 
@@ -49,11 +52,11 @@ exports.createPatient = async (payload) => {
         if (!patient_id) {
             status = 400
             message = "failed to register patient";
-            return status +"/"+ message 
+            return status +"/"+ message
         }else if (!retrievedPatient) {
             status = 400
             message = "failed to register patient";
-            return status +"/"+ message 
+            return status +"/"+ message
         }
 
 
@@ -64,7 +67,6 @@ exports.createPatient = async (payload) => {
         return status + "/" + message + "/" + stringPatient;
         
     } catch (error) {
-        
         if (error.name === 'ValidatorError') {
             status = 400
             message = "Invalid email"
