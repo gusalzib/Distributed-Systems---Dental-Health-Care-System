@@ -33,10 +33,7 @@
                         <label>Address: </label>
                         <input v-model="patient.address" type="address" id="address"/>
                         <br>
-                        <label>Password: </label>
-                        <input v-model="patient.password" type="password" id="password"/>
-                        <input type="checkbox" v-on:click="toggle()">
-                        <br>
+                        
 
                         <button id="update-button" class="submit-button" v-on:click="updatePatientInfo()" type="button">Update</button>
                 </div>
@@ -135,7 +132,8 @@ export default {
             phone_number: '',
             ssn: '',
             address: '',
-            appointments: []
+            appointments: [],
+            region: ''
           },
         // subscription: {
         //   period_sub_from: "",

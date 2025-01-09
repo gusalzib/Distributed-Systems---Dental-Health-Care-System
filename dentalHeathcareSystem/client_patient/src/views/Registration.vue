@@ -22,7 +22,32 @@
                 <label>Address:* </label>
                 <input type="address" id="patient-address" v-model="patient.address" placeholder="mystreet 44e 41432 göteborg" required>
                 <hr>
-
+                <label>Select the region you prefer:*</label>
+                <select id="patient-region" v-model="patient.region" required>
+                  <option value="" disabled selected> Select you region </option>
+                  <option value="Blekinge">Blekinge</option>
+                  <option value="Dalarna">Dalarna</option>
+                  <option value="Gotland">Gotland</option>
+                  <option value="Gävleborg">Gävleborg</option>
+                  <option value="Göteborg">Göteborg</option>
+                  <option value="Halland">Halland</option>
+                  <option value="Jämtland">Jämtland</option>
+                  <option value="Jönköping">Jönköping</option>
+                  <option value="Kalmar">Kalmar</option>
+                  <option value="Kronoberg">Kronoberg</option>
+                  <option value="Norrbotten">Norrbotten</option>
+                  <option value="Skåne">Skåne</option>
+                  <option value="Stockholm">Stockholm</option>
+                  <option value="Södermanland">Södermanland</option>
+                  <option value="Uppsala">Uppsala</option>
+                  <option value="Värmland">Värmland</option>
+                  <option value="Västerbotten">Västerbotten</option>
+                  <option value="Västernorrland">Västernorrland</option>
+                  <option value="Västmanland">Västmanland</option>
+                  <option value="Västra Götaland">Västra Götaland</option>
+                  <option value="Örebro">Örebro</option>
+                  <option value="Östergötland">Östergötland</option>
+                </select>
                 <label>Password:* </label>
                 <input type="password" id="password" v-model="patient.password" required>
                 <strong>Show Password</strong>
@@ -54,7 +79,8 @@ export default {
             phone_number: '',
             ssn: '',
             address: '',
-            password: ''
+            password: '',
+            region: ''
       },
 
       signup_url: '',

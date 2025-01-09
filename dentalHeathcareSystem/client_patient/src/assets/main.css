@@ -51,6 +51,25 @@ label{
   height: 50px;
 }
 
+main{
+  margin-top: 5%;
+  border: 1px transparent solid;
+}
+
+@media only screen and (max-width: 1300px) {
+  main{
+    margin-top: 10%;
+    border: 1px transparent solid;
+  }
+
+}
+@media only screen and (max-width: 800px) {
+  main{
+    margin-top: 15%;
+    border: 1px transparent solid;
+  }
+
+}
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX NAVBAR XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX*/
 .navbar{
   background-color: var(--header-bg);
@@ -122,7 +141,6 @@ label{
 
 @media only screen and (max-width: 1350px){
 
-   
   .menu-icon-container{
     display: block;
   }
@@ -153,13 +171,14 @@ label{
 
 
 
+
 /*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX Home PAGE  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*/
 .map-container{
   width: 70%;
   height: 790px;
   border: 1px grey solid;
   border-radius: 10px;
-  margin: 20% auto;
+  margin: 5% auto;
   margin-bottom: 30px;
   padding: 10px;
   padding-top: 20px;
@@ -288,6 +307,47 @@ label{
 .filter-button button{
   margin: 5px auto;
   display: block;
+  width: 50%;
+}
+.spinner-pagination-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.spinner{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+}
+
+.spinner-icon{
+  border: 4px transparent solid;
+  border-top: 4px #3498db solid;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {transform:  rotate(0deg);}
+  100% {transform: rotate(360deg);}
+}
+
+.pagination-controls{
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.pagination-controls button{
+  width: 35%;
+  margin: auto 5px;
+
+}
+.pagination-controls button:disabled{
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 .appointments-card{
   width: 100%;
@@ -322,6 +382,7 @@ label{
 
 @media only screen and (max-width: 880px){
   .appointments-container{
+    width: 95%;
     margin-top: 30%;
     border: 1px red solid;
   }
@@ -1060,6 +1121,7 @@ the card, which is also something that we might need to add later.*/
   justify-content: center;
   align-items: center;
   padding: 30px;
+  text-align: left !important;
   /* border: 3px red solid; */
 }
 #clinic-card {

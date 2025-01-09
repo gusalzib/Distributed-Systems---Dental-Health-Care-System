@@ -25,10 +25,10 @@ var patientSchema = new Schema({
       appointment_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Appointment'}
     },
   ],
-
-  subscriptions: [{
-    subscription_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Subscription'}
-  }]
+  region: {
+      type: String,
+      required: true
+  }
 });
 
 module.exports = mongoose.model("patient", patientSchema);

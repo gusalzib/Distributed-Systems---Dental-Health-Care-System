@@ -78,7 +78,7 @@ exports.login = async (req, res) => {
             return res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
             
         }
-    } catch (error) { console.log(error);
+    } catch (error) {
     
         const errorMessage = error.toString();
         let catchArr = errorMessage.split("/")
@@ -132,6 +132,8 @@ exports.loginCheck = async (req, res) => {
         decodedToken = jwt.verify(token, secret_key); 
         
         const userRole = decodedToken.role;
+        const userRegion = decodedToken.region;
+
         if (userRole === 'patient') {
             return res.status(200).json({
                 message: 'Logged in!',
@@ -139,6 +141,7 @@ exports.loginCheck = async (req, res) => {
                 isPatient: true,
                 isDentist: false,
                 isAdmin: false,
+                region: userRegion
             });
         } else if (userRole === 'dentist') {
             return res.status(200).json({
@@ -147,6 +150,7 @@ exports.loginCheck = async (req, res) => {
                 isPatient: false,
                 isDentist: true,
                 isAdmin: false,
+                region: userRegion
             });
         } else if (userRole === 'admin') {
             return res.status(200).json({
@@ -155,12 +159,11 @@ exports.loginCheck = async (req, res) => {
                 isPatient: false,
                 isDentist: false,
                 isAdmin: true,
+                region: userRegion
             });
         }
 
-    } catch (error) {        
-        console.log(error.message);
-        
+    } catch (error) {                
         return res.status(403).json({message: 'Token either expired or invalid', user: decodedToken})
     }
 }
@@ -288,9 +291,12 @@ exports.post = async (req, res) => {
         // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
         const sessionUserId = req.user.userId;
         const sessionUserRole = req.user.role;
+        const sessionUserEmail = req.user.email
         // adding the userId field to the payload 
         payload.userId = sessionUserId;
         payload.role = sessionUserRole;
+        payload.email = sessionUserEmail
+        
         var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         if(!mqttResponse){
             res.status(400).json({message: "could not create object"});
@@ -335,6 +341,10 @@ exports.get = async (req, res) => {
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
+        // pagination variables
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10; 
+                
         //create all topics
         // does url contain an _id? if not give it an unique id
         var id = checkForId(adaptedURL);
@@ -374,6 +384,12 @@ exports.get = async (req, res) => {
         await mqttBroker.subscribeToBroker(responseTopic);
         // I am parsing the payload to json in order to add the userId field to it. 
         payload = JSON.parse(payload);
+
+        // add the pagination variables to the payload
+        if (page && limit) {
+            payload.page = page;
+            payload.limit = limit; 
+        }
 
         if (req.user) {
 
@@ -422,7 +438,6 @@ exports.get = async (req, res) => {
 
 exports.put = async (req, res) => { 
     try {
-        console.log('Tesing put');
         //get the body and make it a string, get the url and call method to remove "api"
         var body = req.body;
         var payload = JSON.stringify(body);
