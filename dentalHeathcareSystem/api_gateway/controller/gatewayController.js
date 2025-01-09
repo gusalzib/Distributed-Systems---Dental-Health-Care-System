@@ -333,6 +333,9 @@ exports.post = async (req, res) => {
     }
 }
 
+const redisClient = require('../redisClient.js');
+
+
 exports.get = async (req, res) => { 
     try {
         //get the body and make it a string, get the url and call method to remove "api"
@@ -344,6 +347,39 @@ exports.get = async (req, res) => {
         // pagination variables
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10; 
+        
+        // Redis caching code
+        const entityName = adaptedURL.split('/')[0];    // dynamically get the service name
+        var key = ''
+
+        // i had to include the userSession in the key if it exists so that the cache would not confuse user requests
+        // if the session does not exist it will add a unique timestamp
+        var userSession = req.user ? req.user.userId : Date.now();
+        if (req.query) {
+            key = `${adaptedURL}:${userSession}:${JSON.stringify(req.query)}:${JSON.stringify(req.body)}`;
+        } else {
+            key = `${adaptedURL}:${userSession}:${JSON.stringify(req.body)}`;
+        }
+    
+
+        const cachedData = await redisClient.get(key);
+        if (cachedData) {
+            console.log('Cached hit for key: ', key);
+
+            // we need to parse and construct a new formatted response because the cache stores the
+            // data in a different format, something like his:
+            /*
+            "[{\"location\":{\"type\":\"Point\",\"coordinates\":[11.95317,57.69513],\"formattedAddress\":\"2 Djupedalsgatan, Gothenburg, O 413 07, SE\"},\"_id\":\
+            */
+            const parsedCacheData = JSON.parse(cachedData);
+            const formattedReply = {
+                message: 'Success',
+                [entityName]: parsedCacheData
+            }
+            return res.status(200).json(formattedReply);
+            
+        }
+        console.log('cache miss for this key: ', key);
                 
         //create all topics
         // does url contain an _id? if not give it an unique id
@@ -414,15 +450,22 @@ exports.get = async (req, res) => {
        
         var responseArr = mqttResponse.split("/"); 
         var status = parseInt(responseArr[0]);
+
         if(responseArr.length <=2){
             res.status(status).json({message : responseArr[1]});
         }else{
-        var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
-        return;
+            var adaptedResponse = JSON.parse(responseArr[2]);   
+
+            await redisClient.set(key, JSON.stringify(adaptedResponse), {
+                EX: 3600,
+            });
+            
+            res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
+            return;
         }
 
     } catch (error) {
+        console.log(error);
         
         const errorMessage = error.toString();
         let catchArr = errorMessage.split("/")
