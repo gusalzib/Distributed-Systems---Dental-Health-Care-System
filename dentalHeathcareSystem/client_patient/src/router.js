@@ -31,8 +31,8 @@ const routes = [
   {path: '/bookingConfirmation/:appointmentID', name: 'bookingConfirmation', component: BookingConfirmation},
   {path: '/clinic/:clinicID', name: 'clinic', component: Clinic},
   {path: '/clinicAppointments/:clinicID', name: 'clinicAppointments', component: ClinicAppointments},
-  {path: '/clinicDentists/:clinicID', name: 'clinicDentists', component: ClinicDentists}
-  // {path: '/new/subscription', name: newSubscription, component: CreateSubscription}
+  {path: '/clinicDentists/:clinicID', name: 'clinicDentists', component: ClinicDentists},
+  {path: '/new/subscription', name: 'subscribe', component: CreateSubscription}
 
 ];
 

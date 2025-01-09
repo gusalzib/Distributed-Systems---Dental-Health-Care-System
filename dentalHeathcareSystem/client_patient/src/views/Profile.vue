@@ -44,31 +44,29 @@
 
               <div v-else-if="activeSection === 'add_subscription'">
                 <h3>Add A Subscription</h3>
-                <div id="add-subscriptions">
-                  <label>Subscription from: </label>
-                  <input v-model="subscription.period_sub_from"
-                         type="datetime-local" id="subscription-from"/>
-                  <label>Subscription until: </label>
-                  <input v-model="subscription.period_sub_until"
-                         type="datetime-local" id="subscription-until"/>
-<!--                  <label>Appointment type: </label>-->
-<!--                  <input v-model="subscription.appointment_type" type="text" id="ssn"/>-->
-                  <label>Notification Preference:</label>
-                  <div class="radio-group">
-                  <input v-model="subscription.notification_preference" type="radio" id="yes" value="true"/>
-                  <label for="yes">Yes</label>
-                  <input v-model="subscription.notification_preference" type="radio" id="no" value="false"/>
-                  <label for="no">No</label>
-                  </div>
-                  <label>Notification Email: </label>
-                  <input v-model="subscription.email_notification" type="email" id="email"/>
-                  <label>Notification Phone Number: </label>
-                  <input v-model="subscription.phone_notification" type="tel" id="phone_number"/>
+                <CreateSubscription/>
+                <!--                <div id="add-subscriptions">-->
+<!--                  <label>Subscription from: </label>-->
+<!--                  <input v-model="subscription.period_sub_from"-->
+<!--                         type="datetime-local" id="subscription-from"/>-->
+<!--                  <label>Subscription until: </label>-->
+<!--                  <input v-model="subscription.period_sub_until"-->
+<!--                         type="datetime-local" id="subscription-until"/>-->
+<!--                  <label>Notification Preference:</label>-->
+<!--                  <div class="radio-group">-->
+<!--                  <input v-model="subscription.notification_preference" type="radio" id="yes" value="true"/>-->
+<!--                  <label for="yes">Yes</label>-->
+<!--                  <input v-model="subscription.notification_preference" type="radio" id="no" value="false"/>-->
+<!--                  <label for="no">No</label>-->
+<!--                  </div>-->
+<!--                  <label>Notification Email: </label>-->
+<!--                  <input v-model="subscription.email_notification" type="email" id="email"/>-->
+<!--                  <label>Notification Phone Number: </label>-->
+<!--                  <input v-model="subscription.phone_notification" type="tel" id="phone_number"/>-->
 
-                  <button id="update-button" class="submit-button" v-on:click="createSubscription()" type="button">Subscribe</button>
-                </div>
+<!--                  <button id="update-button" class="submit-button" v-on:click="createSubscription()" type="button">Subscribe</button>-->
+<!--                </div>-->
               </div>
-
                 <div v-else-if="activeSection === 'subscriptions'">
                     <h3>My Subscriptions</h3>
                     <div class="subs-container">
@@ -120,12 +118,14 @@
 import { Api } from '@/Api';
 import MyAppointments from '@/views/MyAppointments.vue';
 import MedicalJournal from '@/views/MedicalJournal.vue';
+import CreateSubscription from "@/views/CreateSubscription.vue";
 
 export default {
     name: 'profile',
     components: {
-        MyAppointments,
-        MedicalJournal
+      MyAppointments,
+      MedicalJournal,
+      CreateSubscription
   },
   data() {
       return {
@@ -137,14 +137,14 @@ export default {
             address: '',
             appointments: []
           },
-        subscription: {
-          period_sub_from: "",
-          period_sub_until: "",
-          appointment_type: "",
-          notification_preference: false,
-          email_notification: "",
-          phone_notification: ""
-        },
+        // subscription: {
+        //   period_sub_from: "",
+        //   period_sub_until: "",
+        //   appointment_type: "",
+        //   notification_preference: false,
+        //   email_notification: "",
+        //   phone_notification: ""
+        // },
       error_message: '',
           confirmation_message: '',
           activeSection: '',
@@ -161,7 +161,7 @@ export default {
           },
           patient_get_specific_url: '',
           update_patient_specific_url: '',
-          create_subscription: ''
+          // create_subscription: ''
         // currentDate: ""
     }
     },
@@ -170,16 +170,16 @@ export default {
         this.patient_get_specific_url = import.meta.env.VITE_PATIENT_GET_SPECIFIC_URL;
         this.update_patient_specific_url = import.meta.env.VITE_UPDATE_PATIENT_SPECIFIC_URL;
         this.getPatientInformation();
-        this.create_subscription = import.meta.env.VITE_CREATE_NEW_SUBSCRIPTION;
+        // this.create_subscription = import.meta.env.VITE_CREATE_NEW_SUBSCRIPTION;
     },
     methods: {
         setActive(section) {
             try {
                 this.activeSection = section;
 
-                if (section === "add_subscription") {
-                  this.setSubDateBoundaries();
-                }
+                // if (section === "add_subscription") {
+                //   this.setSubDateBoundaries();
+                // }
             } catch (error) {
                 this.error_message = error.message;
             }
@@ -232,28 +232,28 @@ export default {
             })
         },
 
-      setSubDateBoundaries() {
-          this.$nextTick(() => {
-            //   //setting min date attribute to current time-picking date
-            //   // 2024-12-25T08:00
-            const currentDate = new Date().toISOString().slice(0, 16);
-
-            //change minimum selectable date of the "subscription from" to current date
-            document.getElementById("subscription-from").setAttribute("min", currentDate);
-            //change minimum selectable date of the "subscription until" to current date
-            document.getElementById("subscription-until").setAttribute("min", currentDate);
-
-            const anotherCurrentDate = new Date();
-            anotherCurrentDate.setMonth(anotherCurrentDate.getMonth() + 6);
-            const sixMonthsLater = anotherCurrentDate.toISOString().slice(0, 16);
-
-            //change maximum selectable date of the "subscription from" to 6 months from current date
-            document.getElementById("subscription-from").setAttribute("max", sixMonthsLater);
-            //change maximum selectable date of the "subscription until" to 6 months from current date
-            document.getElementById("subscription-until").setAttribute("max", sixMonthsLater);
-
-          });
-      },
+      // setSubDateBoundaries() {
+      //     this.$nextTick(() => {
+      //       //   //setting min date attribute to current time-picking date
+      //       //   // 2024-12-25T08:00
+      //       const currentDate = new Date().toISOString().slice(0, 16);
+      //
+      //       //change minimum selectable date of the "subscription from" to current date
+      //       document.getElementById("subscription-from").setAttribute("min", currentDate);
+      //       //change minimum selectable date of the "subscription until" to current date
+      //       document.getElementById("subscription-until").setAttribute("min", currentDate);
+      //
+      //       const anotherCurrentDate = new Date();
+      //       anotherCurrentDate.setMonth(anotherCurrentDate.getMonth() + 6);
+      //       const sixMonthsLater = anotherCurrentDate.toISOString().slice(0, 16);
+      //
+      //       //change maximum selectable date of the "subscription from" to 6 months from current date
+      //       document.getElementById("subscription-from").setAttribute("max", sixMonthsLater);
+      //       //change maximum selectable date of the "subscription until" to 6 months from current date
+      //       document.getElementById("subscription-until").setAttribute("max", sixMonthsLater);
+      //
+      //     });
+      // },
 
       /*
           subscription: {
@@ -267,20 +267,20 @@ export default {
           phone_notification: ""
         },*/
 
-      async createSubscription() {
-        try {
-          const response = await Api.post(`${this.create_subscription}`, this.subscription);
-
-          if (response.status === 200) {
-            this.confirmation_message = 'Subscribed to time period!';
-          }
-        } catch (error) {
-            this.error_message = 'Subscription failed!';
-            setTimeout(() => {
-              this.error_message = ''
-            }, 10000);
-          }
-      }
+      // async createSubscription() {
+      //   try {
+      //     const response = await Api.post(`${this.create_subscription}`, this.subscription);
+      //
+      //     if (response.status === 200) {
+      //       this.confirmation_message = 'Subscribed to time period!';
+      //     }
+      //   } catch (error) {
+      //       this.error_message = 'Subscription failed!';
+      //       setTimeout(() => {
+      //         this.error_message = ''
+      //       }, 10000);
+      //     }
+      // }
       // async addSubscription() {
       //     var formData = new FormData();
       //     formData.append('sub_from', this.subscription.period_subscription.sub_from);
