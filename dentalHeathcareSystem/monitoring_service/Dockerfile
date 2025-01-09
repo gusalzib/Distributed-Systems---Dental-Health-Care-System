@@ -1,5 +1,8 @@
-FROM node:16-alpine
+FROM node:20-alpine
+RUN apk add --no-cache docker-cli docker-compose
 WORKDIR /app
-COPY . .
+COPY package*.json .
 RUN npm install
-CMD ["node","monitor.js"]
+COPY . ./
+EXPOSE 3999
+CMD ["node","index.js"]

@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "child_process": "^1.0.2",
+    "debug": "^4.4.0",
     "dockerode": "^4.0.3",
     "dockerstats": "^2.4.2",
     "express": "^4.21.2",
