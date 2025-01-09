@@ -18,11 +18,14 @@
           <input v-model="subscription.notification_preference" type="radio" id="no" value="false"/>
           <label for="no">No</label>
         </div>
-        <label>Notification Email: </label>
-        <input v-model="subscription.email_notification" type="email" id="email"/>
-        <label>Notification Phone Number: </label>
-        <input v-model="subscription.phone_notification" type="tel" id="phone_number"/>
-
+        <label>Get notified by email:
+          <input v-model="notify_by_email" type="checkbox" id="email" name="email"/>
+        </label>
+        <br>
+        <label>Get notified by sms on mobile:
+          <input v-model="notify_by_phone" type="checkbox" id="phone_number" name="phone"/>
+        </label>
+        <br>
         <button id="update-button" class="submit-button" v-on:click="createSubscription()" type="button">Subscribe</button>
 
         <div id="confirmation_message" class="confirmation_message">{{ confirmation_message }}</div>
@@ -52,7 +55,9 @@ export default {
       },
       create_subscription: '',
       confirmation_message: '',
-      error_message: ''
+      error_message: '',
+      notify_by_email: false,
+      notify_by_phone: false
     }
   },
   mounted() {
@@ -90,7 +95,10 @@ export default {
           console.log(this.error_message);
           // return this.error_message;
         } else {
-          console.log("we got to the else after validating the period")
+        this.checkNotificationPreference();
+          console.log("printing the email", this.subscription.email_notification);
+          console.log("printing the phone", this.subscription.phone_notification);
+        console.log("we got to the else after validating the period")
         const response = await Api.post(`${this.create_subscription}`, this.subscription);
         if (response.status === 200) {
           this.confirmation_message = 'Subscribed to time period!';
@@ -115,6 +123,19 @@ export default {
       } else {
         console.log("we are returning true in validation")
         return true;
+      }
+    },
+
+    checkNotificationPreference() {
+      if (this.notify_by_phone) {
+        this.subscription.phone_notification = "1";
+      } else {
+        this.subscription.phone_notification = "0"
+      }
+      if(this.notify_by_email) {
+        this.subscription.email_notification = "1";
+      } else {
+        this.subscription.email_notification = "0"
       }
     }
   }

@@ -115,7 +115,7 @@ export default {
                     this.error_message = ''
                 }, 10000);
 
-              }else if (error.response?.status === 400) {
+              } else if (error.response?.status === 400) {
                 this.error_message = error.response?.data.message;
                 setTimeout(() => {
                     this.error_message = ''

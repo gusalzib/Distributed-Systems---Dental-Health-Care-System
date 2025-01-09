@@ -46,7 +46,8 @@ exports.authenticatePatient = async (topic, payload) => {
                     userId: patient._id,
                     role: 'admin',
                     email: patient.email,
-                    region: patient.region
+                    region: patient.region,
+                    phone_number: patient.phone_number
                 },
                 secret_key,
                 { expiresIn: '1h' }
@@ -57,7 +58,9 @@ exports.authenticatePatient = async (topic, payload) => {
                     userId: patient._id,
                     role: 'patient',
                     email: patient.email,
-                    region: patient.region
+                    region: patient.region,
+                    phone_number: patient.phone_number
+
                 },
                 secret_key,
                 { expiresIn: '1h' }
