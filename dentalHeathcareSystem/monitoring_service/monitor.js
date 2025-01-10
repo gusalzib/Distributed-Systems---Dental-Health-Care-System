@@ -1,7 +1,28 @@
 const Docker = require('dockerode');
 const docker = new Docker();
+const {spawn} = require('child_process');
 
 
+
+
+var services = [                                      //Service array
+    {
+      service: "dentalheathcaresystem-appointments-service-1",
+      numberOfInstances:1,
+    },
+    {
+      service: "dentalheathcaresystem-patients-service-1",
+      numberOfInstances:1,
+    },
+    {
+      service: "dentalheathcaresystem-dentist-clinic-service-1",
+      numberOfInstances:1,
+    },
+    {
+      service: "dentalheathcaresystem-dentists-service-1",
+      numberOfInstances:1,
+    },
+   ];
 
    async function getContainerStatistics (containerName) {
     try{
@@ -29,15 +50,6 @@ const docker = new Docker();
         const memoryUsage = (statsStream.memory_stats.usage / 1024 / 1024);
         const memoryLimit = (statsStream.memory_stats.limit / 1024 / 1024);
         const memoryUsagePercentage = ((memoryUsage / memoryLimit) * 100).toFixed(2);
-        console.log('memory %:', memoryUsagePercentage);
-
-        const nameArr = containerName.split('-');
-        const serviceToScale = nameArr[1]+'-'+nameArr[2];
-        
-        if(cpuUsage > 0.60 || memoryUsagePercentage > 70){
-            console.log("Scale up!");
-            scaleUpServices(serviceToScale,containerName)
-        }
 
         return {
             name: containerName,
@@ -49,6 +61,99 @@ const docker = new Docker();
     }
 }
 
+async function monitor(containerName) {
+    setInterval(async () => {
+        try{
+        const stats = await getContainerStatistics(containerName);
+
+        const nameArr = containerName.split('-');
+        const serviceToScale = nameArr[1]+'-'+nameArr[2];
+
+        if(stats.cpu > 0.40 || stats.memory > 70){
+            console.log("Scale up!" , containerName);
+            scaleUpServices(serviceToScale,containerName)
+        }
+
+
+        //console.log(`Stats for ${stats.name}: CPU: ${stats.cpu}, Memory: ${stats.memory}`);
+ 
+        } catch (err) {
+            console.error(err.message);
+        }
+    },5000);    
+}
+async function printStatistics(containerName) {
+    setInterval( async () => {
+        try{
+            const stats = await getContainerStatistics(containerName);
+            console.log(`Stats for ${stats.name}: CPU: ${stats.cpu}, Memory: ${stats.memory}`);
+     
+        } catch (err) {
+            console.error(err.message);
+        }
+    },5000);  
+};
+
+monitor('dentalheathcaresystem-appointments-service-1');
+monitor('dentalheathcaresystem-dentist-clinic-service-1')
+monitor('dentalheathcaresystem-patients-service-1');
+monitor('dentalheathcaresystem-dentists-service-1');
+const gatewayStats = printStatistics('dentalheathcaresystem-api_gateway-1');
+
+
+
+function scaleUpServices(serviceName,containerName) {
+
+    const service = services.find((service) => service.service === containerName);
+    if(!service){
+        console.error(`Service not found for container: ${containerName}`)
+        return;
+    }
+
+    const replicas = service.numberOfInstances + 1;
+    
+    const pathToYmlFile ='/app/docker-compose.yml';
+    const projectName = 'dentalheathcaresystem';
+   
+    console.log('NUMBER of instances before:',service.numberOfInstances);
+
+    const compose = spawn('docker-compose', [
+        '-p',projectName,
+        '-f', pathToYmlFile,
+        'up','-d',
+        '--no-recreate',
+        '--no-build',
+        '--scale', `${serviceName}=${replicas}`],{
+            stdio: 'inherit',
+            cwd:'/app'
+        });
+
+        service.numberOfInstances = replicas;
+        console.log('NUMBER of instances after:',service.numberOfInstances);
+
+    compose.stdout.on('data', (data) => {
+        console.log(`tsdout: ${data}`);
+        console.log('TESTING');
+    });
+
+    compose.stderr.on('data', (data) => {
+        console.error(`tsderr: ${data}`);
+    });
+
+    compose.on('error', (err) => {
+        console.error('Failed to execute docker compose:',err);
+    });
+    
+    compose.on('close',  (code) => {
+        console.log(`child process exited with code ${code}`);
+        if(code === 0) {
+            service.numberOfInstances = replicas;
+            console.log('NUMBER OF INSTANCES : ',service.numberOfInstances);
+        } else {
+            console.error('Failed to update service instance count.')
+        }
+    });
+}
 
 
 
