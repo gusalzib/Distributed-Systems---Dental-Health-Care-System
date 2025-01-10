@@ -36,7 +36,6 @@ export default {
               }
           },
       patient_get_specific_url: '',
-
     }
   },
   mounted() {

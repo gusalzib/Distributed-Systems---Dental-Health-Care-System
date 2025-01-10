@@ -1,5 +1,7 @@
 const Subscription = require("../subscription_model/Subscription");
 const MqttBroker = require("../../mqtt-broker");
+const emailValidator = require("validator");
+
 // const emailValidator = require('validator'); // this could be used to validate email from notification means
 
 exports.createSubscription = async (payload) => {
@@ -19,9 +21,21 @@ exports.createSubscription = async (payload) => {
         //     console.log("/" + newSubscriptionValidation.message);
         //     return status + "/" + newSubscriptionValidation.message;
         // }
+        if (newSubscription.email_notification === "1") {
+            if (emailValidator.isEmail(newSubscription.email_notification)){
+                newSubscription.email_notification = newSubscription.email;// get email from token
+            } else {
+                status = 400;
+                message = "Bad request honey. Invalid email!"
+                return status + "/" + message + "/" + error.message;
+            }
+        }
 
+        if (newSubscription.phone_notification === "1") {
+        newSubscription.phone_notification = newSubscription.phone_number;// get phone number from token
+        }
         const subscription = new Subscription(newSubscription);
-        console.log("just before saving " , newSubscription);
+        console.log("just before saving ", newSubscription);
         await subscription.save();
         console.log("are we getting after save?")
 

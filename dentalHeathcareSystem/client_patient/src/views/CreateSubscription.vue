@@ -21,7 +21,6 @@
         <label>Get notified by email:
           <input v-model="notify_by_email" type="checkbox" id="email" name="email"/>
         </label>
-        <br>
         <label>Get notified by sms on mobile:
           <input v-model="notify_by_phone" type="checkbox" id="phone_number" name="phone"/>
         </label>
@@ -129,13 +128,9 @@ export default {
     checkNotificationPreference() {
       if (this.notify_by_phone) {
         this.subscription.phone_notification = "1";
-      } else {
-        this.subscription.phone_notification = "0"
       }
       if(this.notify_by_email) {
         this.subscription.email_notification = "1";
-      } else {
-        this.subscription.email_notification = "0"
       }
     }
   }

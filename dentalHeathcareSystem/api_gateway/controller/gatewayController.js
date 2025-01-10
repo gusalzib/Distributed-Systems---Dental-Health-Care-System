@@ -291,11 +291,13 @@ exports.post = async (req, res) => {
         // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
         const sessionUserId = req.user.userId;
         const sessionUserRole = req.user.role;
-        const sessionUserEmail = req.user.email
+        const sessionUserEmail = req.user.email;
+        const sessionPhoneNumber = req.user.phone_number;
         // adding the userId field to the payload 
         payload.userId = sessionUserId;
         payload.role = sessionUserRole;
-        payload.email = sessionUserEmail
+        payload.email = sessionUserEmail;
+        payload.phone_number = sessionPhoneNumber;
         
         var mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
         if(!mqttResponse){

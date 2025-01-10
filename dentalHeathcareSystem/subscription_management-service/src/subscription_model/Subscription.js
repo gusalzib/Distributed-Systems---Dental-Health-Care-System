@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const emailValidator = require("validator");
 
-
-var subscriptionSchema = new Schema({
+let subscriptionSchema = new Schema({
 
     patient_id: {
         type: mongoose.Schema.Types.ObjectId,
@@ -34,9 +32,6 @@ var subscriptionSchema = new Schema({
 
     email_notification: {
         type: String,
-        validate: [emailValidator.isEmail, "invalid email"],
-        unique: true,
-        sparse: true
     },
 
     phone_notification: {
