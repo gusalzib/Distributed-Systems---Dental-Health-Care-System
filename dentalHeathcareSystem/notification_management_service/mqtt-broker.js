@@ -1,8 +1,8 @@
 const mqtt = require('mqtt');
-const subscriptionCtrl = require("./src/subscription_controller/subscription_controller")
+const notificationCtrl = require("./src/notification_controller/notification_controller")
 let mqttClient;
 
-const os = require('os');
+const os = require("os");
 const specialNumber = os.hostname();
 const service = process.env.SERVICE;
 const thisService = service +'-'+specialNumber;
@@ -57,56 +57,32 @@ function connectToBroker() {
             await publishToBroker(publishTopic,newPayload);
 
         } else if (topic.startsWith(`${thisService}/create/`)) {
-            console.log("create a subscription");
-            await subscriptionCtrl.createSubscription(payload).then(response => {
+            console.log("create a notification");
+            await notificationCtrl.createNotification(payload).then(response => {
                 publishToBroker(publishTopic, response);
             })
-
-        } else if (topic.startsWith(`${thisService}/get/specific/`)) {
-            await subscriptionCtrl.getSpecificSubscription(topic).then(response => {
-                publishToBroker(publishTopic, response);
-            });
-            await unsubscribe(topic);
-
-        } else if (topic.startsWith(`${thisService}/update/`)) {
-            await subscriptionCtrl.updateSpecificSubscription(topic, payload).then(response => {
-                publishToBroker(publishTopic, response);
-            });
-            await unsubscribe(topic);
-
-        } else if (topic.startsWith(`${thisService}/delete/`)) {
-            await subscriptionCtrl.deleteSpecificSubscription(topic).then(response => {
-                publishToBroker(publishTopic, response);
-            });
-            await unsubscribe(topic);
-
-        } else if (topic.startsWith(`${thisService}/get/`)) {
-            await subscriptionCtrl.getAllSubscriptions(payload).then(response => {
-                publishToBroker(publishTopic, response);
-            });
-            await unsubscribe(topic);
         }
     });
 }
 
 function publishToBroker(topic, payload) {
     mqttClient.publish(topic, payload, {qos: 0, retain: false})
-};
+}
 
 function subscribeToBroker(topic) {
     mqttClient.subscribe(topic, {qos: 0})
     console.log("subscribed to topic: ", topic);
     
-};
+}
 
-async function unsubscribe(topic){
-    mqttClient.unsubscribe(topic).then((successful) => {
-        console.log("You've successfully unsubscribed from topic: ",topic);
-    })
-        .catch((e) => {
-            console.log("Unsubscribing failed");
-        })
-};
+// async function unsubscribe(topic){
+//     mqttClient.unsubscribe(topic).then((successful) => {
+//         console.log("You've successfully unsubscribed from topic: ",topic);
+//     })
+//         .catch((e) => {
+//             console.log("Unsubscribing failed");
+//         })
+// };
 
 connectToBroker();
 
