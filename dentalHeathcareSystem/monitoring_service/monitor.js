@@ -15,13 +15,17 @@ var services = [                                      //Service array
       numberOfInstances:1,
     },
     {
-      service: "dentalheathcaresystem-dentist-clinic-service-1",
+      service: "dentalheathcaresystem-clinic-service-1",
       numberOfInstances:1,
     },
     {
       service: "dentalheathcaresystem-dentists-service-1",
       numberOfInstances:1,
     },
+    {
+        service: "dentalheathcaresystem-api-gateway-1",
+        numberOfInstances:1,
+      }
    ];
 
    async function getContainerStatistics (containerName) {
@@ -69,7 +73,7 @@ async function monitor(containerName) {
         const nameArr = containerName.split('-');
         const serviceToScale = nameArr[1]+'-'+nameArr[2];
 
-        if(stats.cpu > 0.40 || stats.memory > 70){
+        if(stats.cpu > 0.30 || stats.memory > 70){
             console.log("Scale up!" , containerName);
             scaleUpServices(serviceToScale,containerName)
         }
@@ -95,10 +99,11 @@ async function printStatistics(containerName) {
 };
 
 monitor('dentalheathcaresystem-appointments-service-1');
-monitor('dentalheathcaresystem-dentist-clinic-service-1')
+monitor('dentalheathcaresystem-clinic-service-1')
 monitor('dentalheathcaresystem-patients-service-1');
 monitor('dentalheathcaresystem-dentists-service-1');
-const gatewayStats = printStatistics('dentalheathcaresystem-api_gateway-1');
+monitor('dentalheathcaresystem-api-gateway-1');
+const gatewayStats = printStatistics('dentalheathcaresystem-api-gateway-1');
 
 
 
@@ -109,7 +114,8 @@ function scaleUpServices(serviceName,containerName) {
         console.error(`Service not found for container: ${containerName}`)
         return;
     }
-
+    console.log("service name :", serviceName);
+    console.log("container name :", containerName);
     const replicas = service.numberOfInstances + 1;
     
     const pathToYmlFile ='/app/docker-compose.yml';
@@ -147,6 +153,7 @@ function scaleUpServices(serviceName,containerName) {
     compose.on('close',  (code) => {
         console.log(`child process exited with code ${code}`);
         if(code === 0) {
+            console.log(serviceName,'scaled up!');
             service.numberOfInstances = replicas;
             console.log('NUMBER OF INSTANCES : ',service.numberOfInstances);
         } else {
