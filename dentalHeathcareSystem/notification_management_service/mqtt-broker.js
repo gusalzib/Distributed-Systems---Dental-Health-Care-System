@@ -62,6 +62,18 @@ function connectToBroker() {
                 publishToBroker(publishTopic, response);
             });
             await unsubscribe(topic);
+
+        } else if (topic.startsWith(`${thisService}/get/specific/`)) {
+            await notificationCtrl.getSpecificNotification(topic, payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            await unsubscribe(topic);
+
+        } else if (topic.startsWith(`${thisService}/get/`)) {
+            await notificationCtrl.getAllNotifications(payload).then(response => {
+                publishToBroker(publishTopic, response);
+            });
+            await unsubscribe(topic);
         }
     });
 }
@@ -76,15 +88,6 @@ function subscribeToBroker(topic) {
     
 }
 
-// async function unsubscribe(topic){
-//     mqttClient.unsubscribe(topic).then((successful) => {
-//         console.log("You've successfully unsubscribed from topic: ",topic);
-//     })
-//         .catch((e) => {
-//             console.log("Unsubscribing failed");
-//         })
-// };
-
 async function unsubscribe(topic){
     mqttClient.unsubscribe(topic).then((successful) => {
         console.log("You've successfully unsubscribed from topic: ",topic);
@@ -95,5 +98,4 @@ async function unsubscribe(topic){
 };
 
 connectToBroker();
-
 subscribeToBroker(`${thisService}/topics`);

@@ -50,29 +50,29 @@ function connectToBroker() {
         //console.log("On topic: " + topic); 
         let publishTopic = "response/" + topic;
 
-        if(topic.startsWith(`${thisService}/topics`)){
+        if (topic.startsWith(`${thisService}/topics`)) {
             subscribeToBroker(payloadReceived);
             var newPayload = '200/subscribed to topic/'+topic;
             await publishToBroker(publishTopic,newPayload);
 
-        }else if (topic.startsWith(`${thisService}/create/`)) {
+        } else if (topic.startsWith(`${thisService}/create/`)) {
             await dentistCtrl.createDentist(payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             await unsubscribe(topic);
-        }else if (topic.startsWith(`${thisService}/login/`)) {
+        } else if (topic.startsWith(`${thisService}/login/`)) {
             await dentistAuthenticator.authenticateDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             await unsubscribe(topic);
 
-        }else if(topic.startsWith(`${thisService}/get/clinics/dentists/`)){
+        } else if(topic.startsWith(`${thisService}/get/clinics/dentists/`)) {
             await dentistCtrl.fetchClinicsDentists(topic).then(response => {
                 publishToBroker(publishTopic,response);
             });
             await unsubscribe(topic);
 
-        }else if (topic.startsWith(`${thisService}/get/specific/`)) {
+        } else if (topic.startsWith(`${thisService}/get/specific/`)) {
             await dentistCtrl.getSpecificDentist(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });

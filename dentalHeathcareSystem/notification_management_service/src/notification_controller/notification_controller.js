@@ -8,7 +8,6 @@ exports.createNotification = async (payload) => {
     let status;
     try {
         const newNotification = JSON.parse(payload);
-
         const notification = new Notification(newNotification);
         await notification.save();
 
@@ -50,6 +49,33 @@ exports.getAllNotifications = async (payload) => {
         return status + "/" + error.message;
     }
 };
+
+exports.getSpecificNotification = async (topic, payload) => {
+    let status;
+    let message;
+    try {
+        let topicArray = topic.split("/");
+        let id = topicArray[3];
+        const notification = await Notification.findById(id);
+
+        if (!notification) {
+            status = 404;
+            message = "This appointment slot has been filled";
+            return status + "/" + message;
+        }
+
+            status = 200;
+            message = "Notification retrieved!";
+            let stringifiedNotification = JSON.stringify(notification);
+            let messageToReturn = status + "/" + message + "/" + stringifiedNotification;
+            return messageToReturn;
+
+    } catch (error) {
+        status = 400;
+        error.message = "Something went wrong!";
+        return status + "/" + error.message;
+    }
+}
 
 /*=========== HTTP endpoints ==============*/
 
@@ -104,6 +130,29 @@ exports.retrieveNotifications = async (req, res) => {
             error_message: error.message });
     }
 }
+
+exports.retrieveASpecificNotification = async (req, res) => {
+    try {
+        const id = req.params.notification_id;
+        const notification = await Notification.findById(id);
+        if (!notification) {
+            res.status(400).json({
+                message: "This appointment slot has been filled!"
+            });
+            return;
+        }
+        res.status(200).json({
+            message: "Notification is retrieved",
+            notification: notification})
+        console.log(notification);
+
+    } catch (error) {
+        res
+            .status(400)
+            .json({ message: "Something went wrong!",
+                error_message: error.message });
+    }
+};
 
 /* ==================== non-CRUD methods =========================  */
 
