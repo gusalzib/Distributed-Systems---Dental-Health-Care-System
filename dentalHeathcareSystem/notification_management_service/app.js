@@ -47,10 +47,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-const {registerNotification
+const {registerNotification, retrieveNotifications
 } = require("./src/notification_controller/notification_controller");
 
 app.post("/api/notifications/create", registerNotification);
+app.get("/api/dentists/get", retrieveNotifications);
+
 
 
 app.get("/active", (req,res) =>{

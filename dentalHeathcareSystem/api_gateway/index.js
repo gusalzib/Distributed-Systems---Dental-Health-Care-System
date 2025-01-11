@@ -200,7 +200,9 @@ app.post('/api/appointments/filter', get);
 
 /*###################### POST ENDPOINT FOR NON-SESSION BASED REQUESTS ######################################## */
 
-const { postWithoutSession } = require('./controller/gatewayController.js')
+const { postWithoutSession } = require('./controller/gatewayController.js');
+
+
 app.post('/api/notifications/create', postWithoutSession);
 
 

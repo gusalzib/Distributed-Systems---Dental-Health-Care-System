@@ -25,6 +25,32 @@ exports.createNotification = async (payload) => {
     }
 };
 
+
+
+exports.getAllNotifications = async (payload) => {
+    let status;
+    let message;
+    try {
+        const notifications = await Notification.find();
+        if (!notifications) {
+            status = 200;
+            message = "Clinic has no notifications yet!";
+            return status + "/" + message;
+        }
+
+        status = 200;
+        message = "Notifications retrieved!";
+        let stringifiedNotifications = JSON.stringify(notifications);
+        let messageToReturn = status + "/" + message + "/" + stringifiedNotifications;
+        return messageToReturn;
+
+    } catch (error) {
+        status = 400;
+        error.message = "Something went wrong!";
+        return status + "/" + error.message;
+    }
+};
+
 /*=========== HTTP endpoints ==============*/
 
 
@@ -57,6 +83,27 @@ exports.registerNotification = async (req, res) => {
             });
     }
 };
+
+
+exports.retrieveNotifications = async (req, res) => {
+    try {
+        const notifications = await Notification.find();
+
+        if (!notifications) {
+            res.status(400).json({
+                message: "Clinic has no notifications yet!"
+            })
+            return;
+        }
+        res.status(200).json({
+            message: "Notifications retrieved",
+            dentists: notifications
+        });
+    } catch (error) {
+        res.status(400).json({ message: "Something went wrong!",
+            error_message: error.message });
+    }
+}
 
 /* ==================== non-CRUD methods =========================  */
 
