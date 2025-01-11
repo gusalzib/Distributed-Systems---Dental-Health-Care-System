@@ -84,7 +84,7 @@ exports.login = async (req, res) => {
         let catchArr = errorMessage.split("/")
        
         if(catchArr.length===1){
-            return res.status(400).json({message: "something went wrong"}); 
+            return res.status(400).json({message: "something went wrong"});
         }else{
             const status = parseInt(catchArr[0]);
             return res.status(status).json({message: catchArr[1]});
@@ -636,5 +636,91 @@ function checkForId(adaptedURL){
     }else{
         var id = lastElement;
         return id;
+    }
+}
+
+// ===================== ENDPOINT FOR NON-SESSION-BASED REQUESTS ============================
+
+exports.postWithoutSession = async (req, res) => {
+    try {
+        //get the body and make it a string, get url, remove "api" and give it a unique id
+        let body = req.body;
+        let payload = JSON.stringify(body);
+        const reqURL = req.url;
+        let adaptedURL = adaptRequestURL(reqURL);
+
+        //create all topics
+        let topic = adaptedURL + "/" + giveUniqueID();
+        let topicArr = topic.split("/");
+        let nameOfService = topicArr[0];
+
+        //send nameOfService to check service array and make a roundRobin
+        const balancedService = await index.balanceService(nameOfService);
+        if (balancedService === 0) {
+            res.status(400).json({
+                message: "service is not active"
+            });
+            return
+        }
+
+        topic = topic.replace(nameOfService, balancedService);
+        let responseTopic = 'response/'+ topic
+        let serviceTopic = balancedService + "/topics";
+        let serviceTopicResponse = "response/" + serviceTopic;
+
+        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
+        await mqttBroker.subscribeToBroker(serviceTopicResponse);
+        let serviceResponse = await mqttBroker.publishToBroker(serviceTopic, topic);
+
+        if (!serviceResponse) {
+            res.status(400).json({
+                message: "could not find service"
+            })
+            return
+        } else if (serviceResponse) {
+            mqttBroker.unsubscribe(serviceTopicResponse);
+        }
+        //Publish request
+        await mqttBroker.subscribeToBroker(responseTopic);
+        // I am parsing the payload to json in order to add the userId field to it.
+        payload = JSON.parse(payload);
+
+        let mqttResponse = await mqttBroker.publishToBroker(topic, JSON.stringify(payload));
+        if(!mqttResponse){
+            res.status(400).json({message: "could not create object"});
+            return;
+        } else if (mqttResponse) {
+            mqttBroker.unsubscribe(responseTopic);
+        }
+
+        //exstract information from topic and response, parse the payload and return http response
+        let responseArr = mqttResponse.split("/");
+        let status = parseInt(responseArr[0]);
+
+        if (responseArr.length <= 2) {
+            return res.status(status).json({
+                message : responseArr[1]
+            });
+        } else {
+            let adaptedResponse = JSON.parse(responseArr[2]);
+            return res.status(status).json({
+                message: responseArr[1],
+                [nameOfService]: adaptedResponse
+            });
+
+        }
+    } catch (error) {
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+
+        if(catchArr.length===1) {
+            return res.status(400).json({message: "something went wrong"
+            });
+        } else {
+            const status = parseInt(catchArr[0]);
+            return res.status(status).json({
+                message: catchArr[1]
+            });
+        }
     }
 }
