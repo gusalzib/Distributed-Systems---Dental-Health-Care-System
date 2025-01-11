@@ -6,12 +6,14 @@ var logger = require('morgan');
 var mongoose = require('mongoose')
 var cors = require('cors');
 const mqtt = require('mqtt');
+require('dotenv').config()
 
 
 var app = express();
 var port = 3005;
 
-var mongoURI =  "mongodb://host.docker.internal:27017/dentalHealthcareSystem";
+
+var mongoURI =  process.env.DENTIST_DB_CONNECTION_STRING;
 // Connect to MongoDB
 mongoose
     .connect(mongoURI)

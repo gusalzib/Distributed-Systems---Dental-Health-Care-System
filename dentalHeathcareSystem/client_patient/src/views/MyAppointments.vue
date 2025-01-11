@@ -14,6 +14,7 @@
             <li><span>Time:</span> {{ bookedAppointment.date_and_time_until }}</li>
             <li><span>Type of appointment:</span> {{ bookedAppointment.type_of_appointment || 'General checkup'}}</li>
             <li><span>Clinic address:</span> {{bookedAppointment.clinicLocation}}</li>
+            <li><span>Clinic region:</span> {{bookedAppointment.region}}</li>
           </ul>
         <div id="modal">
           <h2>You are cancelling your appointment at {{bookedAppointment.clinicName}}. Are you sure you want to proceed?</h2>
@@ -59,7 +60,8 @@ export default {
           type_of_appointment:"",
           date_and_time_from:"",
           date_and_time_until:"",
-          available:"",
+          available: "",
+          region: '',
       },  
         patient: {
             name: '',

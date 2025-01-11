@@ -28,7 +28,9 @@
                     </div>
 
                     <div v-else class="clinic-contact-card">
-                        <h2>Address: {{ clinic.address }}</h2>
+                        <!-- {{ clinic }} -->
+                        <h2>Address: {{ clinic.location.formattedAddress }}</h2>
+                        <h2>Region: {{ clinic.region }}</h2>
                         <h2>Phone number: {{ clinic.phoneNumber }}</h2>
                         <h2>Email: {{ clinic.email }}</h2>
                     </div>
@@ -61,6 +63,7 @@ export default {
             activeSection: "clinic",
             clinic:{
                 name: "",
+                region: '',
                 address:"",
                 phoneNumber: "",
                 email:"",

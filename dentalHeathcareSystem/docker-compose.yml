@@ -65,6 +65,7 @@ services:
     environment:
       JWT_SECRET_KEY: "dentime_session"
       SERVICE: "patients"
+      PATIENT_DB_CONNECTION_STRING: "mongodb://host.docker.internal:27017/patients_db"
 
   appointments-service:
     build:
@@ -76,6 +77,7 @@ services:
       - mosquitto-broker
     environment:
       SERVICE: "appointments"
+      APPOINTMENTS_DB_CONNECTION_STRING: "mongodb://host.docker.internal:27017/appointments_db"
 
   dentists-service:
     build:
@@ -88,6 +90,7 @@ services:
     environment:
       JWT_SECRET_KEY: "dentime_session"
       SERVICE: "dentists"
+      DENTIST_DB_CONNECTION_STRING: "mongodb://host.docker.internal:27017/dentists_db"
 
   clinic-service:
     build:
@@ -99,6 +102,9 @@ services:
     #   - mosquitto-broker
     environment:
       SERVICE: "clinics"
+      CLINIC_DB_CONNECTION_STRING: "mongodb://host.docker.internal:27017/clinics_db"
+      GEOCODER_API_KEY: zURLzR3AqjSy2T5740eg6Ay0cIizYTTi
+      GEOCODER_PROVIDER: mapquest
 
   monitoring-service:
     build:
