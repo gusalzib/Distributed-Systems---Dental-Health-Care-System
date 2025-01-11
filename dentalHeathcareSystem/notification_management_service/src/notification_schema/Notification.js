@@ -5,12 +5,14 @@ let notificationSchema = new Schema({
 
     patient_id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref:"Patient"
+        ref:"Patient",
+        // type: String
     },
 
     appointment_id: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Appointment',
+        ref: 'Appointment'
+        // type: String
     },
 
     notification_message: {

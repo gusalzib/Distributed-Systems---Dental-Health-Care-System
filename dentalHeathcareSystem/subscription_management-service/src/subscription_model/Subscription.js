@@ -45,6 +45,7 @@ let subscriptionSchema = new Schema({
         default: Date.now()
     }
 
+
 });
 module.exports = mongoose.model(
     "subscription", subscriptionSchema);

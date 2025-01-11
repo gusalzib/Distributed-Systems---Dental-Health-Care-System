@@ -11,7 +11,7 @@ require('dotenv').config();
 let app = express();
 let port = 3021;
 
-const mongoURI =  process.env.SUBSCRIPTION_DB_CONNECTION_STRING;
+const mongoURI =  process.env.NOTIFICATION_DB_CONNECTION_STRING;
 // Connect to MongoDB
 mongoose
     .connect(mongoURI)

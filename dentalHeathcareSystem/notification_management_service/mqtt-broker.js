@@ -60,7 +60,8 @@ function connectToBroker() {
             console.log("create a notification");
             await notificationCtrl.createNotification(payload).then(response => {
                 publishToBroker(publishTopic, response);
-            })
+            });
+            await unsubscribe(topic);
         }
     });
 }
@@ -83,6 +84,15 @@ function subscribeToBroker(topic) {
 //             console.log("Unsubscribing failed");
 //         })
 // };
+
+async function unsubscribe(topic){
+    mqttClient.unsubscribe(topic).then((successful) => {
+        console.log("You've successfully unsubscribed from topic: ",topic);
+    })
+        .catch((e) => {
+            console.log("Unsubscribing failed");
+        })
+};
 
 connectToBroker();
 

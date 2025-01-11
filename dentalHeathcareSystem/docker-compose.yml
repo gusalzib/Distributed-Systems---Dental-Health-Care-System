@@ -113,6 +113,20 @@ services:
       - mosquitto-broker
     environment:
       SERVICE: "subscriptions"
+      SUBSCRIPTION_DB_CONNECTION_STRING: "mongodb://host.docker.internal:27017/subscriptions_db"
+
+  notifications-service:
+    build:
+      context: ./notification_management_service
+    networks:
+      - my-network
+    depends_on:
+      - mongo
+      - mosquitto-broker
+    environment:
+      SERVICE: "notifications"
+      NOTIFICATION_DB_CONNECTION_STRING: "mongodb://host.docker.internal:27017/notifications_db"
+
 
 volumes:
   mongo-data:

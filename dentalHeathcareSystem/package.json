@@ -9,6 +9,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "jsonwebtoken": "^9.0.2",
     "mqtt": "^5.10.3"
   }
 }
