@@ -4,6 +4,7 @@ const index = require('../index.js');
 //sessions variables 
 const jwtVerification = require('../jwtVerification.js');
 const jwt = require('jsonwebtoken');
+const redisClient = require('../redisClient.js');
 
 /* ################################################# LOGIN, LOGOUT AND SIGNUP ENDPOINTS ############################################################# */
 exports.login = async (req, res) => {
@@ -242,6 +243,223 @@ exports.signup = async (req, res) => {
     }
 }
 
+/* ############################################################################# Specialized dentist and clinic get methods with cache implementation ########################################################## */
+exports.getClinics = async (req, res) => { 
+    const key = 'clinics'
+    try {
+        //get the body and make it a string, get the url and call method to remove "api"
+        var body = req.body;
+        var payload = JSON.stringify(body);
+        const reqURL = req.url;
+        var adaptedURL = adaptRequestURL(reqURL);
+
+        //create all topics
+        // does url contain an _id? if not give it an unique id
+        var id = checkForId(adaptedURL);
+        if(!id){
+            var topic = adaptedURL + "/" + giveUniqueID();
+        }else{
+            topic = adaptedURL;
+        }
+        var topicArr = topic.split("/");
+        var nameOfService = topicArr[0];
+
+        //send nameOfService to check service array and make a roundRobin
+        const balancedService = await index.balanceService(nameOfService);
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            console.log(nameOfService,'IS NOT ACTIVE');
+            return
+        }   
+        topic = topic.replace(nameOfService,balancedService);
+        var responseTopic = 'response/'+topic
+        var serviceTopic = balancedService+"/topics";
+        var serviceTopicResponse = "response/"+serviceTopic;
+
+        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
+        await mqttBroker.subscribeToBroker(serviceTopicResponse);
+        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
+        if(!serviceResponse){
+            res.status(400).json({message: "could not find service"})
+            return
+        }else if (serviceResponse){
+            mqttBroker.unsubscribe(serviceTopicResponse);
+        }
+
+        //Publish request
+        await mqttBroker.subscribeToBroker(responseTopic);
+        // I am parsing the payload to json in order to add the userId field to it. 
+        payload = JSON.parse(payload);
+        if (req.user) {
+
+            // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
+            const sessionUserId = req.user.userId;
+            const sessionUserRole = req.user.role;
+            
+            // adding the userId field to the payload 
+            payload.userId = sessionUserId;
+            payload.role = sessionUserRole;
+        }
+
+        var mqttResponse = await mqttBroker.dentistPublishToBroker(topic, JSON.stringify(payload));
+        if(!mqttResponse){
+            res.status(400).json({message: "could not create object"});
+            return
+        }else if(mqttResponse){
+            mqttBroker.unsubscribe(responseTopic);
+        }
+         //exstract information from topic and response, parse the payload and return http response
+       
+        var responseArr = mqttResponse.split("/"); 
+        var status = parseInt(responseArr[0]);
+
+        if(responseArr.length <=2){
+            res.status(status).json({message : responseArr[1]});
+        }else{
+            var adaptedResponse = JSON.parse(responseArr[2]);   
+
+            // cache the clinic data
+            redisClient.set(key, JSON.stringify(adaptedResponse), {EX: 345600})
+
+            res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
+            return;
+        }
+
+    } catch (error) {      
+        // fallback on cache if database fails
+        const cachedData = await redisClient.get(key);
+        if (cachedData) {            
+            const parsedCacheData = JSON.parse(cachedData);
+            console.log(parsedCacheData);
+            return res.status(200).json({ message: 'Fallback cache data', clinics: parsedCacheData });
+        }
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+       
+        if(catchArr.length===1){
+            res.status(400).json({message: "something went wrong"}); 
+        }else{
+            const status = parseInt(catchArr[0]);
+        res.status(status).json({message: catchArr[1]});
+        }
+    }
+}
+exports.getDentistAppointments = async (req, res) => { 
+    var key = 'appointments'
+    try {
+        //get the body and make it a string, get the url and call method to remove "api"
+        var body = req.body;
+        var payload = JSON.stringify(body);
+        const reqURL = req.url;
+        var adaptedURL = adaptRequestURL(reqURL);
+        
+        // pagination variables
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10; 
+                
+        //create all topics
+        // does url contain an _id? if not give it an unique id
+        var id = checkForId(adaptedURL);
+        if(!id){
+            var topic = adaptedURL + "/" + giveUniqueID();
+        }else{
+            topic = adaptedURL;
+        }
+        var topicArr = topic.split("/");
+        var nameOfService = topicArr[0];
+
+        //send nameOfService to check service array and make a roundRobin
+        const balancedService = await index.balanceService(nameOfService);
+        if(balancedService === 0){
+            res.status(400).json({message: "service is not active"});
+            console.log(nameOfService,'IS NOT ACTIVE');
+            return
+        }   
+        topic = topic.replace(nameOfService,balancedService);
+        var responseTopic = 'response/'+topic
+        var serviceTopic = balancedService+"/topics";
+        var serviceTopicResponse = "response/"+serviceTopic;
+
+        //tell service to subscribe to the topic sent as a payload and make gateway subscribe to response topic
+        await mqttBroker.subscribeToBroker(serviceTopicResponse);
+        var serviceResponse = await mqttBroker.publishToBroker(serviceTopic,topic);
+        if(!serviceResponse){
+            res.status(400).json({message: "could not find service"})
+            return
+        }else if (serviceResponse){
+            mqttBroker.unsubscribe(serviceTopicResponse);
+        }
+
+        //Publish request
+        await mqttBroker.subscribeToBroker(responseTopic);
+        // I am parsing the payload to json in order to add the userId field to it. 
+        payload = JSON.parse(payload);
+
+        // add the pagination variables to the payload
+        if (page && limit) {
+            payload.page = page;
+            payload.limit = limit; 
+        }
+
+        if (req.user) {
+
+            // get the user id from the current session and send it to the controller so that it knows which patient is logged in at the moment.
+            const sessionUserId = req.user.userId;
+            const sessionUserRole = req.user.role;
+            const sessionUserRegion = req.user.region;
+            const sessionUserEmail = req.user.email;
+            
+            // adding the userId field to the payload 
+            payload.userId = sessionUserId;
+            payload.role = sessionUserRole;
+            payload.region = sessionUserRegion;
+            payload.email = sessionUserEmail;
+        }
+
+        var mqttResponse = await mqttBroker.dentistPublishToBroker(topic, JSON.stringify(payload));
+        if(!mqttResponse){
+            res.status(400).json({message: "could not create object"});
+            return
+        }else if(mqttResponse){
+            mqttBroker.unsubscribe(responseTopic);
+        }
+         //exstract information from topic and response, parse the payload and return http response
+       
+        var responseArr = mqttResponse.split("/"); 
+        var status = parseInt(responseArr[0]);
+
+        if(responseArr.length <=2){
+            res.status(status).json({message : responseArr[1]});
+        }else{
+            var adaptedResponse = JSON.parse(responseArr[2]);   
+
+            // cache appointment data
+            redisClient.set(key, JSON.stringify(adaptedResponse), {EX: 345600})
+
+            res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
+            return;
+        }
+
+    } catch (error) {
+        // fallback on cache if database fails
+        const cachedData = await redisClient.get(key);
+        if (cachedData) {            
+            const parsedCacheData = JSON.parse(cachedData);
+            return res.status(200).json({ message: 'Fallback cache data', appointments: parsedCacheData });
+        }
+        
+        const errorMessage = error.toString();
+        let catchArr = errorMessage.split("/")
+    
+        if(catchArr.length===1){
+            res.status(400).json({message: "something went wrong"}); 
+        }else{
+            const status = parseInt(catchArr[0]);
+        res.status(status).json({message: catchArr[1]});
+        }
+    
+    }
+}
 
 /* ################################################# GENERIC POST, GET, PUT AND DELETE ENDPOINTS ############################################################# */
 
@@ -333,7 +551,6 @@ exports.post = async (req, res) => {
     }
 }
 
-const redisClient = require('../redisClient.js');
 
 
 exports.get = async (req, res) => { 
@@ -348,39 +565,7 @@ exports.get = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10; 
         
-        // Redis caching code
-        const entityName = adaptedURL.split('/')[0];    // dynamically get the service name
-        var key = ''
 
-        // i had to include the userSession in the key if it exists so that the cache would not confuse user requests
-        // if the session does not exist it will add a unique timestamp
-        var userSession = req.user ? req.user.userId : Date.now();
-        if (req.query) {
-            key = `${adaptedURL}:${userSession}:${JSON.stringify(req.query)}:${JSON.stringify(req.body)}`;
-        } else {
-            key = `${adaptedURL}:${userSession}:${JSON.stringify(req.body)}`;
-        }
-    
-
-        const cachedData = await redisClient.get(key);
-        if (cachedData) {
-            console.log('Cached hit for key: ', key);
-
-            // we need to parse and construct a new formatted response because the cache stores the
-            // data in a different format, something like his:
-            /*
-            "[{\"location\":{\"type\":\"Point\",\"coordinates\":[11.95317,57.69513],\"formattedAddress\":\"2 Djupedalsgatan, Gothenburg, O 413 07, SE\"},\"_id\":\
-            */
-            const parsedCacheData = JSON.parse(cachedData);
-            const formattedReply = {
-                message: 'Success',
-                [entityName]: parsedCacheData
-            }
-            return res.status(200).json(formattedReply);
-            
-        }
-        console.log('cache miss for this key: ', key);
-                
         //create all topics
         // does url contain an _id? if not give it an unique id
         var id = checkForId(adaptedURL);
@@ -456,17 +641,11 @@ exports.get = async (req, res) => {
         }else{
             var adaptedResponse = JSON.parse(responseArr[2]);   
 
-            await redisClient.set(key, JSON.stringify(adaptedResponse), {
-                EX: 3600,
-            });
-            
             res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
             return;
         }
 
-    } catch (error) {
-        console.log(error);
-        
+    } catch (error) {        
         const errorMessage = error.toString();
         let catchArr = errorMessage.split("/")
        
@@ -487,6 +666,7 @@ exports.put = async (req, res) => {
         const reqURL = req.url;
         var adaptedURL = adaptRequestURL(reqURL);
         
+
         //create all topics
         // does url contain an _id? if not give it an unique id
         var id = checkForId(adaptedURL);
@@ -553,9 +733,10 @@ exports.put = async (req, res) => {
         if(responseArr.length <=2){
             res.status(status).json({message : responseArr[1]});
         }else{
-        var adaptedResponse = JSON.parse(responseArr[2]);     
-        res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
-        return;
+            var adaptedResponse = JSON.parse(responseArr[2]);  
+
+            res.status(status).json({ message: responseArr[1], [nameOfService]: adaptedResponse });
+            return;
         }
 
     } catch (error) {

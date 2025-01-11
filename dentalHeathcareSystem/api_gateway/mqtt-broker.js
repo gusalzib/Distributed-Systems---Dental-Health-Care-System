@@ -90,6 +90,34 @@ async function publishToBroker(topic, payload) {
    
 };
 
+async function dentistPublishToBroker(topic, payload) {
+    
+    const resTopic = "response/"+topic;
+    await mqttClient.publish(topic, payload, {qos: 0, retain: false})
+
+    return new Promise((resolve,reject) => {    
+        const timeout = setTimeout(() => {
+            const message = `408/request timed out for ${topic} `;
+
+            reject(message)
+        }, 3000);
+        
+        const checkResponse = () => {
+            
+            const response = responseArr.find(response => response.topic === resTopic);
+            if(response){
+                clearTimeout(timeout);
+                responseArr = responseArr.filter(response => response.topic !== resTopic);                  
+                resolve(response.payload);
+            }else {
+                setTimeout(checkResponse, 100);
+            }
+        };
+        checkResponse();
+    })
+   
+};
+
 async function subscribeToBroker(topic) {
     mqttClient.subscribe(topic, {qos: 0})
     console.log("subscribed to topic: ",topic);
@@ -109,4 +137,4 @@ subscribeToBroker('active');
 
 
 
-module.exports = {publishToBroker,unsubscribe,subscribeToBroker};
+module.exports = {publishToBroker,unsubscribe,subscribeToBroker,dentistPublishToBroker};

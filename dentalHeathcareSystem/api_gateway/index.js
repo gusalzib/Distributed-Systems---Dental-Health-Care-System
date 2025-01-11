@@ -155,7 +155,7 @@ var services = [                                      //Service array
 
 //--------------------------------- ADAPTER -----------------------------------------------   
 
-const { login, signup, post, get, put, deleteEndpoint, loginCheck, logout } = require('./controller/gatewayController.js')
+const { login, signup, post, get, put, deleteEndpoint, loginCheck, logout, getDentistAppointments, getClinics } = require('./controller/gatewayController.js')
 /*######################################################################## LOGOUT ENPOINT #################################################################################### */
 /* connected to the logout button in App.vue */
 app.get('/api/logout', logout);
@@ -175,7 +175,7 @@ app.post('/api/dentists/login', login)
 
 /*######################################################################## UNPROTECTED ENPOINT #################################################################################### */
 /* Below are the enpoints that don't require a login. They do not require a token to be accessed */
-app.get('/api/clinics/get', get)
+app.get('/api/clinics/get', getClinics)
 app.get('/api/appointments/get/clinics/available/appointments/:appointment_id', get)
 app.put('/api/appointments/update/:appointment_id', put)
 app.get('/api/appointments/get/available/appointments', get)
@@ -183,6 +183,10 @@ app.get('/api/clinics/get/specific/:clinic_id', get)
 app.get('/api/dentists/get/clinics/dentists/:clinic_id', get);
 app.post('/api/appointments/filter', get);
 
+
+/*######################################################################## GET ENPOINT #################################################################################### */
+app.get('/api/appointments/get/dentists/appointments/', jwtVerification.verifyToken, getDentistAppointments);
+app.post('/api/appointments/dentist/filter', jwtVerification.verifyToken, getDentistAppointments);
 
 /*######################################################################## GENERIC POST ENPOINT #################################################################################### */
 /* catches the rest of post requests after the user is authenticated and given a token */
