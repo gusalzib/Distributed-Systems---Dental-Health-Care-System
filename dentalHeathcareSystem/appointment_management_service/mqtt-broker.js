@@ -60,6 +60,7 @@ function connectToBroker() {
         // console.log("On topic: " + topic); 
         // console.log(packet);
         var publishTopic = "response/" + topic;
+        var notificationTopic = "subscriptions/new-appointment-available/";
         // console.log("publishTopic =",publishTopic);
 
         if(topic.startsWith(`${thisService}/topics`)){
@@ -67,35 +68,36 @@ function connectToBroker() {
             var newPayload = '200/subscribed to topic/'+payloadReceived;
             await publishToBroker(publishTopic,newPayload);
 
-        }else if (topic.startsWith( `${thisService}/create/`)) {
+        } else if (topic.startsWith( `${thisService}/create/`)) {
             console.log("create an appointment");
             await appointmentCtrl.makeAppointment(payload).then(response => {
                 publishToBroker(publishTopic, response);
+                publishToBroker(notificationTopic, response);
             });
             await unsubscribe(topic);
         
-        }else if (topic.startsWith( `${thisService}/book/`)) {
+        } else if (topic.startsWith( `${thisService}/book/`)) {
             console.log("book an appointment");
             await appointmentCtrl.bookAppointment(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             await unsubscribe(topic);
         
-        }else if (topic.startsWith( `${thisService}/filter/`)) {
+        } else if (topic.startsWith( `${thisService}/filter/`)) {
             console.log("filter appointments");
             await appointmentCtrl.filterAppointments(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             await unsubscribe(topic);
         
-        }else if (topic.startsWith(`${thisService}/get/clinics/available/appointments/`)) {
+        } else if (topic.startsWith(`${thisService}/get/clinics/available/appointments/`)) {
             console.log("get clinics available appointments");
             await appointmentCtrl.fetchClinicsAvailableAppointments(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
             });
             await unsubscribe(topic);
 
-        }else if (topic.startsWith(`${thisService}/get/patient/appointments/`)) {
+        } else if (topic.startsWith(`${thisService}/get/patient/appointments/`)) {
             console.log("get a patients appointments");
             await appointmentCtrl.fetchPatientAppointments(topic, payload).then(response => {
                 publishToBroker(publishTopic, response)
@@ -156,7 +158,7 @@ async function publishToBroker(topic, payload) {
 };
 
 async function subscribeToBroker(topic) {
-    try{
+    try {
         if(activeSubscriptions.includes(topic)){
             console.log('Already subscribed to',topic);
             return;
@@ -181,7 +183,7 @@ async function unsubscribe(topic){
             const tempActiveSubscriptions = activeSubscriptions.filter((activeTopic) => activeTopic !== topic);
             activeSubscriptions = tempActiveSubscriptions;
         };
-    }catch(error){
+    } catch(error) {
         console.log("Unsubscribing failed");
     }
 };

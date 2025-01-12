@@ -1,6 +1,6 @@
-const mqtt = require('mqtt');
+const mqtt = require('async-mqtt');
+const oldMqtt = require('mqtt');
 const notificationCtrl = require("./src/notification_controller/notification_controller")
-let mqttClient;
 
 const os = require("os");
 const specialNumber = os.hostname();
@@ -8,11 +8,13 @@ const service = process.env.SERVICE;
 const thisService = service +'-'+specialNumber;
 console.log(thisService);
 console.log("this service");
+
+var mqttClient;
 const host = "mosquitto-broker";
 const protocol = "mqtt";
 const port = "1884";
 
-let activeSubscriptions = [];
+var activeSubscriptions = [];
 
 
 function connectToBroker() {
@@ -90,7 +92,7 @@ function connectToBroker() {
     });
 }
 
-function publishToBroker(topic, payload) {
+async function publishToBroker(topic, payload) {
     mqttClient.publish(topic, payload, {qos: 0, retain: false})
 }
 
@@ -125,4 +127,3 @@ async function unsubscribe (topic) {
 };
 
 connectToBroker();
-subscribeToBroker(`${thisService}/topics`);

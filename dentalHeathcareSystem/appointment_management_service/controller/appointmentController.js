@@ -50,6 +50,7 @@ exports.makeAppointment = async (payload) => {
             message = "Appointment created"
             var stringAppointment = JSON.stringify(retrievedAppointment)
             status = 200;
+
             return status + "/" + message + "/" + stringAppointment;
 
         } else {
@@ -59,7 +60,7 @@ exports.makeAppointment = async (payload) => {
         }
 
 
-    } catch(error) {
+    } catch (error) {
         status = 400; 
         message = "Something went wrong!" 
         return status + "/" + message + "/" +error.message;

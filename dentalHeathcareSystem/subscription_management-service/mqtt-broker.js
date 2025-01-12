@@ -1,18 +1,18 @@
-const mqtt = require('mqtt');
+const mqtt = require('async-mqtt');
+const oldMqtt = require('mqtt');
 const subscriptionCtrl = require("./src/subscription_controller/subscription_controller")
-let mqttClient;
 
 const os = require('os');
 const specialNumber = os.hostname();
 const service = process.env.SERVICE;
 const thisService = service +'-'+specialNumber;
-console.log(thisService);
-console.log("this service");
+
+var mqttClient;
 const host = "mosquitto-broker";
 const protocol = "mqtt";
 const port = "1884";
 
-let activeSubscriptions = [];
+var activeSubscriptions = [];
 
 function connectToBroker() {
     const clientId = "client" + Math.random() + Date.now();
@@ -44,6 +44,7 @@ function connectToBroker() {
     mqttClient.on("connect", () => {
         console.log("client connected. client ID: " + clientId);
         subscribeToBroker(`${thisService}/topics`);
+        subscribeToBroker(`subscriptions/new-appointment-available/`);
     });
 
     mqttClient.on("disconnect", async () => {
@@ -55,23 +56,38 @@ function connectToBroker() {
     });
 
     mqttClient.on("message", async (topic, payload, packet) => {
-        let payloadReceived = payload.toString()
+        var payloadReceived = payload.toString()
         console.log("Message received: " + payloadReceived);
         console.log("On topic: " + topic);
         console.log(packet);
-        let publishTopic = "response/" + topic;
+        var publishTopic = "response/" + topic;
+        var subscribers_to_notify = "notifications/subscribers-to-notify/"
         console.log("publishTopic =", publishTopic);
 
         if (topic.startsWith(`${thisService}/topics`)) {
-            subscribeToBroker(payloadReceived);
-            let newPayload = '200/subscribed to topic/' + payloadReceived;
+            await subscribeToBroker(payloadReceived);
+            var newPayload = '200/subscribed to topic/' + payloadReceived;
             await publishToBroker(publishTopic,newPayload);
 
         } else if (topic.startsWith(`${thisService}/create/`)) {
             console.log("create a subscription");
             await subscriptionCtrl.createSubscription(payload).then(response => {
                 publishToBroker(publishTopic, response);
-            })
+            });
+            await unsubscribe(topic);
+
+        } else if (topic === `${thisService}/new-appointment-available/`){
+            console.log("A new appointment is created!!!!!!!!!!!!!!!!!!!!!!! WE ARE IN SUBSCRIPTION" +
+                "and this is the payload" + payloadReceived);
+            // await subscriptionCtrl.createSubscription(payload).then(response => {
+            //     publishToBroker(publishTopic, response);
+            // });
+            console.log("create a subscription");
+            await subscriptionCtrl.findRelevantSubscriptions(payload).then(response => {
+                publishToBroker(subscribers_to_notify, response);
+            });
+            await unsubscribe(topic);
+
 
         } else if (topic.startsWith(`${thisService}/get/specific/`)) {
             await subscriptionCtrl.getSpecificSubscription(topic).then(response => {
@@ -100,20 +116,20 @@ function connectToBroker() {
     });
 }
 
-function publishToBroker(topic, payload) {
+async function publishToBroker(topic, payload) {
     mqttClient.publish(topic, payload, {qos: 0, retain: false})
 };
 
 async function subscribeToBroker(topic) {
-    try{
-        if(activeSubscriptions.includes(topic)){
-            console.log('Already subscribed to',topic);
+    try {
+        if(activeSubscriptions.includes(topic)) {
+            console.log('Already subscribed to', topic);
             return;
-        }else{
+        } else {
             mqttClient.subscribe(topic, {qos: 0});
             activeSubscriptions.push(topic);
         };
-    }catch(error){
+    } catch(error) {
         console.log('could not subscribe to', topic);
     }
 };
