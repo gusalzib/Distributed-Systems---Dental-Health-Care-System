@@ -37,22 +37,28 @@ function connectToBroker() {
 
     mqttClient.on("connect", () => {
         console.log("client connected. client ID: " + clientId);
+        subscribeToBroker("subscriptions");
     });
 
     mqttClient.on("message", async (topic, payload, packet) => {
-        
         // console.log("On topic: " + topic);
         // console.log(packet);
         var stringPayload = payload.toString();
         
-        
-        if (topic === "active"){
+        if (topic === "subscriptions") {
+            console.log("HELLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOO")
+            const notificationReciever = await index.balanceService(topic);
+            const subTopic = notificationReciever + "/new/appointment/available";
+            console.log("publish topic in the load balancer", notificationReciever);
+            await publishToSubscriptions(subTopic, payload);
+
+        } else if (topic === "active"){
             const messageReceived = JSON.parse(payload);
             const isActive = messageReceived.isActive;
             const serviceTopic = messageReceived.serviceTopic;
             const messageArr = serviceTopic.split('-');
             await index.updateIsActive(messageArr[0],serviceTopic,isActive);   
-        }else{
+        }else {
 
          if (topic.startsWith("response/")){
             var newResponse = {topic : topic, payload: stringPayload}
@@ -61,6 +67,10 @@ function connectToBroker() {
         }
     });
 }
+async function publishToSubscriptions(topic, payload) {
+    mqttClient.publish(topic, payload, {qos: 0, retain: false})
+};
+
 
 async function publishToBroker(topic, payload) {
     
@@ -102,6 +112,8 @@ async function unsubscribe(topic){
         console.log("Unsubscribing failed");
     }) 
 };
+
+
 
 connectToBroker();
 subscribeToBroker('active');

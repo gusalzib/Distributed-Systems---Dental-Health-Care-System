@@ -186,6 +186,41 @@ exports.deleteSpecificSubscription = async (topic) => {
     }
 };
 
+/* ============= METHOD FOR HANDLING SUBSCRIBERS TO NOTIFY OF NEW APPOINTMENT============= */
+
+exports.findRelevantSubscriptions = async (payload) => {
+    console.log("ARE WE GETTING INSIDE THE GET ALL ")
+    console.log("MY PAYLOAD IS " +
+        "=" +
+        "===============================================" +
+        "===========================" + payload + "=======================" +
+        "=============================================" +
+        "===============================================" +
+        "================================" +
+        "=============================================")
+    let status;
+    let message;
+    try {
+        const subscriptions = await Subscription.find();
+        if (!subscriptions) {
+            status = 200;
+            message = "There are no subscriptions!";
+            return status + "/" + message;
+        }
+
+        status = 200;
+        message = "Subscriptions retrieved!";
+        let stringifiedSubscriptions = JSON.stringify(subscriptions);
+        let messageToReturn = status + "/" + message + "/" + stringifiedSubscriptions;
+        return messageToReturn;
+
+    } catch (error) {
+        status = 400;
+        error.message = "Something went wrong!";
+        return status + "/" + error.message;
+    }
+};
+
 /*=========== HTTP endpoints ==============*/
 
 

@@ -41,10 +41,12 @@ function connectToBroker() {
         console.log("reconnecting...");
     });
 
-    mqttClient.on("connect", () => {
+    mqttClient.on("connect", async () => {
         console.log("client connected. client ID: " + clientId);
-        subscribeToBroker(`${thisService}/topics`);
-        subscribeToBroker(`subscriptions/new-appointment-available/`);
+        let newSubscriptionTopic = `${thisService}/new/appointment/available`;
+        await subscribeToBroker(`${thisService}/topics`);
+        await subscribeToBroker(newSubscriptionTopic);
+        console.log("logging this shit " + newSubscriptionTopic);
     });
 
     mqttClient.on("disconnect", async () => {
@@ -60,9 +62,16 @@ function connectToBroker() {
         console.log("Message received: " + payloadReceived);
         console.log("On topic: " + topic);
         console.log(packet);
+
         var publishTopic = "response/" + topic;
-        var subscribers_to_notify = "notifications/subscribers-to-notify/"
-        console.log("publishTopic =", publishTopic);
+        var subscribers_to_notify = "notifications/subscribers-to-notify/"  //"subscriptions/new-appointment-available/"
+        console.log("publishTopic = ", publishTopic);
+
+     if (topic === `${thisService}/new/appointment/available`){
+            await subscriptionCtrl.findRelevantSubscriptions(payload).then(response => {
+                publishToBroker(subscribers_to_notify, response);
+            });
+        }
 
         if (topic.startsWith(`${thisService}/topics`)) {
             await subscribeToBroker(payloadReceived);
@@ -75,19 +84,6 @@ function connectToBroker() {
                 publishToBroker(publishTopic, response);
             });
             await unsubscribe(topic);
-
-        } else if (topic === `${thisService}/new-appointment-available/`){
-            console.log("A new appointment is created!!!!!!!!!!!!!!!!!!!!!!! WE ARE IN SUBSCRIPTION" +
-                "and this is the payload" + payloadReceived);
-            // await subscriptionCtrl.createSubscription(payload).then(response => {
-            //     publishToBroker(publishTopic, response);
-            // });
-            console.log("create a subscription");
-            await subscriptionCtrl.findRelevantSubscriptions(payload).then(response => {
-                publishToBroker(subscribers_to_notify, response);
-            });
-            await unsubscribe(topic);
-
 
         } else if (topic.startsWith(`${thisService}/get/specific/`)) {
             await subscriptionCtrl.getSpecificSubscription(topic).then(response => {
@@ -121,33 +117,18 @@ async function publishToBroker(topic, payload) {
 };
 
 async function subscribeToBroker(topic) {
-    try {
-        if(activeSubscriptions.includes(topic)) {
-            console.log('Already subscribed to', topic);
-            return;
-        } else {
-            mqttClient.subscribe(topic, {qos: 0});
-            activeSubscriptions.push(topic);
-        };
-    } catch(error) {
-        console.log('could not subscribe to', topic);
-    }
+    mqttClient.subscribe(topic, {qos: 0, retain: false})
+    console.log("subscribed to topic: ",topic);
 };
 
 async function unsubscribe(topic){
-    try {
-        if (!activeSubscriptions.includes(topic)) {
-            console.log('Not subscribed to',topic);
-            return;
-        } else {
-            await mqttClient.unsubscribe(topic)
-            // console.log("You've successfully unsubscribed from topic: ",topic);
-            const tempActiveSubscriptions = activeSubscriptions.filter((activeTopic) => activeTopic !== topic);
-            activeSubscriptions = tempActiveSubscriptions;
-        };
-    } catch(error) {
-        console.log("Unsubscribing failed");
-    }
+    mqttClient.unsubscribe(topic).then((successful) => {
+        console.log("You've successfully unsubscribed from topic: ",topic);
+    })
+        .catch((e) => {
+            console.log("Unsubscribing failed");
+        })
 };
+
 
 connectToBroker();

@@ -97,33 +97,18 @@ async function publishToBroker(topic, payload) {
 }
 
 async function subscribeToBroker(topic) {
-    try{
-        if (activeSubscriptions.includes(topic)) {
-            console.log('Already subscribed to', topic);
-            return;
-        } else {
-            mqttClient.subscribe(topic, {qos: 0});
-            activeSubscriptions.push(topic);
-        };
-    } catch (error) {
-        console.log('could not subscribe to', topic);
-    }
+    mqttClient.subscribe(topic, {qos: 0, retain: false})
+    console.log("subscribed to topic: ",topic);
 };
 
-async function unsubscribe (topic) {
-    try {
-        if (!activeSubscriptions.includes(topic)) {
-            console.log('Not subscribed to',topic);
-            return;
-        } else {
-            await mqttClient.unsubscribe(topic)
-            // console.log("You've successfully unsubscribed from topic: ",topic);
-            const tempActiveSubscriptions = activeSubscriptions.filter((activeTopic) => activeTopic !== topic);
-            activeSubscriptions = tempActiveSubscriptions;
-        };
-    } catch(error) {
-        console.log("Unsubscribing failed");
-    }
+async function unsubscribe(topic){
+    mqttClient.unsubscribe(topic).then((successful) => {
+        console.log("You've successfully unsubscribed from topic: ",topic);
+    })
+        .catch((e) => {
+            console.log("Unsubscribing failed");
+        })
 };
+
 
 connectToBroker();

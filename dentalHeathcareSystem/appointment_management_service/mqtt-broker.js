@@ -5,7 +5,7 @@ const appointmentCtrl = require("./controller/appointmentController")
 const os = require('os');
 const specialNumber = os.hostname();
 const service = process.env.SERVICE;
-const thisService = service +'-'+specialNumber;
+const thisService = service +'-'+ specialNumber;
 
 var mqttClient;
 const host = "mosquitto-broker";
@@ -60,19 +60,22 @@ function connectToBroker() {
         // console.log("On topic: " + topic); 
         // console.log(packet);
         var publishTopic = "response/" + topic;
-        var notificationTopic = "subscriptions/new-appointment-available/";
+        var notificationTopic = "subscriptions";
         // console.log("publishTopic =",publishTopic);
 
-        if(topic.startsWith(`${thisService}/topics`)){
+        if(topic.startsWith(`${thisService}/topics`)) {
             await subscribeToBroker(payloadReceived);
             var newPayload = '200/subscribed to topic/'+payloadReceived;
             await publishToBroker(publishTopic,newPayload);
 
         } else if (topic.startsWith( `${thisService}/create/`)) {
             console.log("create an appointment");
+            console.log("this is the topic we are subscribed to before CREATE APPOINTMENT", topic);
             await appointmentCtrl.makeAppointment(payload).then(response => {
                 publishToBroker(publishTopic, response);
                 publishToBroker(notificationTopic, response);
+                console.log(publishTopic + "this is PUBLISH CREATE methid in appointments")
+                console.log(notificationTopic + "this is SUBS PUBS topic in the CREATE methid in appointments")
             });
             await unsubscribe(topic);
         

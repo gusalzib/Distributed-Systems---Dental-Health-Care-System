@@ -125,10 +125,11 @@ async function unsubscribe(topic){
     mqttClient.unsubscribe(topic).then((successful) => {
         console.log("You've successfully unsubscribed from topic: ",topic);
     })
-    .catch((e) => {
-        console.log("Unsubscribing failed");
-    }) 
+        .catch((e) => {
+            console.log("Unsubscribing failed");
+        })
 };
+
 
 connectToBroker();
 
