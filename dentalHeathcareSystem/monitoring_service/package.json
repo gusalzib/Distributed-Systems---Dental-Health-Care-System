@@ -1,0 +1,21 @@
+{
+  "name": "monitoring-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "debug": "^4.4.0",
+    "dockerode": "^4.0.3",
+    "dockerstats": "^2.4.2",
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9"
+  }
+}

@@ -7,6 +7,8 @@ const specialNumber = os.hostname();
 const service = process.env.SERVICE;
 const thisService = service +'-'+specialNumber;
 
+console.log("appointment service name:",thisService);
+
 var mqttClient;
 const host = "mosquitto-broker";
 const protocol = "mqtt";
@@ -92,6 +94,20 @@ function connectToBroker() {
             console.log("get clinics available appointments");
             await appointmentCtrl.fetchClinicsAvailableAppointments(topic, payload).then(response => {
                 publishToBroker(publishTopic, response);
+            });
+            await unsubscribe(topic);
+
+        }else if (topic.startsWith(`${thisService}/get/dentists/appointments/`)) {
+            console.log("get a dentists appointments");
+            await appointmentCtrl.fetchDentistAppointments(topic, payload).then(response => {
+                publishToBroker(publishTopic, response)
+            });
+            await unsubscribe(topic);
+
+        }else if (topic.startsWith(`${thisService}/dentist/filter`)) {
+            console.log("filter dentists appointments");
+            await appointmentCtrl.filterDentistAppointments(topic, payload).then(response => {
+                publishToBroker(publishTopic, response)
             });
             await unsubscribe(topic);
 

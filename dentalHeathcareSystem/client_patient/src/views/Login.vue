@@ -139,7 +139,7 @@ export default {
                     
           if (response.status === 200) {
             setTimeout(() => {
-              this.$router.push('/');
+              window.location.replace('/')
             }, 1000)
             
             this.confirmation_message = 'Login successfull!';

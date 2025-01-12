@@ -14,6 +14,7 @@ import BookingConfirmation from "./views/BookingConfirmation.vue";
 import Clinic from "./views/Clinic.vue";
 import ClinicAppointments from "./views/ClinicAppointments.vue";
 import ClinicDentists from "./views/ClinicDentists.vue";
+import DentistAppointments from "./views/DentistAppointments.vue";
 
 const routes = [
   { path: "/", name: "home", component: Home },
@@ -30,7 +31,8 @@ const routes = [
   {path: '/bookingConfirmation/:appointmentID', name: 'bookingConfirmation', component: BookingConfirmation},
   {path: '/clinic/:clinicID', name: 'clinic', component: Clinic},
   {path: '/clinicAppointments/:clinicID', name: 'clinicAppointments', component: ClinicAppointments},
-  {path: '/clinicDentists/:clinicID', name: 'clinicDentists', component: ClinicDentists}
+  {path: '/clinicDentists/:clinicID', name: 'clinicDentists', component: ClinicDentists},
+  {path: '/dentist/appointments', name: 'dentistAppointments', component: DentistAppointments},
 
 
 ];

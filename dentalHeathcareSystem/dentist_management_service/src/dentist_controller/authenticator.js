@@ -38,6 +38,7 @@ exports.authenticateDentist = async (topic, payload) => {
             userId: dentist._id,
             role: 'dentist',
             email: dentist.email,
+            region: dentist.region,
             },
             secret_key,
             {expiresIn: '1h'}

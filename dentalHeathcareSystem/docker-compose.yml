@@ -1,4 +1,4 @@
-version: '3.9'
+
 
 services:
   mongo:
@@ -15,7 +15,7 @@ services:
       context: ./mosquitto-broker
     ports:
       - "1884:1884"
-    volumes:
+    volumes: 
       - ./mosquitto-broker/mosquitto.conf:/mosquitto/config/mosquitto.conf
     networks:
       - my-network
@@ -24,17 +24,30 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    environment:
+      SERVICE: "broker"
 
-  api_gateway:
-    build:
-      context: ./api_gateway
+  nginx:
+    image: nginx:latest
     ports:
       - "3000:3000"
+    depends_on:
+      - api-gateway
     networks:
       - my-network
-    depends_on:
-      - mosquitto-broker
-      - mongo
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+
+  api-gateway:
+    build:
+      context: ./api_gateway
+    # ports:
+    #   - "3000:3000"
+    networks:
+      - my-network
+    # depends_on:
+    #   - mosquitto-broker
+    #   - mongo
     healthcheck:
       test: ["CMD","curl","-f","http://localhost:3000"]
       interval: 5s
@@ -42,15 +55,16 @@ services:
       retries: 5
     environment:
       JWT_SECRET_KEY: "dentime_session"
+      SERVICE: "gateway"
 
   patients-service:
     build:
       context: ./patient_management_service
     networks:
       - my-network
-    depends_on:
-      - mosquitto-broker
-      - mongo
+    # depends_on:
+    #   - mosquitto-broker
+    #   - mongo
     environment:
       JWT_SECRET_KEY: "dentime_session"
       SERVICE: "patients"
@@ -73,27 +87,46 @@ services:
       context: ./dentist_management_service
     networks:
       - my-network
-    depends_on:
-      - mongo
-      - mosquitto-broker
+    # depends_on:
+    #   - mongo
+    #   - mosquitto-broker
     environment:
       JWT_SECRET_KEY: "dentime_session"
       SERVICE: "dentists"
       DENTIST_DB_CONNECTION_STRING: "mongodb://host.docker.internal:27017/dentists_db"
 
-  dentist-clinic-service:
+  clinic-service:
     build:
       context: ./dentist_clinic_service
     networks:
       - my-network
-    depends_on:
-      - mongo
-      - mosquitto-broker
+    # depends_on:
+    #   - mongo
+    #   - mosquitto-broker
     environment:
       SERVICE: "clinics"
       CLINIC_DB_CONNECTION_STRING: "mongodb://host.docker.internal:27017/clinics_db"
       GEOCODER_API_KEY: zURLzR3AqjSy2T5740eg6Ay0cIizYTTi
       GEOCODER_PROVIDER: mapquest
+
+  monitoring-service:
+    build:
+      context: ./monitoring_service
+    networks:
+      - my-network
+    environment:
+      JWT_SECRET_KEY: "dentime_session"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker-compose.yml:/app/docker-compose.yml
+      # - ./mosquitto-broker:/app/mosquitto-broker
+      # - ./monitoring_service:/app/monitoring_service
+      # - ./client_patient:/app/client_patient
+      # - ./dentist_management_service:/app/dentist_management_service
+      # - ./dentist_clinic_service:/app/dentist_clinic_service
+      # - ./appointment_management_service:/app/appointment_management_service
+      # - ./patient_management_service:/app/patient_management_service
+      # - ./api_gateway:/app/api_gateway
 
   client-patient-ui:
     build:

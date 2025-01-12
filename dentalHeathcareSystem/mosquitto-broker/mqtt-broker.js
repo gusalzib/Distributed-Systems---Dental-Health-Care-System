@@ -3,6 +3,12 @@ const {spawn} = require('child_process');
 const { log } = require('console');
 const path = require('path');
 
+const os = require('os');
+const specialNumber = os.hostname();
+const service = process.env.SERVICE;
+const thisService = service +'-'+specialNumber;
+
+console.log("BROKER NAME :", thisService);
 
 
 function startMosquittoBroker(){
@@ -22,12 +28,16 @@ function startMosquittoBroker(){
             
             // console.log('[PING] -> ',message);
             const activeService = messageArr[4];
-            //console.log('[Active Service] ->',activeService);
+            console.log('[Active Service] ->',activeService);
+            if(!activeService){
+                console.log("message is undefined");
+                return;
+            }
             isActive = true;
             serviceTopic = activeService
             const serviceAndActivity = { serviceTopic, isActive };
             const stringServiceAndActivity = JSON.stringify(serviceAndActivity);
-            publishToBroker('active',stringServiceAndActivity);
+            await publishToBroker('active',stringServiceAndActivity);
         }else if(message.includes('closed its connection')){
             const closedService = messageArr[2];
             isActive = false;
@@ -73,7 +83,7 @@ function connectToBroker() {
     const options = {
         keepalive: 5,
         retryInterval: 0,
-        clientId: 'broker-client',
+        clientId: thisService,
         protocolId: "MQTT",
         protocolVersion: 4,
         clean: true,

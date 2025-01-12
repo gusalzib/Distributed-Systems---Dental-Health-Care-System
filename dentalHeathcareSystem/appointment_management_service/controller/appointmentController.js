@@ -464,6 +464,57 @@ exports.fetchClinicsAvailableAppointments = async (topic, payload) => {
         return status + "/" + message + "/" + error.message;
     }
 }
+
+exports.fetchDentistAppointments = async (topic, payload) => {    
+
+    try {
+        var message = '';
+        var status = "";
+
+        var topicArr = topic.split("/");
+        var temp = topicArr[4].split('?')
+        const id = temp[0];
+        
+        var parsedPayload = JSON.parse(payload);
+
+        // session variables 
+        const userID = parsedPayload.userId;
+        const userRole = parsedPayload.role;
+        
+        if (userRole === 'dentist' || userRole === 'admin') {
+
+            var allAppointments = []
+            allAppointments = await Appointment.find({ dentist_id: userID })
+                .sort({ "date_and_time_from": 1 });
+                
+        
+            if (allAppointments.length === 0) {
+                status = 200; 
+                message = "No appointments found"
+                return status + "/" + message + allAppointments;
+
+            }
+
+            var stringAppointments = JSON.stringify({
+                "appointments": allAppointments,
+            });
+
+            status = 200; 
+            message = "All available appointments retrieved"
+            
+            return status + "/" + message + "/" + stringAppointments;
+
+        } else {
+            message = "Unauthorized request. Please login to see the appointments list "
+            status = 400;
+            return status + "/" + message;
+        }
+    } catch (error) {        
+        status = 400; 
+        message = "Something went wrong!" 
+        return status + "/" + message + "/" + error.message;
+    }
+};
 exports.bookAppointment = async (topic, payload) => {
     
     try {
@@ -583,6 +634,64 @@ exports.filterAppointments = async (topic, payload) => {
     }
 }
 
+exports.filterDentistAppointments = async (topic, payload) => {
+    try {
+        var status = 0;
+        var message = '';
+
+        var parsedPayload = JSON.parse(payload);
+        
+        const { day, region, userId } = parsedPayload;        
+
+        const query = {};
+
+        if (day) {
+            const date = new Date(day);
+            const startOfDay = new Date(day);
+            startOfDay.setUTCHours(0, 0, 0, 0);
+
+            const endOfDay = new Date(day);
+            endOfDay.setUTCHours(23, 59, 59, 99);
+
+            // the dates are stored in the db as strings so we need to convert them to strings
+            const startOfDayString = startOfDay.toISOString();
+            const endOfDayString = endOfDay.toISOString();
+
+            // query that gets the appointment withing the selected day
+            query.date_and_time_from = {
+                $gte: startOfDayString,
+                $lt: endOfDayString,
+            }
+        }
+
+
+        if (region) {
+            query.region = region;
+        }
+
+        query.dentist_id = userId;
+
+        const filteredAppointments = await Appointment.find(query);
+
+        if (!filteredAppointments || filteredAppointments.length === 0) {
+            status = 404;
+            message = 'No appointment found matching the search criteria.';
+            return status + '/' + message;
+        }
+
+        status = 200; 
+        message = 'Filtered appointments retrieved successfully.'
+        var stringAppointments = JSON.stringify(filteredAppointments);
+        
+        return status +"/"+ message +"/"+ stringAppointments
+
+
+    } catch (error) {
+        status = 404;
+        message = 'Something went wrong!';
+        return status + '/' + message + '/' + error.message ;
+    }
+}
 
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX HTTP METHODS XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
