@@ -2,7 +2,7 @@
 <template>
 <main>
     <div class="map-container">
-      <h2>Map of all dental clinics in Gothenburg </h2>
+      <h2>Map of all dental clinics in Sweden </h2>
       <div id='mapbox'></div>
       <div class="error_message">{{ error_message }}</div>
     </div>
@@ -68,6 +68,7 @@ export default {
             center: [11.9746, 57.7089],
             zoom: 8,
             collectResourceTiming: false,
+            cache: true,
         });
 
         this.map.on('load', () => {

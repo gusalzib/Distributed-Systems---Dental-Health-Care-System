@@ -17,7 +17,7 @@ import { RouterLink, RouterView } from 'vue-router'
           <!-- <router-link class="desktop-header-link" to="/my_appointments">My Appointments</router-link> -->
           <router-link class="desktop-header-link" to="/profile" v-if="this.loggedIn">My profile</router-link>
           <router-link class="desktop-header-link" to="/new/appointment">New Appointment</router-link>
-          <!-- <router-link class="desktop-header-link" to="/medical_journal">Medical Journal</router-link> -->
+          <router-link class="desktop-header-link" to="/dentist/appointments" v-if="this.isAdmin || this.isDentist">Dentist Appointments</router-link>
           <router-link class="desktop-header-link" to="/registration">Register</router-link>
           <router-link class="desktop-header-link" to="/login" v-if="!this.loggedIn">Login</router-link>
           <button class="desktop-header-link" @click="logout()"  v-if="this.loggedIn">Logout</button>

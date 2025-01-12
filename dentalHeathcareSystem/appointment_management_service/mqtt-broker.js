@@ -97,6 +97,20 @@ function connectToBroker() {
             });
             await unsubscribe(topic);
 
+        }else if (topic.startsWith(`${thisService}/get/dentists/appointments/`)) {
+            console.log("get a dentists appointments");
+            await appointmentCtrl.fetchDentistAppointments(topic, payload).then(response => {
+                publishToBroker(publishTopic, response)
+            });
+            await unsubscribe(topic);
+
+        }else if (topic.startsWith(`${thisService}/dentist/filter`)) {
+            console.log("filter dentists appointments");
+            await appointmentCtrl.filterDentistAppointments(topic, payload).then(response => {
+                publishToBroker(publishTopic, response)
+            });
+            await unsubscribe(topic);
+
         }else if (topic.startsWith(`${thisService}/get/patient/appointments/`)) {
             console.log("get a patients appointments");
             await appointmentCtrl.fetchPatientAppointments(topic, payload).then(response => {
