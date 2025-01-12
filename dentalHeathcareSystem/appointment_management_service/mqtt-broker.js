@@ -173,7 +173,7 @@ async function subscribeToBroker(topic) {
 async function unsubscribe(topic){
     try{
         if (!activeSubscriptions.includes(topic)){
-            console.log('Not subscribed to',topic);
+            console.log('Not subscribed to', topic);
             return;
         } else {
             await mqttClient.unsubscribe(topic)
