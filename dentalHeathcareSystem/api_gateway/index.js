@@ -198,14 +198,12 @@ app.get('/api/clinics/get/specific/:clinic_id', get)
 app.get('/api/dentists/get/clinics/dentists/:clinic_id', get);
 app.post('/api/appointments/filter', get);
 
-app.get('/api/notifications/get', get);
-
 /*###################### POST ENDPOINT FOR NON-SESSION BASED REQUESTS ######################################## */
 
 const { postWithoutSession } = require('./controller/gatewayController.js');
-
-
 app.post('/api/notifications/create', postWithoutSession);
+app.get('/api/notifications/get', get);
+app.get('/api/notifications/:notification_id', get);
 
 
 /*######################################################################## GENERIC POST ENPOINT #################################################################################### */
