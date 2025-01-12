@@ -24,6 +24,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    environment:
+      SERVICE: "broker"
 
   nginx:
     image: nginx:latest
@@ -53,6 +55,7 @@ services:
       retries: 5
     environment:
       JWT_SECRET_KEY: "dentime_session"
+      SERVICE: "gateway"
 
   patients-service:
     build:

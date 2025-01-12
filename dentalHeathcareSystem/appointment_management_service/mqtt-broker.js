@@ -7,6 +7,8 @@ const specialNumber = os.hostname();
 const service = process.env.SERVICE;
 const thisService = service +'-'+specialNumber;
 
+console.log("appointment service name:",thisService);
+
 var mqttClient;
 const host = "mosquitto-broker";
 const protocol = "mqtt";

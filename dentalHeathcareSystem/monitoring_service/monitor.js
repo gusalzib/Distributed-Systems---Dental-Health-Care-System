@@ -73,7 +73,7 @@ async function monitor(containerName) {
         const nameArr = containerName.split('-');
         const serviceToScale = nameArr[1]+'-'+nameArr[2];
 
-        if(stats.cpu > 0.30 || stats.memory > 70){
+        if(stats.cpu > 0.60 || stats.memory > 70){
             console.log("Scale up!" , containerName);
             scaleUpServices(serviceToScale,containerName)
         }
@@ -104,6 +104,7 @@ monitor('dentalheathcaresystem-patients-service-1');
 monitor('dentalheathcaresystem-dentists-service-1');
 monitor('dentalheathcaresystem-api-gateway-1');
 const gatewayStats = printStatistics('dentalheathcaresystem-api-gateway-1');
+const brokerStats = printStatistics('dentalheathcaresystem-mosquitto-broker-1');
 
 
 
