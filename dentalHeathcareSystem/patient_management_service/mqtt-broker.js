@@ -6,6 +6,7 @@ const os = require('os');
 const specialNumber = os.hostname();
 const service = process.env.SERVICE;
 const thisService = service +'-'+specialNumber;
+console.log("service name:",thisService);
 
 var mqttClient;
 const host = "mosquitto-broker";

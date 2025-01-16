@@ -9,22 +9,27 @@ var services = [                                      //Service array
     {
       service: "dentalheathcaresystem-appointments-service-1",
       numberOfInstances:1,
+      copys: [{nameOfCopy : '', isActive : false}]
     },
     {
       service: "dentalheathcaresystem-patients-service-1",
       numberOfInstances:1,
+      copys: [{nameOfCopy : '', isActive : false}]
     },
     {
       service: "dentalheathcaresystem-clinic-service-1",
       numberOfInstances:1,
+      copys: [{nameOfCopy : '', isActive : false}]
     },
     {
       service: "dentalheathcaresystem-dentists-service-1",
       numberOfInstances:1,
+      copys: [{nameOfCopy : '', isActive : false}]
     },
     {
         service: "dentalheathcaresystem-api-gateway-1",
         numberOfInstances:1,
+        copys: [{nameOfCopy : '', isActive : false}]
       }
    ];
 
@@ -34,10 +39,12 @@ var services = [                                      //Service array
         const containerInfo = containers.find(container => container.Names.includes(`/${containerName}`));
 
         if(!containerInfo){
-            throw new Error(`Container ${containerName} not found`)
+            throw new Error(`Container ${containerName} not found`);
+            return;
         }
 
         const container = docker.getContainer(containerInfo.Id);
+        
         const statsStream = await container.stats({ stream: false});
         if(!statsStream || !statsStream.cpu_stats || !statsStream.precpu_stats){
             throw new Error(`Invalid stats data for container ${containerName}`);
@@ -74,7 +81,7 @@ async function monitor(containerName) {
         const serviceToScale = nameArr[1]+'-'+nameArr[2];
 
         if(stats.cpu > 0.60 || stats.memory > 70){
-            console.log("Scale up!" , containerName);
+            console.log(`Scale up --> ${serviceToScale} : Stats for ${stats.name}: CPU: ${stats.cpu}, Memory: ${stats.memory}`);
             scaleUpServices(serviceToScale,containerName)
         }
 
@@ -109,20 +116,17 @@ const brokerStats = printStatistics('dentalheathcaresystem-mosquitto-broker-1');
 
 
 function scaleUpServices(serviceName,containerName) {
-
+    
     const service = services.find((service) => service.service === containerName);
     if(!service){
         console.error(`Service not found for container: ${containerName}`)
         return;
     }
-    console.log("service name :", serviceName);
-    console.log("container name :", containerName);
+    
     const replicas = service.numberOfInstances + 1;
     
     const pathToYmlFile ='/app/docker-compose.yml';
     const projectName = 'dentalheathcaresystem';
-   
-    console.log('NUMBER of instances before:',service.numberOfInstances);
 
     const compose = spawn('docker-compose', [
         '-p',projectName,
@@ -135,32 +139,75 @@ function scaleUpServices(serviceName,containerName) {
             cwd:'/app'
         });
 
-        service.numberOfInstances = replicas;
-        console.log('NUMBER of instances after:',service.numberOfInstances);
-
-    compose.stdout.on('data', (data) => {
-        console.log(`tsdout: ${data}`);
-        console.log('TESTING');
-    });
-
-    compose.stderr.on('data', (data) => {
-        console.error(`tsderr: ${data}`);
-    });
+    service.numberOfInstances = replicas;
+    console.log(`Scaling up service: ${service.serviceName}, Current replicas: ${service.numberOfInstances}, Target replicas: ${replicas} `);
+    if(compose.stdout){
+        compose.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+        });
+    } else {
+        console.error("stdout stream is null.");
+    }
+    
+    if (compose.stderr){
+        compose.stderr.on('data', (data) => {
+            console.error(`stderr: ${data}`);
+        });
+    } else{
+        console.error("stderr stream is null.")
+    }
+    
 
     compose.on('error', (err) => {
         console.error('Failed to execute docker compose:',err);
+        if (err.code){
+            console.error(`Error code: ${err.code}`);
+        }
     });
     
     compose.on('close',  (code) => {
         console.log(`child process exited with code ${code}`);
         if(code === 0) {
-            console.log(serviceName,'scaled up!');
             service.numberOfInstances = replicas;
-            console.log('NUMBER OF INSTANCES : ',service.numberOfInstances);
         } else {
             console.error('Failed to update service instance count.')
         }
     });
+}
+
+exports.updateIsActive = async (serviceName, topicName, activity) => {
+    const specificService = services.find((service) => service.service === serviceName);
+    if(!specificService){
+        return
+    }
+    const specificCopy = specificService.copys.find((copy)=> copy.nameOfCopy === topicName);
+    if(!specificCopy){
+      tempCopy = {nameOfCopy: topicName, isActive: activity};
+      specificService.topics.push(tempCopy);
+      startTimer(tempCopy);
+      
+      return
+    }
+    specificCopy.isActive = activity;
+    startTimer(specificCopy);
+    
+    var topicArr = [];
+    services.forEach(service => {
+        service.copys.forEach(copy =>{
+            if(copy.isActive){
+                topicArr.push(topic.topic)
+            }
+        });
+    });
+    console.log('Active topics are: ',topicArr);
+}
+function startTimer (topic){
+    if(topic.timeout){
+        clearTimeout(topic.timeout);
+    }
+    topic.timeout = setTimeout(() =>{
+        topic.isActive = false;
+    },20000)
 }
 
 

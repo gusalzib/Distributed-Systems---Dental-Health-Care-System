@@ -45,14 +45,23 @@ services:
     #   - "3000:3000"
     networks:
       - my-network
-    # depends_on:
-    #   - mosquitto-broker
-    #   - mongo
+    depends_on:
+      - mosquitto-broker
+      - mongo
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "512M"
+        reservations:
+          cpus: "0.25"
+          memory: "128M"
     healthcheck:
       test: ["CMD","curl","-f","http://localhost:3000"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     environment:
       JWT_SECRET_KEY: "dentime_session"
       SERVICE: "gateway"
@@ -62,9 +71,16 @@ services:
       context: ./patient_management_service
     networks:
       - my-network
-    # depends_on:
-    #   - mosquitto-broker
-    #   - mongo
+    depends_on:
+      - mosquitto-broker
+      - mongo
+        
+    healthcheck:
+      test: ["CMD","curl","-f","http://localhost:3000"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
     environment:
       JWT_SECRET_KEY: "dentime_session"
       SERVICE: "patients"
@@ -78,6 +94,20 @@ services:
     depends_on:
       - mongo
       - mosquitto-broker
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "512M"
+        reservations:
+          cpus: "0.25"
+          memory: "128M"
+    healthcheck:
+      test: ["CMD","curl","-f","http://localhost:3000"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
     environment:
       SERVICE: "appointments"
       APPOINTMENTS_DB_CONNECTION_STRING: "mongodb://host.docker.internal:27017/appointments_db"
@@ -87,9 +117,15 @@ services:
       context: ./dentist_management_service
     networks:
       - my-network
-    # depends_on:
-    #   - mongo
-    #   - mosquitto-broker
+    depends_on:
+      - mongo
+      - mosquitto-broker
+    healthcheck:
+      test: ["CMD","curl","-f","http://localhost:3000"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
     environment:
       JWT_SECRET_KEY: "dentime_session"
       SERVICE: "dentists"
@@ -100,9 +136,15 @@ services:
       context: ./dentist_clinic_service
     networks:
       - my-network
-    # depends_on:
-    #   - mongo
-    #   - mosquitto-broker
+    depends_on:
+      - mongo
+      - mosquitto-broker
+    healthcheck:
+      test: ["CMD","curl","-f","http://localhost:3000"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
     environment:
       SERVICE: "clinics"
       CLINIC_DB_CONNECTION_STRING: "mongodb://host.docker.internal:27017/clinics_db"
@@ -114,19 +156,17 @@ services:
       context: ./monitoring_service
     networks:
       - my-network
+    healthcheck:
+      test: ["CMD","curl","-f","http://localhost:3000"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
     environment:
       JWT_SECRET_KEY: "dentime_session"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./docker-compose.yml:/app/docker-compose.yml
-      # - ./mosquitto-broker:/app/mosquitto-broker
-      # - ./monitoring_service:/app/monitoring_service
-      # - ./client_patient:/app/client_patient
-      # - ./dentist_management_service:/app/dentist_management_service
-      # - ./dentist_clinic_service:/app/dentist_clinic_service
-      # - ./appointment_management_service:/app/appointment_management_service
-      # - ./patient_management_service:/app/patient_management_service
-      # - ./api_gateway:/app/api_gateway
 
   client-patient-ui:
     build:

@@ -58,6 +58,7 @@ exports.balanceService = async (serviceName) => {
     }else{
     const response = roundRobin(activeTopics,specificService.index);
     specificService.index = response.index;
+    console.log("balanced service:",response.topic);
     return response.topic;
    }
 }
@@ -95,12 +96,12 @@ exports.updateIsActive = async (serviceName, topicName, activity) => {
     if(!specificTopic){
       tempTopic = {topic: topicName, isActive: activity};
       specificService.topics.push(tempTopic);
-      startTimer(tempTopic);
+      //startTimer(tempTopic);
       
       return
     }
     specificTopic.isActive = activity;
-    startTimer(specificTopic);
+    //startTimer(specificTopic);
     
     var topicArr = [];
     services.forEach(service => {

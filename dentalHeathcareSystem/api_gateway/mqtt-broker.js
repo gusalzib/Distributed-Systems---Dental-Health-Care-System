@@ -56,14 +56,14 @@ function connectToBroker() {
         
         if (topic === "active"){
             const messageReceived = JSON.parse(payload);
-            console.log("MESSAGE RECEIVED :",messageReceived);
+            //console.log("MESSAGE RECEIVED :",messageReceived);
             const isActive = messageReceived.isActive;
             const serviceTopic = messageReceived.serviceTopic;
             if(!serviceTopic){
                 console.log("Message is undefined");
                 return
             }
-            console.log("SERVICETOPIC:",serviceTopic);
+            //console.log("SERVICETOPIC:",serviceTopic);
             const messageArr = serviceTopic.split('-');
             await index.updateIsActive(messageArr[0],serviceTopic,isActive);   
         }else{

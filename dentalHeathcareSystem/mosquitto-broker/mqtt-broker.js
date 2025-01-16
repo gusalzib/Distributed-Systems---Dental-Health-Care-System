@@ -24,17 +24,23 @@ function startMosquittoBroker(){
         var serviceTopic = '';
         //console.log('[Message] -> ', message);
        
-        if(message.includes('PINGREQ')){
+        if(message.includes('UNSUBSCRIBE') || message.includes('SUBSCRIBE')){
+            //console.log("Ignored message:", message);
+
+        }
+        else if(message.includes('PINGRESP')){
             
             // console.log('[PING] -> ',message);
             const activeService = messageArr[4];
-            console.log('[Active Service] ->',activeService);
-            if(!activeService){
-                console.log("message is undefined");
+            //console.log('[Active Service] ->',activeService);
+            if(!activeService || activeService.trim() === ''){
+                //console.log("message is undefined");
+                //console.log("UNdefined message:",message);
                 return;
             }
             isActive = true;
             serviceTopic = activeService
+            console.log('[Active Service] ->',activeService);
             const serviceAndActivity = { serviceTopic, isActive };
             const stringServiceAndActivity = JSON.stringify(serviceAndActivity);
             await publishToBroker('active',stringServiceAndActivity);
@@ -53,22 +59,28 @@ function startMosquittoBroker(){
             serviceTopic = connectedService;
             const serviceAndActivity = { serviceTopic, isActive };
             const stringServiceAndActivity = JSON.stringify(serviceAndActivity);
-            //console.log('[connected service] ->',serviceAndActivity);
-            await publishToBroker('active', stringServiceAndActivity)
+            if(!serviceTopic || serviceTopic.trim() === ''){
+                //console.log("message is undefined");
+                //console.log("UNdefined message:",message);
+                return;
+            }
+            console.log('[connected service] ->',serviceAndActivity);
+            //console.log("message :",message);
+            //await publishToBroker('active', stringServiceAndActivity)
         }
 
     });
     mosquittoProcess.stderr.on('data', (data) =>{
         const message = data.toString();
         if(message.toLowerCase().includes('error')){
-            console.log('[error] -> ', message);
+            //console.log('[error] -> ', message);
         }else{
             // console.log('[Message] -> ', message);
             
         }
     });
     mosquittoProcess.on('close', (code) =>{
-        console.log(`[Mosquitto] Process exited with code ${code}`);
+        //console.log(`[Mosquitto] Process exited with code ${code}`);
     });
 
     return mosquittoProcess;
@@ -95,12 +107,12 @@ function connectToBroker() {
     }
     mqttClient = mqtt.connect(protocol+'://'+host+':'+port,options);
         mqttClient.on("error", (error) => {
-            console.log(error);
+            //console.log(error);
             mqttClient.end();
         });
 
     mqttClient.on("connect", () => {
-        console.log("broker connected");
+        //console.log("broker connected");
     });
 }
 async function publishToBroker(topic, payload) {
