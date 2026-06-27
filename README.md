@@ -1,5 +1,12 @@
 # Dentime - Dental Health Care System
 
+![Vue.js](https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vue.js&logoColor=4FC08D)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+![MQTT](https://img.shields.io/badge/MQTT-3C5280?style=for-the-badge&logo=mqtt&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)
+
 ![High-Level Systems Overview](dentist_overview.png)
 
 A distributed dental appointment booking system designed for residents of Gothenburg. This platform allows users to find available time slots for various dental clinics on an interactive map, and seamlessly book or cancel appointments. The project is built using a microservices architecture, leveraging MQTT for messaging and Docker for containerization, ensuring high scalability, distribution transparency, and fault tolerance.
